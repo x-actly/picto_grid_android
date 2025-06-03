@@ -75,4 +75,14 @@ class GridProvider with ChangeNotifier {
     _currentGridPictograms.removeWhere((p) => p.id == pictogram.id);
     notifyListeners();
   }
+
+  Future<void> deleteGrid(int gridId) async {
+    await _db.deleteGrid(gridId);
+    if (_selectedGridId == gridId) {
+      _selectedGridId = null;
+      _currentGridPictograms = [];
+    }
+    await loadGrids();
+    notifyListeners();
+  }
 } 

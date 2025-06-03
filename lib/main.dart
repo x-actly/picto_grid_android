@@ -53,26 +53,68 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: gridProvider.grids.isNotEmpty
-          ? DropdownButton<int>(
-              value: gridProvider.selectedGridId,
-              items: gridProvider.grids.map((grid) {
-                return DropdownMenuItem(
-                  value: grid['id'] as int,
-                  child: Text(
-                    grid['name'] as String,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+          ? Row(
+              children: [
+                Expanded(
+                  child: DropdownButton<int>(
+                    value: gridProvider.selectedGridId,
+                    items: gridProvider.grids.map((grid) {
+                      return DropdownMenuItem(
+                        value: grid['id'] as int,
+                        child: Text(
+                          grid['name'] as String,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (id) {
+                      if (id != null) gridProvider.selectGrid(id);
+                    },
+                    underline: Container(),
+                    dropdownColor: Theme.of(context).colorScheme.inversePrimary,
+                    icon: const Icon(Icons.arrow_drop_down),
                   ),
-                );
-              }).toList(),
-              onChanged: (id) {
-                if (id != null) gridProvider.selectGrid(id);
-              },
-              underline: Container(), // Entfernt die Unterstreichung
-              dropdownColor: Theme.of(context).colorScheme.inversePrimary,
-              icon: const Icon(Icons.arrow_drop_down),
+                ),
+                if (gridProvider.selectedGridId != null)
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    tooltip: 'Grid löschen',
+                    onPressed: () async {
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Grid löschen'),
+                          content: const Text('Möchten Sie dieses Grid wirklich löschen?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text('Abbrechen'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text('Löschen'),
+                            ),
+                          ],
+                        ),
+                      );
+                      
+                      if (confirmed == true) {
+                        await gridProvider.deleteGrid(gridProvider.selectedGridId!);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Grid wurde gelöscht'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                  ),
+              ],
             )
           : const Text('PictoGrid'),
         actions: [

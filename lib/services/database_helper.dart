@@ -129,4 +129,14 @@ class DatabaseHelper {
       whereArgs: [gridId, pictogramId],
     );
   }
+
+  // Grid löschen
+  Future<void> deleteGrid(int gridId) async {
+    final db = await database;
+    await db.delete(
+      'grids',
+      where: 'id = ?',
+      whereArgs: [gridId],
+    );
+  }
 } 
