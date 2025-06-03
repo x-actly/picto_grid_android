@@ -1,0 +1,209 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'providers/pictogram_provider.dart';
+import 'providers/grid_provider.dart';
+import 'widgets/pictogram_grid.dart';
+import 'widgets/pictogram_search_dropdown.dart';
+
+void main() {
+  runApp(const PictoGridApp());
+}
+
+class PictoGridApp extends StatelessWidget {
+  const PictoGridApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => PictogramProvider()),
+        ChangeNotifierProvider(create: (_) => GridProvider()),
+      ],
+      child: MaterialApp(
+        title: 'PictoGrid',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.teal,
+            brightness: Brightness.light,
+          ),
+          useMaterial3: true,
+        ),
+        home: const HomeScreen(),
+      ),
+    );
+  }
+}
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool _showSearch = true;
+
+  @override
+  Widget build(BuildContext context) {
+    final gridProvider = context.watch<GridProvider>();
+    final pictogramProvider = context.watch<PictogramProvider>();
+    
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: gridProvider.grids.isNotEmpty
+          ? DropdownButton<int>(
+              value: gridProvider.selectedGridId,
+              items: gridProvider.grids.map((grid) {
+                return DropdownMenuItem(
+                  value: grid['id'] as int,
+                  child: Text(
+                    grid['name'] as String,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                );
+              }).toList(),
+              onChanged: (id) {
+                if (id != null) gridProvider.selectGrid(id);
+              },
+              underline: Container(), // Entfernt die Unterstreichung
+              dropdownColor: Theme.of(context).colorScheme.inversePrimary,
+              icon: const Icon(Icons.arrow_drop_down),
+            )
+          : const Text('PictoGrid'),
+        actions: [
+          IconButton(
+            icon: Icon(_showSearch ? Icons.search_off : Icons.search),
+            tooltip: _showSearch ? 'Suche ausblenden' : 'Suche einblenden',
+            onPressed: () {
+              setState(() {
+                _showSearch = !_showSearch;
+              });
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.add),
+            tooltip: 'Neues Grid erstellen',
+            onPressed: () async {
+              final name = await showDialog<String>(
+                context: context,
+                builder: (context) => const NewGridDialog(),
+              );
+              if (name != null && name.isNotEmpty) {
+                await gridProvider.createGrid(name);
+              }
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Suchleiste oben
+          if (_showSearch)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: PictogramSearchDropdown(
+                onPictogramSelected: (pictogram) {
+                  if (gridProvider.selectedGridId != null) {
+                    gridProvider.addPictogramToGrid(pictogram);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('${pictogram.keyword} wurde zum Grid hinzugefügt'),
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Bitte wählen Sie zuerst ein Grid aus'),
+                        backgroundColor: Colors.orange,
+                      ),
+                    );
+                  }
+                },
+              ),
+            ),
+          
+          // Grid
+          Expanded(
+            child: gridProvider.selectedGridId != null
+              ? PictogramGrid(
+                  pictograms: gridProvider.currentGridPictograms,
+                )
+              : Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Kein Grid ausgewählt',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          final name = await showDialog<String>(
+                            context: context,
+                            builder: (context) => const NewGridDialog(),
+                          );
+                          if (name != null && name.isNotEmpty) {
+                            await gridProvider.createGrid(name);
+                          }
+                        },
+                        icon: const Icon(Icons.add),
+                        label: const Text('Neues Grid erstellen'),
+                      ),
+                    ],
+                  ),
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class NewGridDialog extends StatefulWidget {
+  const NewGridDialog({super.key});
+
+  @override
+  State<NewGridDialog> createState() => _NewGridDialogState();
+}
+
+class _NewGridDialogState extends State<NewGridDialog> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Neues Grid erstellen'),
+      content: TextField(
+        controller: _controller,
+        decoration: const InputDecoration(
+          labelText: 'Grid-Name',
+          hintText: 'Geben Sie einen Namen für das neue Grid ein',
+        ),
+        autofocus: true,
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Abbrechen'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context, _controller.text),
+          child: const Text('Erstellen'),
+        ),
+      ],
+    );
+  }
+}
