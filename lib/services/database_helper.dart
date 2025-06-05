@@ -101,6 +101,8 @@ class DatabaseHelper {
   // Piktogramm-Operationen
   Future<void> addPictogramToGrid(int gridId, Pictogram pictogram, int position) async {
     final db = await database;
+    print('DatabaseHelper: Füge Piktogramm ${pictogram.id} zu Grid $gridId hinzu');
+    
     await db.insert('grid_pictograms', {
       'grid_id': gridId,
       'pictogram_id': pictogram.id,
@@ -109,16 +111,23 @@ class DatabaseHelper {
       'description': pictogram.description,
       'category': pictogram.category,
     });
+    
+    print('DatabaseHelper: Piktogramm erfolgreich in Datenbank eingefügt');
   }
 
   Future<List<Map<String, dynamic>>> getPictogramsInGrid(int gridId) async {
     final db = await database;
-    return await db.query(
+    print('DatabaseHelper: Lade Piktogramme für Grid $gridId');
+    
+    final results = await db.query(
       'grid_pictograms',
       where: 'grid_id = ?',
       whereArgs: [gridId],
       orderBy: 'position',
     );
+    
+    print('DatabaseHelper: ${results.length} Piktogramme gefunden');
+    return results;
   }
 
   Future<void> removePictogramFromGrid(int gridId, int pictogramId) async {

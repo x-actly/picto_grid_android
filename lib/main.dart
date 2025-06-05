@@ -43,6 +43,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _showSearch = true;
+  final _gridKey = GlobalKey<PictogramGridState>();
 
   @override
   Widget build(BuildContext context) {
@@ -118,6 +119,30 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           : const Text('PictoGrid'),
         actions: [
+          if (gridProvider.selectedGridId != null) ...[
+            IconButton(
+              icon: const Icon(Icons.grid_4x4),
+              tooltip: 'Rastergröße ändern',
+              onPressed: () {
+                if (_gridKey.currentState != null) {
+                  _gridKey.currentState!.showGridSettingsDialog(
+                    _gridKey.currentState!.calculateGridDimensions(
+                      MediaQuery.of(context).size,
+                    ),
+                  );
+                }
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.edit),
+              tooltip: 'Bearbeitungsmodus',
+              onPressed: () {
+                if (_gridKey.currentState != null) {
+                  _gridKey.currentState!.toggleEditMode();
+                }
+              },
+            ),
+          ],
           IconButton(
             icon: Icon(_showSearch ? Icons.search_off : Icons.search),
             tooltip: _showSearch ? 'Suche ausblenden' : 'Suche einblenden',
@@ -151,7 +176,14 @@ class _HomeScreenState extends State<HomeScreen> {
               child: PictogramSearchDropdown(
                 onPictogramSelected: (pictogram) {
                   if (gridProvider.selectedGridId != null) {
+                    print('Füge Piktogramm hinzu: ${pictogram.keyword} (ID: ${pictogram.id})');
+                    print('Aktuelles Grid ID: ${gridProvider.selectedGridId}');
+                    print('Aktuelle Anzahl Piktogramme: ${gridProvider.currentGridPictograms.length}');
+                    
                     gridProvider.addPictogramToGrid(pictogram);
+                    
+                    print('Neue Anzahl Piktogramme: ${gridProvider.currentGridPictograms.length}');
+                    
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('${pictogram.keyword} wurde zum Grid hinzugefügt'),
@@ -174,6 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: gridProvider.selectedGridId != null
               ? PictogramGrid(
+                  key: _gridKey,
                   pictograms: gridProvider.currentGridPictograms,
                 )
               : Center(

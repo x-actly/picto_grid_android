@@ -58,6 +58,9 @@ class GridProvider with ChangeNotifier {
   Future<void> addPictogramToGrid(Pictogram pictogram) async {
     if (_selectedGridId == null) return;
 
+    print('GridProvider: Füge Piktogramm zum Grid ${_selectedGridId} hinzu');
+    print('GridProvider: Aktuelle Piktogramme vor dem Hinzufügen: ${_currentGridPictograms.length}');
+
     await _db.addPictogramToGrid(
       _selectedGridId!,
       pictogram,
@@ -65,6 +68,11 @@ class GridProvider with ChangeNotifier {
     );
     
     _currentGridPictograms.add(pictogram);
+    print('GridProvider: Piktogramm zur Liste hinzugefügt, neue Länge: ${_currentGridPictograms.length}');
+    
+    await loadGridPictograms();  // Lade die Piktogramme neu von der Datenbank
+    print('GridProvider: Piktogramme neu geladen, aktuelle Länge: ${_currentGridPictograms.length}');
+    
     notifyListeners();
   }
 

@@ -1,45 +1,61 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show listEquals;
 import '../models/pictogram.dart';
+import 'package:provider/provider.dart';
+import '../providers/grid_provider.dart';
+import 'dart:math' as math;
 
 class PictogramGrid extends StatefulWidget {
   final List<Pictogram> pictograms;
   final double itemSize;
+  final Function? onGridSettingsPressed;
+  final Function(bool)? onEditModeChanged;
 
   const PictogramGrid({
     super.key,
     required this.pictograms,
     this.itemSize = 150.0,
+    this.onGridSettingsPressed,
+    this.onEditModeChanged,
   });
 
   @override
-  State<PictogramGrid> createState() => _PictogramGridState();
+  State<PictogramGrid> createState() => PictogramGridState();
 }
 
 class _GridDimensions {
   final int columns;
   final int rows;
-  final double itemSize;
+  final double itemWidth;
+  final double itemHeight;
   final int maxGridSize;
 
   _GridDimensions({
     required this.columns,
     required this.rows,
-    required this.itemSize,
+    required this.itemWidth,
+    required this.itemHeight,
     required this.maxGridSize,
   });
 }
 
-class _PictogramGridState extends State<PictogramGrid> {
+class PictogramGridState extends State<PictogramGrid> {
   late List<PictogramPosition> _pictogramPositions;
-  int _gridSize = 4;
+  int _gridSize = 4;  // Standardmäßig 4x2
   bool _showGridLines = true;
-  final ScrollController _scrollController = ScrollController();
+  bool _isEditMode = false;
   final double _minItemSize = 100.0;
   final double _spacing = 10.0;
   bool _isInitialized = false;
 
-  static const int MIN_GRID_SIZE = 2;
-  static const int MAX_GRID_SIZE = 8;
+  static const int MIN_GRID_SIZE = 4;  // Minimum ist jetzt 4
+  static const int MAX_GRID_SIZE = 8;  // Maximum ist jetzt 8
+
+  // Definiere die verfügbaren Grid-Größen
+  static const Map<int, int> AVAILABLE_GRID_SIZES = {
+    4: 2,  // 4x2
+    8: 3,  // 8x3
+  };
 
   @override
   void initState() {
@@ -60,19 +76,14 @@ class _PictogramGridState extends State<PictogramGrid> {
     super.didChangeDependencies();
     if (!_isInitialized) {
       _isInitialized = true;
-      _updatePictogramPositions();
+      _updatePositionsWithCurrentDimensions();
     }
   }
 
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void _updatePictogramPositions() {
+  void _updatePositionsWithCurrentDimensions() {
     if (!mounted) return;
-    final dimensions = _calculateGridDimensions(MediaQuery.of(context).size);
+    final size = MediaQuery.of(context).size;
+    final dimensions = calculateGridDimensions(size);
     setState(() {
       _pictogramPositions = List.generate(
         widget.pictograms.length,
@@ -88,33 +99,34 @@ class _PictogramGridState extends State<PictogramGrid> {
   @override
   void didUpdateWidget(PictogramGrid oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.pictograms != oldWidget.pictograms) {
-      _updatePictogramPositions();
+    if (widget.pictograms.length != oldWidget.pictograms.length ||
+        !listEquals(widget.pictograms, oldWidget.pictograms)) {
+      print('PictogramGrid: Piktogramme haben sich geändert');
+      print('Alte Anzahl: ${oldWidget.pictograms.length}');
+      print('Neue Anzahl: ${widget.pictograms.length}');
+      _updatePositionsWithCurrentDimensions();
     }
   }
 
-  _GridDimensions _calculateGridDimensions(Size size) {
-    final aspectRatio = size.width / size.height;
-    final isLandscape = aspectRatio > 1;
+  _GridDimensions calculateGridDimensions(Size size) {
+    // Berechne den tatsächlich verfügbaren Platz
+    final availableWidth = size.width;
+    final availableHeight = size.height;
 
-    final itemSizeWithSpacing = _minItemSize + _spacing;
-    final smallerDimension = isLandscape ? size.height : size.width;
-    final maxGridSize = ((smallerDimension - _spacing) / itemSizeWithSpacing).floor();
+    // Bestimme die Spalten basierend auf der gewählten Gridgröße
+    final columns = _gridSize;
+    final rows = AVAILABLE_GRID_SIZES[columns] ?? 2;
 
-    final currentGridSize = _gridSize.clamp(MIN_GRID_SIZE, maxGridSize);
-
-    final columns = currentGridSize;
-    final rows = isLandscape 
-        ? (currentGridSize * 1.5).floor() 
-        : (currentGridSize * 2).floor();
-
-    final itemSize = (size.width - (columns + 1) * _spacing) / columns;
+    // Berechne die Kästchengröße so, dass der gesamte verfügbare Platz genutzt wird
+    final itemWidth = availableWidth / columns;
+    final itemHeight = availableHeight / rows;
 
     return _GridDimensions(
       columns: columns,
       rows: rows,
-      itemSize: itemSize,
-      maxGridSize: maxGridSize,
+      itemWidth: itemWidth,
+      itemHeight: itemHeight,
+      maxGridSize: MAX_GRID_SIZE,
     );
   }
 
@@ -122,24 +134,220 @@ class _PictogramGridState extends State<PictogramGrid> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final dimensions = _calculateGridDimensions(Size(
+        final dimensions = calculateGridDimensions(Size(
           constraints.maxWidth,
           constraints.maxHeight,
         ));
 
-        return _GridBuilder(
-          dimensions: dimensions,
-          pictogramPositions: _pictogramPositions,
-          spacing: _spacing,
-          showGridLines: _showGridLines,
-          onShowSettingsDialog: () => _showGridSettingsDialog(dimensions),
-          onMovePictogram: _movePictogram,
+        return Container(
+          width: constraints.maxWidth,
+          height: constraints.maxHeight,
+          color: Colors.grey[100],
+          child: Stack(
+            children: [
+              if (_showGridLines) _buildGridLines(dimensions),
+              if (_isEditMode) _buildDropTargets(dimensions),
+              ..._buildPictogramTiles(dimensions),
+            ],
+          ),
         );
       },
     );
   }
 
-  void _showGridSettingsDialog(_GridDimensions dimensions) {
+  Widget _buildDropTargets(_GridDimensions dimensions) {
+    return Stack(
+      children: [
+        for (int row = 0; row < dimensions.rows; row++)
+          for (int col = 0; col < dimensions.columns; col++)
+            if (_getPictogramAtPosition(row, col) == null)
+              Positioned(
+                left: col * dimensions.itemWidth,
+                top: row * dimensions.itemHeight,
+                width: dimensions.itemWidth,
+                height: dimensions.itemHeight,
+                child: DragTarget<PictogramPosition>(
+                  onWillAccept: (data) => true,
+                  onAccept: (draggedPosition) {
+                    _movePictogram(draggedPosition, row, col);
+                  },
+                  builder: (context, candidateData, rejectedData) {
+                    final isTargeted = candidateData.isNotEmpty;
+                    return Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: isTargeted ? Colors.orange : Colors.grey.withOpacity(0.3),
+                          width: isTargeted ? 2 : 1,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                        color: isTargeted ? Colors.orange.withOpacity(0.1) : Colors.transparent,
+                      ),
+                    );
+                  },
+                ),
+              ),
+      ],
+    );
+  }
+
+  List<Widget> _buildPictogramTiles(_GridDimensions dimensions) {
+    return _pictogramPositions.map((position) {
+      final tile = SizedBox(
+        width: dimensions.itemWidth,
+        height: dimensions.itemHeight,
+        child: _buildPictogramCard(position.pictogram, dimensions.itemWidth),
+      );
+
+      if (!_isEditMode) {
+        return Positioned(
+          left: position.column * dimensions.itemWidth,
+          top: position.row * dimensions.itemHeight,
+          child: tile,
+        );
+      }
+
+      return Positioned(
+        left: position.column * dimensions.itemWidth,
+        top: position.row * dimensions.itemHeight,
+        child: Draggable<PictogramPosition>(
+          data: position,
+          feedback: _buildPictogramCard(position.pictogram, dimensions.itemWidth, opacity: 0.7),
+          childWhenDragging: Container(
+            width: dimensions.itemWidth,
+            height: dimensions.itemHeight,
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.grey.withOpacity(0.3),
+                width: 1,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: GestureDetector(
+            onLongPress: () => _showDeleteDialog(context, position.pictogram),
+            child: Stack(
+              children: [
+                tile,
+                if (_isEditMode)
+                  Positioned(
+                    right: 4,
+                    top: 4,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withOpacity(0.8),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Icon(
+                        Icons.drag_indicator,
+                        size: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }).toList();
+  }
+
+  Widget _buildGridLines(_GridDimensions dimensions) {
+    return Stack(
+      children: [
+        ...List.generate(dimensions.rows + 1, (row) {
+          return Positioned(
+            top: row * dimensions.itemHeight,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 1,
+              color: Colors.grey[300],
+            ),
+          );
+        }),
+        ...List.generate(dimensions.columns + 1, (col) {
+          return Positioned(
+            left: col * dimensions.itemWidth,
+            top: 0,
+            bottom: 0,
+            child: Container(
+              width: 1,
+              color: Colors.grey[300],
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildPictogramCard(Pictogram pictogram, double size, {double opacity = 1.0}) {
+    return Opacity(
+      opacity: opacity,
+      child: Card(
+        elevation: _isEditMode ? 4 : 1,
+        child: Container(
+          width: size,
+          height: size,
+          padding: const EdgeInsets.all(4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Expanded(
+                child: Image.network(
+                  pictogram.imageUrl,
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) {
+                    print('Fehler beim Laden des Bildes: $error');
+                    return const Center(
+                      child: Icon(Icons.error),
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Text(
+                  pictogram.keyword,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 12),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _movePictogram(PictogramPosition pictogram, int newRow, int newCol) {
+    setState(() {
+      final existingPictogram = _getPictogramAtPosition(newRow, newCol);
+      if (existingPictogram != null) {
+        final oldRow = pictogram.row;
+        final oldCol = pictogram.column;
+        existingPictogram.row = oldRow;
+        existingPictogram.column = oldCol;
+      }
+      pictogram.row = newRow;
+      pictogram.column = newCol;
+    });
+  }
+
+  PictogramPosition? _getPictogramAtPosition(int row, int col) {
+    try {
+      return _pictogramPositions.firstWhere(
+        (pos) => pos.row == row && pos.column == col,
+      );
+    } catch (e) {
+      return null;
+    }
+  }
+
+  void showGridSettingsDialog(_GridDimensions dimensions) {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -151,22 +359,37 @@ class _PictogramGridState extends State<PictogramGrid> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const Text('Rastergröße'),
-                  Slider(
-                    value: _gridSize.toDouble(),
-                    min: MIN_GRID_SIZE.toDouble(),
-                    max: dimensions.maxGridSize.toDouble(),
-                    divisions: dimensions.maxGridSize - MIN_GRID_SIZE,
-                    label: _gridSize.toString(),
-                    onChanged: (value) {
-                      setState(() {
-                        _gridSize = value.round();
-                      });
-                      this.setState(() {
-                        _updatePictogramPositions();
-                      });
-                    },
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            _gridSize = 4;
+                          });
+                          this.setState(() {});
+                          Navigator.of(context).pop();
+                        },
+                        style: TextButton.styleFrom(
+                          backgroundColor: _gridSize == 4 ? Colors.teal.withOpacity(0.2) : null,
+                        ),
+                        child: const Text('4x2'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            _gridSize = 8;
+                          });
+                          this.setState(() {});
+                          Navigator.of(context).pop();
+                        },
+                        style: TextButton.styleFrom(
+                          backgroundColor: _gridSize == 8 ? Colors.teal.withOpacity(0.2) : null,
+                        ),
+                        child: const Text('8x3'),
+                      ),
+                    ],
                   ),
-                  Text('Aktuelle Größe: $_gridSize x ${dimensions.rows}'),
                   const SizedBox(height: 16),
                   SwitchListTile(
                     title: const Text('Rasterlinien anzeigen'),
@@ -187,9 +410,8 @@ class _PictogramGridState extends State<PictogramGrid> {
                       _gridSize = 4;
                       _showGridLines = true;
                     });
-                    this.setState(() {
-                      _updatePictogramPositions();
-                    });
+                    this.setState(() {});
+                    Navigator.of(context).pop();
                   },
                   child: const Text('Zurücksetzen'),
                 ),
@@ -205,147 +427,54 @@ class _PictogramGridState extends State<PictogramGrid> {
     );
   }
 
-  void _movePictogram(PictogramPosition pictogram, int newRow, int newCol) {
-    setState(() {
-      final existingPictogram = _getPictogramAtPosition(newRow, newCol);
-      if (existingPictogram != null) {
-        existingPictogram.row = pictogram.row;
-        existingPictogram.column = pictogram.column;
-      }
-      pictogram.row = newRow;
-      pictogram.column = newCol;
-    });
-  }
-
-  PictogramPosition? _getPictogramAtPosition(int row, int col) {
-    try {
-      return _pictogramPositions.firstWhere(
-        (pos) => pos.row == row && pos.column == col,
-      );
-    } catch (e) {
-      return null;
-    }
-  }
-}
-
-class _GridBuilder extends StatelessWidget {
-  final _GridDimensions dimensions;
-  final List<PictogramPosition> pictogramPositions;
-  final double spacing;
-  final bool showGridLines;
-  final VoidCallback onShowSettingsDialog;
-  final void Function(PictogramPosition, int, int) onMovePictogram;
-
-  const _GridBuilder({
-    required this.dimensions,
-    required this.pictogramPositions,
-    required this.spacing,
-    required this.showGridLines,
-    required this.onShowSettingsDialog,
-    required this.onMovePictogram,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.grey[100],
-      child: Stack(
-        children: [
-          if (showGridLines)
-            ...List.generate(dimensions.rows + 1, (row) {
-              return Positioned(
-                top: row * (dimensions.itemSize + spacing),
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 1,
-                  color: Colors.grey[300],
-                ),
-              );
-            }) +
-            List.generate(dimensions.columns + 1, (col) {
-              return Positioned(
-                left: col * (dimensions.itemSize + spacing),
-                top: 0,
-                bottom: 0,
-                child: Container(
-                  width: 1,
-                  color: Colors.grey[300],
-                ),
-              );
-            }),
-
-          ...List.generate(dimensions.rows * dimensions.columns, (index) {
-            final row = index ~/ dimensions.columns;
-            final col = index % dimensions.columns;
-            final xPos = col * (dimensions.itemSize + spacing) + spacing / 2;
-            final yPos = row * (dimensions.itemSize + spacing) + spacing / 2;
-
-            return Positioned(
-              left: xPos,
-              top: yPos,
-              width: dimensions.itemSize,
-              height: dimensions.itemSize,
-              child: _buildDragTarget(row, col),
-            );
-          }),
-
-          ...pictogramPositions.map((position) {
-            final xPos = position.column * (dimensions.itemSize + spacing) + spacing / 2;
-            final yPos = position.row * (dimensions.itemSize + spacing) + spacing / 2;
-
-            return Positioned(
-              left: xPos,
-              top: yPos,
-              width: dimensions.itemSize,
-              height: dimensions.itemSize,
-              child: DraggablePictogramTile(
-                key: ValueKey(position.pictogram.id),
-                position: position,
-                size: dimensions.itemSize,
-              ),
-            );
-          }),
-
-          Positioned(
-            top: 8,
-            right: 8,
-            child: FloatingActionButton(
-              mini: true,
-              onPressed: onShowSettingsDialog,
-              child: const Icon(Icons.grid_4x4),
+  Future<void> _showDeleteDialog(BuildContext context, Pictogram pictogram) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Piktogramm löschen'),
+        content: Text('Möchten Sie das Piktogramm "${pictogram.keyword}" wirklich aus dem Grid entfernen?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Abbrechen'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Löschen'),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.red,
             ),
           ),
         ],
       ),
     );
+
+    if (confirmed == true && context.mounted) {
+      final gridProvider = context.read<GridProvider>();
+      await gridProvider.removePictogramFromGrid(pictogram);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${pictogram.keyword} wurde aus dem Grid entfernt'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 
-  Widget _buildDragTarget(int row, int col) {
-    return DragTarget<PictogramPosition>(
-      onWillAccept: (data) => true,
-      onAccept: (data) => onMovePictogram(data, row, col),
-      builder: (context, candidateData, rejectedData) {
-        final pictogram = pictogramPositions.cast<PictogramPosition?>().firstWhere(
-          (pos) => pos?.row == row && pos?.column == col,
-          orElse: () => null,
-        );
-        
-        if (pictogram == null) {
-          return Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: candidateData.isNotEmpty
-                    ? Colors.blue.withOpacity(0.5)
-                    : Colors.transparent,
-                width: 2,
-              ),
-            ),
-          );
-        }
-        return const SizedBox();
-      },
+  void toggleEditMode() {
+    setState(() {
+      _isEditMode = !_isEditMode;
+    });
+    widget.onEditModeChanged?.call(_isEditMode);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(_isEditMode 
+          ? 'Bearbeitungsmodus aktiviert' 
+          : 'Bearbeitungsmodus deaktiviert'),
+        duration: const Duration(seconds: 2),
+      ),
     );
   }
 }
