@@ -39,6 +39,7 @@ dependencies:
   path_provider: ^2.1.1
   provider: ^6.1.1
   reorderable_grid_view: ^2.2.8
+  flutter_tts: ^4.0.2
 
 dev_dependencies:
   flutter_test:
