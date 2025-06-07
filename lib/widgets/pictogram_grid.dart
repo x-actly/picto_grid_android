@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show listEquals;
 import '../models/pictogram.dart';
 import 'package:provider/provider.dart';
 import '../providers/grid_provider.dart';
+import '../services/tts_service.dart';
 import 'dart:math' as math;
 
 class PictogramGrid extends StatefulWidget {
@@ -39,22 +40,31 @@ class _GridDimensions {
   });
 }
 
-class PictogramGridState extends State<PictogramGrid> {
+class PictogramGridState extends State<PictogramGrid>
+    with TickerProviderStateMixin {
   late List<PictogramPosition> _pictogramPositions;
-  int _gridSize = 4;  // Standardmäßig 4x2
+  int _gridSize = 4; // Standardmäßig 4x2
   bool _showGridLines = true;
   bool _isEditMode = false;
   final double _minItemSize = 100.0;
   final double _spacing = 10.0;
   bool _isInitialized = false;
 
-  static const int MIN_GRID_SIZE = 4;  // Minimum ist jetzt 4
-  static const int MAX_GRID_SIZE = 8;  // Maximum ist jetzt 8
+  // TTS und visuelles Feedback
+  final TtsService _ttsService = TtsService();
+  late AnimationController _feedbackController;
+  late Animation<double> _feedbackAnimation;
+  Pictogram? _activePictogram;
+  double _ttsVolume = 0.8;
+  double _ttsSpeechRate = 0.5;
+
+  static const int MIN_GRID_SIZE = 4; // Minimum ist jetzt 4
+  static const int MAX_GRID_SIZE = 8; // Maximum ist jetzt 8
 
   // Definiere die verfügbaren Grid-Größen
   static const Map<int, int> AVAILABLE_GRID_SIZES = {
-    4: 2,  // 4x2
-    8: 3,  // 8x3
+    4: 2, // 4x2
+    8: 3, // 8x3
   };
 
   @override
@@ -69,6 +79,69 @@ class PictogramGridState extends State<PictogramGrid> {
         column: index % _gridSize,
       ),
     );
+
+    // Initialisiere TTS-Service
+    _ttsService.initialize();
+
+    // Initialisiere Animation für visuelles Feedback (dezenter)
+    _feedbackController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _feedbackAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.05, // Weniger Skalierung
+    ).animate(CurvedAnimation(
+      parent: _feedbackController,
+      curve: Curves.easeOut, // Sanftere Kurve
+    ));
+  }
+
+  @override
+  void dispose() {
+    _feedbackController.dispose();
+    super.dispose();
+  }
+
+  // Piktogramm sprechen und visuelles Feedback anzeigen
+  Future<void> _playPictogram(Pictogram pictogram) async {
+    if (_isEditMode) return; // Kein TTS im Bearbeitungsmodus
+
+    print('Spiele Piktogramm ab: ${pictogram.keyword}');
+
+    setState(() {
+      _activePictogram = pictogram;
+    });
+
+    // Visuelles Feedback starten
+    _feedbackController.forward().then((_) {
+      _feedbackController.reverse();
+    });
+
+    // TTS abspielen
+    try {
+      await _ttsService.speak(pictogram.keyword);
+    } catch (e) {
+      print('Fehler bei TTS: $e');
+      // Fallback: Zeige Snackbar wenn TTS nicht funktioniert
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Sprache: ${pictogram.keyword}'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      }
+    }
+
+    // Nach kurzer Zeit das aktive Piktogramm zurücksetzen (dezenter)
+    Future.delayed(const Duration(milliseconds: 400), () {
+      if (mounted) {
+        setState(() {
+          _activePictogram = null;
+        });
+      }
+    });
   }
 
   @override
@@ -176,11 +249,15 @@ class PictogramGridState extends State<PictogramGrid> {
                     return Container(
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: isTargeted ? Colors.orange : Colors.grey.withOpacity(0.3),
+                          color: isTargeted
+                              ? Colors.orange
+                              : Colors.grey.withOpacity(0.3),
                           width: isTargeted ? 2 : 1,
                         ),
                         borderRadius: BorderRadius.circular(8),
-                        color: isTargeted ? Colors.orange.withOpacity(0.1) : Colors.transparent,
+                        color: isTargeted
+                            ? Colors.orange.withOpacity(0.1)
+                            : Colors.transparent,
                       ),
                     );
                   },
@@ -211,7 +288,9 @@ class PictogramGridState extends State<PictogramGrid> {
         top: position.row * dimensions.itemHeight,
         child: Draggable<PictogramPosition>(
           data: position,
-          feedback: _buildPictogramCard(position.pictogram, dimensions.itemWidth, opacity: 0.7),
+          feedback: _buildPictogramCard(
+              position.pictogram, dimensions.itemWidth,
+              opacity: 0.7),
           childWhenDragging: Container(
             width: dimensions.itemWidth,
             height: dimensions.itemHeight,
@@ -224,6 +303,7 @@ class PictogramGridState extends State<PictogramGrid> {
             ),
           ),
           child: GestureDetector(
+            onTap: () => _playPictogram(position.pictogram),
             onLongPress: () => _showDeleteDialog(context, position.pictogram),
             child: Stack(
               children: [
@@ -282,44 +362,103 @@ class PictogramGridState extends State<PictogramGrid> {
     );
   }
 
-  Widget _buildPictogramCard(Pictogram pictogram, double size, {double opacity = 1.0}) {
-    return Opacity(
-      opacity: opacity,
-      child: Card(
-        elevation: _isEditMode ? 4 : 1,
-        child: Container(
-          width: size,
-          height: size,
-          padding: const EdgeInsets.all(4),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Expanded(
-                child: Image.network(
-                  pictogram.imageUrl,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    print('Fehler beim Laden des Bildes: $error');
-                    return const Center(
-                      child: Icon(Icons.error),
-                    );
-                  },
+  Widget _buildPictogramCard(Pictogram pictogram, double size,
+      {double opacity = 1.0}) {
+    final isActive = _activePictogram?.id == pictogram.id;
+
+    return AnimatedBuilder(
+      animation: _feedbackAnimation,
+      builder: (context, child) {
+        final scale = isActive ? _feedbackAnimation.value : 1.0;
+
+        return Transform.scale(
+          scale: scale,
+          child: Opacity(
+            opacity: opacity,
+            child: GestureDetector(
+              onTap: () => _playPictogram(pictogram),
+              child: Card(
+                elevation:
+                    _isEditMode ? 4 : (isActive ? 3 : 2), // Weniger Elevation
+                color: isActive
+                    ? Colors.teal.withOpacity(0.05)
+                    : null, // Weniger sichtbare Farbe
+                child: Container(
+                  width: size,
+                  height: size,
+                  padding: const EdgeInsets.all(4),
+                  decoration: isActive
+                      ? BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.teal.withOpacity(
+                                0.6), // Weniger intensive Randfarbe
+                            width: 1.5, // Dünnerer Rand
+                          ),
+                        )
+                      : null,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Expanded(
+                        child: Stack(
+                          children: [
+                            Image.network(
+                              pictogram.imageUrl,
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) {
+                                print('Fehler beim Laden des Bildes: $error');
+                                return const Center(
+                                  child: Icon(Icons.error),
+                                );
+                              },
+                            ),
+                            if (isActive)
+                              Positioned(
+                                bottom: 4,
+                                right: 4,
+                                child: Container(
+                                  padding: const EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.teal.withOpacity(0.8),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: const Icon(
+                                    Icons.volume_up,
+                                    color: Colors.white,
+                                    size: 14, // Kleineres Icon
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Text(
+                          pictogram.keyword,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: isActive
+                                ? FontWeight.w500
+                                : FontWeight.normal, // Weniger fett
+                            color: isActive
+                                ? Colors.teal.withOpacity(0.8)
+                                : null, // Weniger intensive Textfarbe
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Text(
-                  pictogram.keyword,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 12),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -371,7 +510,9 @@ class PictogramGridState extends State<PictogramGrid> {
                           Navigator.of(context).pop();
                         },
                         style: TextButton.styleFrom(
-                          backgroundColor: _gridSize == 4 ? Colors.teal.withOpacity(0.2) : null,
+                          backgroundColor: _gridSize == 4
+                              ? Colors.teal.withOpacity(0.2)
+                              : null,
                         ),
                         child: const Text('4x2'),
                       ),
@@ -384,7 +525,9 @@ class PictogramGridState extends State<PictogramGrid> {
                           Navigator.of(context).pop();
                         },
                         style: TextButton.styleFrom(
-                          backgroundColor: _gridSize == 8 ? Colors.teal.withOpacity(0.2) : null,
+                          backgroundColor: _gridSize == 8
+                              ? Colors.teal.withOpacity(0.2)
+                              : null,
                         ),
                         child: const Text('8x3'),
                       ),
@@ -400,6 +543,51 @@ class PictogramGridState extends State<PictogramGrid> {
                       });
                       this.setState(() {});
                     },
+                  ),
+                  const SizedBox(height: 16),
+                  const Text('Sprache-Einstellungen'),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Text('Lautstärke: '),
+                      Expanded(
+                        child: Slider(
+                          value: _ttsVolume,
+                          min: 0.0,
+                          max: 1.0,
+                          divisions: 10,
+                          label: '${(_ttsVolume * 100).round()}%',
+                          onChanged: (value) {
+                            setState(() {
+                              _ttsVolume = value;
+                            });
+                            this.setState(() {});
+                            _ttsService.setVolume(value);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Text('Geschwindigkeit: '),
+                      Expanded(
+                        child: Slider(
+                          value: _ttsSpeechRate,
+                          min: 0.1,
+                          max: 1.0,
+                          divisions: 9,
+                          label: '${(_ttsSpeechRate * 100).round()}%',
+                          onChanged: (value) {
+                            setState(() {
+                              _ttsSpeechRate = value;
+                            });
+                            this.setState(() {});
+                            _ttsService.setSpeechRate(value);
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -427,12 +615,14 @@ class PictogramGridState extends State<PictogramGrid> {
     );
   }
 
-  Future<void> _showDeleteDialog(BuildContext context, Pictogram pictogram) async {
+  Future<void> _showDeleteDialog(
+      BuildContext context, Pictogram pictogram) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Piktogramm löschen'),
-        content: Text('Möchten Sie das Piktogramm "${pictogram.keyword}" wirklich aus dem Grid entfernen?'),
+        content: Text(
+            'Möchten Sie das Piktogramm "${pictogram.keyword}" wirklich aus dem Grid entfernen?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -470,9 +660,9 @@ class PictogramGridState extends State<PictogramGrid> {
     widget.onEditModeChanged?.call(_isEditMode);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(_isEditMode 
-          ? 'Bearbeitungsmodus aktiviert' 
-          : 'Bearbeitungsmodus deaktiviert'),
+        content: Text(_isEditMode
+            ? 'Bearbeitungsmodus aktiviert'
+            : 'Bearbeitungsmodus deaktiviert'),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -574,4 +764,4 @@ class DraggablePictogramTile extends StatelessWidget {
       ),
     );
   }
-} 
+}

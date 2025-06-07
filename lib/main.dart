@@ -4,8 +4,14 @@ import 'providers/pictogram_provider.dart';
 import 'providers/grid_provider.dart';
 import 'widgets/pictogram_grid.dart';
 import 'widgets/pictogram_search_dropdown.dart';
+import 'services/tts_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // TTS-Service initialisieren
+  await TtsService().initialize();
+
   runApp(const PictoGridApp());
 }
 
@@ -49,75 +55,78 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final gridProvider = context.watch<GridProvider>();
     final pictogramProvider = context.watch<PictogramProvider>();
-    
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: gridProvider.grids.isNotEmpty
-          ? Row(
-              children: [
-                Expanded(
-                  child: DropdownButton<int>(
-                    value: gridProvider.selectedGridId,
-                    items: gridProvider.grids.map((grid) {
-                      return DropdownMenuItem(
-                        value: grid['id'] as int,
-                        child: Text(
-                          grid['name'] as String,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+            ? Row(
+                children: [
+                  Expanded(
+                    child: DropdownButton<int>(
+                      value: gridProvider.selectedGridId,
+                      items: gridProvider.grids.map((grid) {
+                        return DropdownMenuItem(
+                          value: grid['id'] as int,
+                          child: Text(
+                            grid['name'] as String,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (id) {
-                      if (id != null) gridProvider.selectGrid(id);
-                    },
-                    underline: Container(),
-                    dropdownColor: Theme.of(context).colorScheme.inversePrimary,
-                    icon: const Icon(Icons.arrow_drop_down),
+                        );
+                      }).toList(),
+                      onChanged: (id) {
+                        if (id != null) gridProvider.selectGrid(id);
+                      },
+                      underline: Container(),
+                      dropdownColor:
+                          Theme.of(context).colorScheme.inversePrimary,
+                      icon: const Icon(Icons.arrow_drop_down),
+                    ),
                   ),
-                ),
-                if (gridProvider.selectedGridId != null)
-                  IconButton(
-                    icon: const Icon(Icons.delete),
-                    tooltip: 'Grid löschen',
-                    onPressed: () async {
-                      final confirmed = await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Grid löschen'),
-                          content: const Text('Möchten Sie dieses Grid wirklich löschen?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: const Text('Abbrechen'),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, true),
-                              child: const Text('Löschen'),
-                            ),
-                          ],
-                        ),
-                      );
-                      
-                      if (confirmed == true) {
-                        await gridProvider.deleteGrid(gridProvider.selectedGridId!);
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Grid wurde gelöscht'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
+                  if (gridProvider.selectedGridId != null)
+                    IconButton(
+                      icon: const Icon(Icons.delete),
+                      tooltip: 'Grid löschen',
+                      onPressed: () async {
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Grid löschen'),
+                            content: const Text(
+                                'Möchten Sie dieses Grid wirklich löschen?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: const Text('Abbrechen'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: const Text('Löschen'),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (confirmed == true) {
+                          await gridProvider
+                              .deleteGrid(gridProvider.selectedGridId!);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Grid wurde gelöscht'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                          }
                         }
-                      }
-                    },
-                  ),
-              ],
-            )
-          : const Text('PictoGrid'),
+                      },
+                    ),
+                ],
+              )
+            : const Text('PictoGrid'),
         actions: [
           if (gridProvider.selectedGridId != null) ...[
             IconButton(
@@ -176,17 +185,21 @@ class _HomeScreenState extends State<HomeScreen> {
               child: PictogramSearchDropdown(
                 onPictogramSelected: (pictogram) {
                   if (gridProvider.selectedGridId != null) {
-                    print('Füge Piktogramm hinzu: ${pictogram.keyword} (ID: ${pictogram.id})');
+                    print(
+                        'Füge Piktogramm hinzu: ${pictogram.keyword} (ID: ${pictogram.id})');
                     print('Aktuelles Grid ID: ${gridProvider.selectedGridId}');
-                    print('Aktuelle Anzahl Piktogramme: ${gridProvider.currentGridPictograms.length}');
-                    
+                    print(
+                        'Aktuelle Anzahl Piktogramme: ${gridProvider.currentGridPictograms.length}');
+
                     gridProvider.addPictogramToGrid(pictogram);
-                    
-                    print('Neue Anzahl Piktogramme: ${gridProvider.currentGridPictograms.length}');
-                    
+
+                    print(
+                        'Neue Anzahl Piktogramme: ${gridProvider.currentGridPictograms.length}');
+
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('${pictogram.keyword} wurde zum Grid hinzugefügt'),
+                        content: Text(
+                            '${pictogram.keyword} wurde zum Grid hinzugefügt'),
                         duration: const Duration(seconds: 1),
                       ),
                     );
@@ -201,39 +214,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
               ),
             ),
-          
+
           // Grid
           Expanded(
             child: gridProvider.selectedGridId != null
-              ? PictogramGrid(
-                  key: _gridKey,
-                  pictograms: gridProvider.currentGridPictograms,
-                )
-              : Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                        'Kein Grid ausgewählt',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          final name = await showDialog<String>(
-                            context: context,
-                            builder: (context) => const NewGridDialog(),
-                          );
-                          if (name != null && name.isNotEmpty) {
-                            await gridProvider.createGrid(name);
-                          }
-                        },
-                        icon: const Icon(Icons.add),
-                        label: const Text('Neues Grid erstellen'),
-                      ),
-                    ],
+                ? PictogramGrid(
+                    key: _gridKey,
+                    pictograms: gridProvider.currentGridPictograms,
+                  )
+                : Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Kein Grid ausgewählt',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            final name = await showDialog<String>(
+                              context: context,
+                              builder: (context) => const NewGridDialog(),
+                            );
+                            if (name != null && name.isNotEmpty) {
+                              await gridProvider.createGrid(name);
+                            }
+                          },
+                          icon: const Icon(Icons.add),
+                          label: const Text('Neues Grid erstellen'),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
           ),
         ],
       ),
