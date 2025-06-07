@@ -1,121 +1,393 @@
-# PictoGrid
+# PictoGrid - AAC Communication App
 
 [English](#english) | [Deutsch](#deutsch)
 
+---
+
 ## English
 
-### Overview
-PictoGrid is a Flutter-based Android application designed to create and manage visual communication grids using pictograms. It's particularly useful for alternative and augmentative communication (AAC) purposes.
+### 🗣️ **Augmentative and Alternative Communication (AAC) App**
 
-### Features
-- **Flexible Grid Layouts**
-  - 4x2 and 8x3 grid configurations
-  - Optimized space utilization
-  - Responsive design adapting to different screen sizes
+PictoGrid is a comprehensive Flutter-based Android application designed to support non-verbal communication through visual pictograms. This assistive technology empowers individuals who cannot communicate verbally to express themselves using an intuitive grid-based interface with integrated text-to-speech functionality.
 
-- **Pictogram Management**
-  - Easy pictogram search and selection
-  - Drag-and-drop functionality for arrangement
-  - Support for custom grid layouts
+---
 
-- **User Interface**
-  - Clean and intuitive design
-  - Grid editing mode
-  - Visual feedback during interactions
-  - Grid size adjustment options
+### 🎯 **Purpose & Target Users**
 
-- **Grid Management**
-  - Create multiple grids
-  - Name and organize grids
-  - Delete unwanted grids
-  - Switch between different grids
+**PictoGrid serves as a communication aid for:**
+- Individuals with speech disabilities
+- People with autism spectrum disorders
+- Stroke survivors with aphasia
+- Children with developmental delays
+- Anyone requiring alternative communication methods
 
-### Technical Details
-- **Framework**: Flutter
-- **Platform**: Android
-- **Architecture**: Provider pattern for state management
-- **Total Code Base**: ~1600 lines of Dart code
-- **Main Components**:
-  - PictogramGrid Widget
-  - Grid Provider
-  - Pictogram Provider
-  - Search Functionality
+**Key Benefits:**
+- 🔊 **Independent communication** through pictogram selection
+- 🧠 **Cognitive support** with visual communication aids
+- 👥 **Social integration** enabling interaction with others
+- 📚 **Learning assistance** for vocabulary and concept development
 
-### Installation
-1. Clone the repository
-2. Ensure Flutter is installed and properly set up
-3. Run `flutter pub get` to install dependencies
-4. Connect an Android device or emulator
-5. Run `flutter run` to start the application
+---
 
-### Development
-The project follows Flutter best practices and uses the following structure:
+### ✨ **Core Features**
+
+#### 🎤 **Text-to-Speech Integration**
+- **German voice synthesis** with natural pronunciation
+- **Immediate audio feedback** when pictograms are selected
+- **Volume and speed controls** for personalized experience
+- **Offline functionality** - no internet required for speech
+
+#### 📱 **Advanced Grid System**
+- **Flexible layouts**: 4x2 and 8x3 grid configurations
+- **Responsive design** adapting to tablets and phones
+- **Drag-and-drop editing** for easy pictogram arrangement
+- **Multiple grids** for different contexts (home, school, medical)
+- **Visual feedback** with smooth animations
+
+#### 🖼️ **Comprehensive Pictogram Library**
+- **13,514 local pictograms** covering diverse topics
+- **High-quality images** optimized for clear recognition
+- **Categorized content** for easy browsing
+- **Intelligent search** with keyword matching
+- **Offline accessibility** - all pictograms stored locally
+
+#### 🔍 **Smart Search Functionality**
+- **Real-time search** as you type
+- **Keyword-based filtering** for quick access
+- **Category browsing** for systematic exploration
+- **Fuzzy matching** to find related pictograms
+- **Visual results** with immediate preview
+
+#### 🛠️ **User Customization**
+- **Grid editing mode** for personalized layouts
+- **Pictogram management** with add/remove functionality
+- **Grid naming and organization** for different activities
+- **Settings persistence** across app sessions
+- **Intuitive controls** designed for accessibility
+
+#### 💾 **Data Management**
+- **SQLite database** for reliable data storage
+- **Grid configurations** saved automatically
+- **Backup and restore** capabilities
+- **Offline operation** - works without internet
+- **Fast performance** with optimized data access
+
+---
+
+### 🏗️ **Technical Architecture**
+
+**Framework & Platform:**
+- **Flutter** for cross-platform development
+- **Android** native integration
+- **Provider pattern** for efficient state management
+- **Clean architecture** with separation of concerns
+
+**Key Components:**
+- `PictogramGrid` - Interactive grid widget
+- `TtsService` - Text-to-speech engine
+- `LocalPictogramService` - Pictogram management
+- `DatabaseHelper` - Data persistence
+- `GridProvider` - State management
+
+**Dependencies:**
+```yaml
+flutter_tts: ^4.0.2           # Text-to-speech functionality
+sqflite: ^2.3.0              # Local database storage
+provider: ^6.1.1             # State management
+http: ^1.1.2                 # Network requests
+path_provider: ^2.1.1        # File system access
+reorderable_grid_view: ^2.2.8 # Drag-and-drop grids
 ```
-lib/
-  ├── main.dart
-  ├── models/
-  ├── providers/
-  ├── screens/
-  ├── services/
-  └── widgets/
+
+---
+
+### 📱 **User Interface**
+
+**Design Principles:**
+- **Accessibility-first** approach
+- **Large, clear pictograms** for easy recognition
+- **High contrast** for visual clarity
+- **Simple navigation** with minimal complexity
+- **Touch-friendly** interface optimized for tablets
+
+**Key Screens:**
+- **Main Grid View** - Primary communication interface
+- **Search Interface** - Pictogram discovery
+- **Grid Management** - Organization and customization
+- **Settings Panel** - Voice and display preferences
+
+---
+
+### 🚀 **Installation & Setup**
+
+#### **Prerequisites:**
+- Android device (API level 21+)
+- ~320MB storage space for app and pictograms
+
+#### **Development Setup:**
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/picto_grid_android.git
+cd picto_grid_android
+
+# Install Flutter dependencies
+flutter pub get
+
+# Connect Android device/emulator
+flutter devices
+
+# Build and run
+flutter run
 ```
+
+#### **Release Build:**
+```bash
+# Build APK for distribution
+flutter build apk --release
+
+# APK location: build/app/outputs/flutter-apk/app-release.apk
+```
+
+---
+
+### 💡 **Usage Guide**
+
+1. **Getting Started:**
+   - Launch PictoGrid on your Android device
+   - Browse the default grid with common pictograms
+   - Tap any pictogram to hear its pronunciation
+
+2. **Communication:**
+   - Select pictograms to form messages
+   - Use TTS to speak selected words
+   - Navigate between different grid contexts
+
+3. **Customization:**
+   - Enable edit mode to modify grids
+   - Search and add relevant pictograms
+   - Create specialized grids for different situations
+
+4. **Advanced Features:**
+   - Organize grids by activity or location
+   - Adjust speech settings for optimal clarity
+   - Use search to quickly find specific pictograms
+
+---
+
+### 🤝 **Contributing**
+
+We welcome contributions to improve PictoGrid's accessibility and functionality:
+
+- **Bug Reports:** Use GitHub issues for bugs and feature requests
+- **Code Contributions:** Follow Flutter best practices and accessibility guidelines
+- **Translations:** Help expand language support
+- **Accessibility Testing:** Assist with usability testing for diverse users
+
+---
+
+### 📄 **License**
+
+This project is licensed under [INSERT LICENSE] - see the LICENSE file for details.
+
+---
+
+### 🙏 **Acknowledgments**
+
+- Pictogram library sourced from open accessibility resources
+- Text-to-speech powered by Flutter TTS
+- Designed with input from AAC specialists and users
 
 ---
 
 ## Deutsch
 
-### Überblick
-PictoGrid ist eine auf Flutter basierende Android-Anwendung zur Erstellung und Verwaltung von visuellen Kommunikationsrastern mit Piktogrammen. Sie ist besonders nützlich für alternative und unterstützende Kommunikation (UK).
+### 🗣️ **Unterstützte Kommunikations-App (UK)**
 
-### Funktionen
-- **Flexible Rasterlayouts**
-  - 4x2 und 8x3 Rasterkonfigurationen
-  - Optimierte Platznutzung
-  - Responsive Design für verschiedene Bildschirmgrößen
+PictoGrid ist eine umfassende, auf Flutter basierende Android-Anwendung zur Unterstützung der non-verbalen Kommunikation durch visuelle Piktogramme. Diese assistive Technologie befähigt Menschen, die nicht verbal kommunizieren können, sich über eine intuitive, rasterbasierte Oberfläche mit integrierter Sprachausgabe auszudrücken.
 
-- **Piktogramm-Verwaltung**
-  - Einfache Piktogramm-Suche und -Auswahl
-  - Drag-and-Drop-Funktionalität zur Anordnung
-  - Unterstützung für benutzerdefinierte Rasterlayouts
+---
 
-- **Benutzeroberfläche**
-  - Übersichtliches und intuitives Design
-  - Raster-Bearbeitungsmodus
-  - Visuelle Rückmeldung bei Interaktionen
-  - Optionen zur Rastergrößenanpassung
+### 🎯 **Zweck & Zielgruppe**
 
-- **Raster-Verwaltung**
-  - Erstellung mehrerer Raster
-  - Benennung und Organisation von Rastern
-  - Löschen unerwünschter Raster
-  - Wechsel zwischen verschiedenen Rastern
+**PictoGrid dient als Kommunikationshilfe für:**
+- Menschen mit Sprachbehinderungen
+- Personen mit Autismus-Spektrum-Störungen
+- Schlaganfall-Überlebende mit Aphasie
+- Kinder mit Entwicklungsverzögerungen
+- Alle, die alternative Kommunikationsmethoden benötigen
 
-### Technische Details
-- **Framework**: Flutter
-- **Plattform**: Android
-- **Architektur**: Provider-Pattern für State-Management
-- **Gesamter Code**: ~1600 Zeilen Dart-Code
-- **Hauptkomponenten**:
-  - PictogramGrid Widget
-  - Grid Provider
-  - Pictogram Provider
-  - Suchfunktionalität
+**Hauptvorteile:**
+- 🔊 **Selbständige Kommunikation** durch Piktogramm-Auswahl
+- 🧠 **Kognitive Unterstützung** mit visuellen Kommunikationshilfen
+- 👥 **Soziale Integration** ermöglicht Interaktion mit anderen
+- 📚 **Lernhilfe** für Wortschatz- und Konzeptentwicklung
 
-### Installation
-1. Repository klonen
-2. Flutter-Installation und -Einrichtung sicherstellen
-3. `flutter pub get` ausführen, um Abhängigkeiten zu installieren
-4. Android-Gerät oder Emulator verbinden
-5. `flutter run` ausführen, um die Anwendung zu starten
+---
 
-### Entwicklung
-Das Projekt folgt Flutter-Best-Practices und verwendet folgende Struktur:
+### ✨ **Kernfunktionen**
+
+#### 🎤 **Text-zu-Sprache Integration**
+- **Deutsche Sprachsynthese** mit natürlicher Aussprache
+- **Sofortiges Hör-Feedback** bei Piktogramm-Auswahl
+- **Lautstärke- und Geschwindigkeitsregelung** für personalisierte Erfahrung
+- **Offline-Funktionalität** - kein Internet für Sprache erforderlich
+
+#### 📱 **Fortschrittliches Raster-System**
+- **Flexible Layouts**: 4x2 und 8x3 Raster-Konfigurationen
+- **Responsive Design** angepasst an Tablets und Handys
+- **Drag-and-Drop-Bearbeitung** für einfache Piktogramm-Anordnung
+- **Mehrere Raster** für verschiedene Kontexte (Zuhause, Schule, Medizin)
+- **Visuelles Feedback** mit flüssigen Animationen
+
+#### 🖼️ **Umfassende Piktogramm-Bibliothek**
+- **13.514 lokale Piktogramme** mit vielfältigen Themen
+- **Hochwertige Bilder** optimiert für klare Erkennung
+- **Kategorisierte Inhalte** für einfaches Durchsuchen
+- **Intelligente Suche** mit Schlüsselwort-Matching
+- **Offline-Zugriff** - alle Piktogramme lokal gespeichert
+
+#### 🔍 **Intelligente Suchfunktion**
+- **Echtzeit-Suche** während der Eingabe
+- **Schlüsselwort-basierte Filterung** für schnellen Zugriff
+- **Kategorie-Navigation** für systematische Erkundung
+- **Fuzzy-Matching** zum Finden verwandter Piktogramme
+- **Visuelle Ergebnisse** mit sofortiger Vorschau
+
+#### 🛠️ **Benutzer-Anpassung**
+- **Raster-Bearbeitungsmodus** für personalisierte Layouts
+- **Piktogramm-Verwaltung** mit Hinzufügen/Entfernen-Funktionalität
+- **Raster-Benennung und -Organisation** für verschiedene Aktivitäten
+- **Einstellungs-Persistenz** über App-Sitzungen hinweg
+- **Intuitive Bedienelemente** für Barrierefreiheit entwickelt
+
+#### 💾 **Datenmanagement**
+- **SQLite-Datenbank** für zuverlässige Datenspeicherung
+- **Raster-Konfigurationen** automatisch gespeichert
+- **Backup- und Wiederherstellungs-Funktionen**
+- **Offline-Betrieb** - funktioniert ohne Internet
+- **Schnelle Leistung** mit optimiertem Datenzugriff
+
+---
+
+### 🏗️ **Technische Architektur**
+
+**Framework & Plattform:**
+- **Flutter** für plattformübergreifende Entwicklung
+- **Android** native Integration
+- **Provider-Pattern** für effizientes State-Management
+- **Clean Architecture** mit Trennung der Belange
+
+**Hauptkomponenten:**
+- `PictogramGrid` - Interaktives Raster-Widget
+- `TtsService` - Text-zu-Sprache-Engine
+- `LocalPictogramService` - Piktogramm-Verwaltung
+- `DatabaseHelper` - Daten-Persistierung
+- `GridProvider` - State-Management
+
+**Abhängigkeiten:**
+```yaml
+flutter_tts: ^4.0.2           # Text-zu-Sprache-Funktionalität
+sqflite: ^2.3.0              # Lokale Datenbankspeicherung
+provider: ^6.1.1             # State-Management
+http: ^1.1.2                 # Netzwerk-Anfragen
+path_provider: ^2.1.1        # Dateisystem-Zugriff
+reorderable_grid_view: ^2.2.8 # Drag-and-Drop-Raster
 ```
-lib/
-  ├── main.dart
-  ├── models/
-  ├── providers/
-  ├── screens/
-  ├── services/
-  └── widgets/
+
+---
+
+### 📱 **Benutzeroberfläche**
+
+**Design-Prinzipien:**
+- **Barrierefreiheit-first** Ansatz
+- **Große, klare Piktogramme** für einfache Erkennung
+- **Hoher Kontrast** für visuelle Klarheit
+- **Einfache Navigation** mit minimaler Komplexität
+- **Touch-freundliche** Oberfläche optimiert für Tablets
+
+**Hauptbildschirme:**
+- **Haupt-Raster-Ansicht** - Primäre Kommunikationsschnittstelle
+- **Such-Oberfläche** - Piktogramm-Entdeckung
+- **Raster-Verwaltung** - Organisation und Anpassung
+- **Einstellungs-Panel** - Sprach- und Anzeige-Einstellungen
+
+---
+
+### 🚀 **Installation & Einrichtung**
+
+#### **Voraussetzungen:**
+- Android-Gerät (API-Level 21+)
+- ~320MB Speicherplatz für App und Piktogramme
+
+#### **Entwicklungs-Setup:**
+```bash
+# Repository klonen
+git clone https://github.com/yourusername/picto_grid_android.git
+cd picto_grid_android
+
+# Flutter-Abhängigkeiten installieren
+flutter pub get
+
+# Android-Gerät/Emulator verbinden
+flutter devices
+
+# Erstellen und ausführen
+flutter run
 ```
+
+#### **Release-Build:**
+```bash
+# APK für Verteilung erstellen
+flutter build apk --release
+
+# APK-Speicherort: build/app/outputs/flutter-apk/app-release.apk
+```
+
+---
+
+### 💡 **Nutzungsanleitung**
+
+1. **Erste Schritte:**
+   - PictoGrid auf Ihrem Android-Gerät starten
+   - Das Standard-Raster mit häufigen Piktogrammen durchsuchen
+   - Beliebiges Piktogramm antippen, um die Aussprache zu hören
+
+2. **Kommunikation:**
+   - Piktogramme auswählen, um Nachrichten zu bilden
+   - TTS verwenden, um ausgewählte Wörter zu sprechen
+   - Zwischen verschiedenen Raster-Kontexten navigieren
+
+3. **Anpassung:**
+   - Bearbeitungsmodus aktivieren, um Raster zu modifizieren
+   - Relevante Piktogramme suchen und hinzufügen
+   - Spezialisierte Raster für verschiedene Situationen erstellen
+
+4. **Erweiterte Funktionen:**
+   - Raster nach Aktivität oder Ort organisieren
+   - Sprach-Einstellungen für optimale Klarheit anpassen
+   - Suche verwenden, um spezifische Piktogramme schnell zu finden
+
+---
+
+### 🤝 **Mitwirken**
+
+Wir begrüßen Beiträge zur Verbesserung der Barrierefreiheit und Funktionalität von PictoGrid:
+
+- **Fehlermeldungen:** GitHub-Issues für Bugs und Feature-Anfragen verwenden
+- **Code-Beiträge:** Flutter-Best-Practices und Barrierefreiheits-Richtlinien befolgen
+- **Übersetzungen:** Bei der Erweiterung der Sprachunterstützung helfen
+- **Barrierefreiheits-Tests:** Bei Usability-Tests für diverse Nutzer unterstützen
+
+---
+
+### 📄 **Lizenz**
+
+Dieses Projekt ist unter [LIZENZ EINFÜGEN] lizenziert - siehe die LICENSE-Datei für Details.
+
+---
+
+### 🙏 **Danksagungen**
+
+- Piktogramm-Bibliothek aus offenen Barrierefreiheits-Ressourcen
+- Text-zu-Sprache powered by Flutter TTS
+- Entwickelt mit Input von UK-Spezialisten und Nutzern
