@@ -103,6 +103,11 @@ class PictogramGridState extends State<PictogramGrid>
     super.dispose();
   }
 
+  /// Hilfsfunktion zum Laden von Bildern (lokal oder online)
+  Widget _buildPictogramImage(String imageUrl, {BoxFit fit = BoxFit.contain}) {
+    return _PictogramImageWidget(imageUrl: imageUrl, fit: fit);
+  }
+
   // Piktogramm sprechen und visuelles Feedback anzeigen
   Future<void> _playPictogram(Pictogram pictogram) async {
     if (_isEditMode) return; // Kein TTS im Bearbeitungsmodus
@@ -403,15 +408,9 @@ class PictogramGridState extends State<PictogramGrid>
                       Expanded(
                         child: Stack(
                           children: [
-                            Image.network(
+                            _buildPictogramImage(
                               pictogram.imageUrl,
                               fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) {
-                                print('Fehler beim Laden des Bildes: $error');
-                                return const Center(
-                                  child: Icon(Icons.error),
-                                );
-                              },
                             ),
                             if (isActive)
                               Positioned(
@@ -669,6 +668,46 @@ class PictogramGridState extends State<PictogramGrid>
   }
 }
 
+/// Wiederverwendbares Widget für Piktogramm-Bilder
+class _PictogramImageWidget extends StatelessWidget {
+  final String imageUrl;
+  final BoxFit fit;
+
+  const _PictogramImageWidget({
+    required this.imageUrl,
+    this.fit = BoxFit.contain,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (imageUrl.startsWith('assets/')) {
+      // Lokales Asset-Bild
+      return Image.asset(
+        imageUrl,
+        fit: fit,
+        errorBuilder: (context, error, stackTrace) {
+          print('Fehler beim Laden des lokalen Bildes: $error');
+          return const Center(
+            child: Icon(Icons.error, color: Colors.red),
+          );
+        },
+      );
+    } else {
+      // Online-Bild (Fallback)
+      return Image.network(
+        imageUrl,
+        fit: fit,
+        errorBuilder: (context, error, stackTrace) {
+          print('Fehler beim Laden des Online-Bildes: $error');
+          return const Center(
+            child: Icon(Icons.error, color: Colors.red),
+          );
+        },
+      );
+    }
+  }
+}
+
 class PictogramPosition {
   final Pictogram pictogram;
   int row;
@@ -710,8 +749,8 @@ class DraggablePictogramTile extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
-                child: Image.network(
-                  position.pictogram.imageUrl,
+                child: _PictogramImageWidget(
+                  imageUrl: position.pictogram.imageUrl,
                   fit: BoxFit.contain,
                 ),
               ),
@@ -743,12 +782,9 @@ class DraggablePictogramTile extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
-                child: Image.network(
-                  position.pictogram.imageUrl,
+                child: _PictogramImageWidget(
+                  imageUrl: position.pictogram.imageUrl,
                   fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(Icons.error_outline, color: Colors.red);
-                  },
                 ),
               ),
               Text(
