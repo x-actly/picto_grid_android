@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show listEquals;
+import 'dart:io';
 import '../models/pictogram.dart';
 import 'package:provider/provider.dart';
 import '../providers/grid_provider.dart';
 import '../services/tts_service.dart';
-import 'dart:math' as math;
+import '../widgets/pictogram_selection_dialog.dart';
+import '../services/custom_pictogram_service.dart';
 
 class PictogramGrid extends StatefulWidget {
   final List<Pictogram> pictograms;
@@ -251,18 +253,29 @@ class PictogramGridState extends State<PictogramGrid>
                   },
                   builder: (context, candidateData, rejectedData) {
                     final isTargeted = candidateData.isNotEmpty;
-                    return Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
+                    return GestureDetector(
+                      onTap: () =>
+                          _showPictogramSelectionDialog(context, row, col),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: isTargeted
+                                ? Colors.orange
+                                : Colors.grey.withOpacity(0.3),
+                            width: isTargeted ? 2 : 1,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
                           color: isTargeted
-                              ? Colors.orange
-                              : Colors.grey.withOpacity(0.3),
-                          width: isTargeted ? 2 : 1,
+                              ? Colors.orange.withOpacity(0.1)
+                              : Colors.transparent,
                         ),
-                        borderRadius: BorderRadius.circular(8),
-                        color: isTargeted
-                            ? Colors.orange.withOpacity(0.1)
-                            : Colors.transparent,
+                        child: const Center(
+                          child: Icon(
+                            Icons.add,
+                            color: Colors.grey,
+                            size: 32,
+                          ),
+                        ),
                       ),
                     );
                   },
@@ -660,11 +673,152 @@ class PictogramGridState extends State<PictogramGrid>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(_isEditMode
-            ? 'Bearbeitungsmodus aktiviert'
+            ? 'Bearbeitungsmodus aktiviert - Klicken Sie auf ein Kästchen, um Piktogramme hinzuzufügen'
             : 'Bearbeitungsmodus deaktiviert'),
         duration: const Duration(seconds: 2),
       ),
     );
+  }
+
+  /// Zeigt den Piktogramm-Auswahl-Dialog für ein spezifisches Kästchen
+  void _showPictogramSelectionDialog(BuildContext context, int row, int col) {
+    print('🔵 Grid: Zeige Piktogramm-Auswahl-Dialog für Kästchen ($row,$col)');
+    PictogramSelectionDialog.show(context, (Pictogram selectedPictogram) async {
+      print('🔵 Grid: Piktogramm ausgewählt: ${selectedPictogram.keyword}');
+
+      // Prüfe ob es sich um ein temporäres benutzerdefiniertes Piktogramm handelt
+      if (_isTemporaryCustomPictogram(selectedPictogram)) {
+        print('🔵 Grid: Zeige Naming-Dialog für temporäres Piktogramm');
+        final renamedPictogram =
+            await _showNamingDialogForPictogram(context, selectedPictogram);
+        if (renamedPictogram != null) {
+          _addPictogramToGrid(context, renamedPictogram);
+        }
+      } else {
+        _addPictogramToGrid(context, selectedPictogram);
+      }
+    });
+  }
+
+  /// Prüft ob es sich um ein temporäres benutzerdefiniertes Piktogramm handelt
+  bool _isTemporaryCustomPictogram(Pictogram pictogram) {
+    return pictogram.keyword.startsWith('Galerie_') ||
+        pictogram.keyword.startsWith('Foto_');
+  }
+
+  /// Zeigt den Naming-Dialog für ein Piktogramm an
+  Future<Pictogram?> _showNamingDialogForPictogram(
+      BuildContext context, Pictogram pictogram) async {
+    final nameController = TextEditingController();
+    final descriptionController = TextEditingController();
+
+    final result = await showDialog<Map<String, String>>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Piktogramm benennen'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: _PictogramImageWidget(
+                    imageUrl: pictogram.imageUrl,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Name für Sprachausgabe *',
+                  hintText: 'z.B. Haus, Auto, spielen...',
+                  border: OutlineInputBorder(),
+                ),
+                autofocus: true,
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Beschreibung (optional)',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 2,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Abbrechen'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (nameController.text.trim().isNotEmpty) {
+                Navigator.pop(context, {
+                  'name': nameController.text.trim(),
+                  'description': descriptionController.text.trim(),
+                });
+              }
+            },
+            child: const Text('Speichern'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null) {
+      print(
+          '🔵 Grid: Benenne Piktogramm um: ${pictogram.keyword} → ${result['name']}');
+
+      // Erstelle neues Piktogramm mit dem gewählten Namen
+      final renamedPictogram = Pictogram(
+        id: pictogram.id,
+        keyword: result['name']!,
+        imageUrl: pictogram.imageUrl,
+        description: result['description'] ?? '',
+        category: 'Benutzerdefiniert',
+      );
+
+      // Aktualisiere das Custom-Piktogramm im Service
+      await CustomPictogramService.instance
+          .updateCustomPictogram(renamedPictogram);
+
+      return renamedPictogram;
+    }
+
+    return null;
+  }
+
+  /// Fügt ein Piktogramm zum Grid hinzu
+  void _addPictogramToGrid(BuildContext context, Pictogram pictogram) {
+    // Füge das Piktogramm zum Grid hinzu
+    final gridProvider = context.read<GridProvider>();
+    gridProvider.addPictogramToGrid(pictogram);
+
+    // Aktualisiere die Position im Grid
+    setState(() {
+      _updatePositionsWithCurrentDimensions();
+    });
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${pictogram.keyword} wurde hinzugefügt'),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+    }
   }
 }
 
@@ -689,6 +843,19 @@ class _PictogramImageWidget extends StatelessWidget {
           print('Fehler beim Laden des lokalen Bildes: $error');
           return const Center(
             child: Icon(Icons.error, color: Colors.red),
+          );
+        },
+      );
+    } else if (imageUrl.startsWith('/') ||
+        imageUrl.contains('custom_pictograms')) {
+      // Benutzerdefiniertes lokales Bild
+      return Image.file(
+        File(imageUrl),
+        fit: fit,
+        errorBuilder: (context, error, stackTrace) {
+          print('Fehler beim Laden des benutzerdefinierten Bildes: $error');
+          return const Center(
+            child: Icon(Icons.photo, color: Colors.grey),
           );
         },
       );

@@ -3,9 +3,10 @@ import 'package:provider/provider.dart';
 import 'providers/pictogram_provider.dart';
 import 'providers/grid_provider.dart';
 import 'widgets/pictogram_grid.dart';
-import 'widgets/pictogram_search_dropdown.dart';
+
 import 'services/tts_service.dart';
 import 'services/local_pictogram_service.dart';
+import 'services/custom_pictogram_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,6 +16,9 @@ void main() async {
 
   // Lokalen Piktogramm-Service initialisieren
   await LocalPictogramService.instance.initialize();
+
+  // Custom Piktogramm-Service initialisieren
+  await CustomPictogramService.instance.initialize();
 
   runApp(const PictoGridApp());
 }
@@ -58,7 +62,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final gridProvider = context.watch<GridProvider>();
-    final pictogramProvider = context.watch<PictogramProvider>();
 
     return Scaffold(
       appBar: AppBar(
@@ -182,40 +185,26 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
-          // Suchleiste oben
+          // Info-Karte für Bearbeitungsmodus
           if (_showSearch)
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: PictogramSearchDropdown(
-                onPictogramSelected: (pictogram) {
-                  if (gridProvider.selectedGridId != null) {
-                    print(
-                        'Füge Piktogramm hinzu: ${pictogram.keyword} (ID: ${pictogram.id})');
-                    print('Aktuelles Grid ID: ${gridProvider.selectedGridId}');
-                    print(
-                        'Aktuelle Anzahl Piktogramme: ${gridProvider.currentGridPictograms.length}');
-
-                    gridProvider.addPictogramToGrid(pictogram);
-
-                    print(
-                        'Neue Anzahl Piktogramme: ${gridProvider.currentGridPictograms.length}');
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                            '${pictogram.keyword} wurde zum Grid hinzugefügt'),
-                        duration: const Duration(seconds: 1),
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline, color: Colors.blue),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Aktivieren Sie den Bearbeitungsmodus (✏️) und klicken Sie auf ein Kästchen, um Piktogramme hinzuzufügen.',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
                       ),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Bitte wählen Sie zuerst ein Grid aus'),
-                        backgroundColor: Colors.orange,
-                      ),
-                    );
-                  }
-                },
+                    ],
+                  ),
+                ),
               ),
             ),
 
