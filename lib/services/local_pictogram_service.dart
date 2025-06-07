@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import '../models/pictogram.dart';
+import 'custom_pictogram_service.dart';
 
 class LocalPictogramService {
   static LocalPictogramService? _instance;
@@ -243,9 +244,21 @@ class LocalPictogramService {
   /// Sucht ein Piktogramm anhand des Namens direkt in den Dateinamen
   Future<Pictogram?> getPictogramByName(String name) async {
     await initialize();
-    final availableFiles = await _loadAvailableFiles();
 
     print('🔍 Suche nach Datei für Namen: "$name"');
+
+    // Zuerst prüfen ob es ein benutzerdefiniertes Piktogramm ist
+    final customPictograms =
+        await CustomPictogramService.instance.getAllCustomPictograms();
+    for (final customPictogram in customPictograms) {
+      if (customPictogram.keyword == name) {
+        print(
+            '✅ Benutzerdefiniertes Piktogramm gefunden: "$name" → "${customPictogram.imageUrl}"');
+        return customPictogram;
+      }
+    }
+
+    final availableFiles = await _loadAvailableFiles();
 
     // 1. Exakte Übereinstimmung am Anfang des Dateinamens
     for (final filename in availableFiles) {
