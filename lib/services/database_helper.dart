@@ -4,7 +4,8 @@ import '../models/pictogram.dart';
 
 class DatabaseHelper {
   static const String _databaseName = 'pictogrid.db';
-  static const int _databaseVersion = 2;  // Version erhöht wegen Schemaänderung
+  static const int _databaseVersion =
+      4; // Version 4: Kompletter Neuaufbau für lokale Dateien
 
   // Singleton-Pattern
   DatabaseHelper._privateConstructor();
@@ -54,11 +55,12 @@ class DatabaseHelper {
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       // Backup der alten Daten
-      final List<Map<String, dynamic>> oldData = await db.query('grid_pictograms');
-      
+      final List<Map<String, dynamic>> oldData =
+          await db.query('grid_pictograms');
+
       // Alte Tabelle löschen
       await db.execute('DROP TABLE grid_pictograms');
-      
+
       // Neue Tabelle erstellen
       await db.execute('''
         CREATE TABLE grid_pictograms (
@@ -72,7 +74,7 @@ class DatabaseHelper {
           FOREIGN KEY (grid_id) REFERENCES grids (id) ON DELETE CASCADE
         )
       ''');
-      
+
       // Alte Daten wiederherstellen
       for (var row in oldData) {
         await db.insert('grid_pictograms', {
@@ -84,6 +86,21 @@ class DatabaseHelper {
           'category': 'Gespeichert',
         });
       }
+    }
+
+    if (oldVersion < 3) {
+      // Version 3: Lösche alle gespeicherten Piktogramme wegen Dateinamen-Änderung
+      print(
+          'DatabaseHelper: Lösche alle Piktogramme wegen Dateinamen-Korrektur');
+      await db.execute('DELETE FROM grid_pictograms');
+    }
+
+    if (oldVersion < 4) {
+      // Version 4: Kompletter Neuaufbau - lösche alle ARASAAC-basierten Daten
+      await db.execute('DELETE FROM grid_pictograms');
+      print(
+          '🔄 DatabaseHelper: Kompletter Neuaufbau - alle alten Piktogramme entfernt (Version 4)');
+      print('💡 Ab jetzt werden nur noch lokale Dateien verwendet');
     }
   }
 
@@ -99,10 +116,12 @@ class DatabaseHelper {
   }
 
   // Piktogramm-Operationen
-  Future<void> addPictogramToGrid(int gridId, Pictogram pictogram, int position) async {
+  Future<void> addPictogramToGrid(
+      int gridId, Pictogram pictogram, int position) async {
     final db = await database;
-    print('DatabaseHelper: Füge Piktogramm ${pictogram.id} zu Grid $gridId hinzu');
-    
+    print(
+        'DatabaseHelper: Füge Piktogramm ${pictogram.id} zu Grid $gridId hinzu');
+
     await db.insert('grid_pictograms', {
       'grid_id': gridId,
       'pictogram_id': pictogram.id,
@@ -111,21 +130,21 @@ class DatabaseHelper {
       'description': pictogram.description,
       'category': pictogram.category,
     });
-    
+
     print('DatabaseHelper: Piktogramm erfolgreich in Datenbank eingefügt');
   }
 
   Future<List<Map<String, dynamic>>> getPictogramsInGrid(int gridId) async {
     final db = await database;
     print('DatabaseHelper: Lade Piktogramme für Grid $gridId');
-    
+
     final results = await db.query(
       'grid_pictograms',
       where: 'grid_id = ?',
       whereArgs: [gridId],
       orderBy: 'position',
     );
-    
+
     print('DatabaseHelper: ${results.length} Piktogramme gefunden');
     return results;
   }
@@ -148,4 +167,4 @@ class DatabaseHelper {
       whereArgs: [gridId],
     );
   }
-} 
+}

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/pictogram.dart';
-import '../services/pictogram_service.dart';
+import '../services/local_pictogram_service.dart';
 
 class PictogramSearchDropdown extends StatefulWidget {
   final Function(Pictogram) onPictogramSelected;
@@ -11,13 +11,15 @@ class PictogramSearchDropdown extends StatefulWidget {
   });
 
   @override
-  State<PictogramSearchDropdown> createState() => _PictogramSearchDropdownState();
+  State<PictogramSearchDropdown> createState() =>
+      _PictogramSearchDropdownState();
 }
 
 class _PictogramSearchDropdownState extends State<PictogramSearchDropdown> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  final PictogramService _pictogramService = PictogramService();
+  final LocalPictogramService _pictogramService =
+      LocalPictogramService.instance;
   List<Pictogram> _searchResults = [];
   bool _isLoading = false;
   bool _showDropdown = false;
@@ -135,13 +137,25 @@ class _PictogramSearchDropdownState extends State<PictogramSearchDropdown> {
                             leading: SizedBox(
                               width: 40,
                               height: 40,
-                              child: Image.network(
-                                pictogram.imageUrl,
-                                fit: BoxFit.contain,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Icon(Icons.error_outline, color: Colors.red);
-                                },
-                              ),
+                              child: pictogram.imageUrl.startsWith('assets/')
+                                  ? Image.asset(
+                                      pictogram.imageUrl,
+                                      fit: BoxFit.contain,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return const Icon(Icons.error_outline,
+                                            color: Colors.red);
+                                      },
+                                    )
+                                  : Image.network(
+                                      pictogram.imageUrl,
+                                      fit: BoxFit.contain,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return const Icon(Icons.error_outline,
+                                            color: Colors.red);
+                                      },
+                                    ),
                             ),
                             title: Text(pictogram.keyword),
                             onTap: () {
@@ -160,4 +174,4 @@ class _PictogramSearchDropdownState extends State<PictogramSearchDropdown> {
       ],
     );
   }
-} 
+}

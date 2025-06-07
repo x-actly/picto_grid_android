@@ -1,12 +1,29 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/pictogram.dart';
+import 'local_pictogram_service.dart';
 
 class ArasaacService {
   static const String apiBaseUrl = 'https://api.arasaac.org/api/pictograms';
   static const String imageBaseUrl = 'https://static.arasaac.org/pictograms';
 
+  // Flag um zwischen Online- und Offline-Modus zu wechseln
+  static const bool useLocalPictograms = true;
+
+  final LocalPictogramService _localService = LocalPictogramService.instance;
+
   Future<List<Pictogram>> searchPictograms(String keyword) async {
+    if (useLocalPictograms) {
+      // Verwende lokale Piktogramme
+      return await _localService.searchPictograms(keyword);
+    } else {
+      // Verwende Online-API (ursprüngliche Implementierung)
+      return await _searchPictogramsOnline(keyword);
+    }
+  }
+
+  // Original-Online-Implementierung für Fallback
+  Future<List<Pictogram>> _searchPictogramsOnline(String keyword) async {
     try {
       final response = await http.get(
         Uri.parse('$apiBaseUrl/de/search/$keyword'),
@@ -14,7 +31,7 @@ class ArasaacService {
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = json.decode(response.body);
-        
+
         if (jsonData.isEmpty) {
           print('Keine Piktogramme gefunden für: $keyword');
           return [];
@@ -53,7 +70,8 @@ class ArasaacService {
       } else {
         print('API Fehler: ${response.statusCode}');
         print('Response Body: ${response.body}');
-        throw Exception('Fehler beim Laden der Piktogramme: ${response.statusCode}');
+        throw Exception(
+            'Fehler beim Laden der Piktogramme: ${response.statusCode}');
       }
     } catch (e) {
       print('Netzwerkfehler: $e');
@@ -62,10 +80,14 @@ class ArasaacService {
   }
 
   String getImageUrl(int pictogramId) {
-    return '$imageBaseUrl/$pictogramId/${pictogramId}_500.png';
+    if (useLocalPictograms) {
+      return _localService.getLocalImagePath('$pictogramId.png');
+    } else {
+      return '$imageBaseUrl/$pictogramId/${pictogramId}_500.png';
+    }
   }
 
   String getPictogramUrl(int pictogramId) {
     return getImageUrl(pictogramId);
   }
-} 
+}

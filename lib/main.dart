@@ -5,12 +5,16 @@ import 'providers/grid_provider.dart';
 import 'widgets/pictogram_grid.dart';
 import 'widgets/pictogram_search_dropdown.dart';
 import 'services/tts_service.dart';
+import 'services/local_pictogram_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // TTS-Service initialisieren
   await TtsService().initialize();
+
+  // Lokalen Piktogramm-Service initialisieren
+  await LocalPictogramService.instance.initialize();
 
   runApp(const PictoGridApp());
 }
