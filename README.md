@@ -187,7 +187,7 @@ We welcome contributions to improve PictoGrid's accessibility and functionality:
 
 ### 📄 **License**
 
-This project is licensed under [INSERT LICENSE] - see the LICENSE file for details.
+This project is licensed under MIT License - see the LICENSE file for details.
 
 ---
 
@@ -382,7 +382,7 @@ Wir begrüßen Beiträge zur Verbesserung der Barrierefreiheit und Funktionalit�
 
 ### 📄 **Lizenz**
 
-Dieses Projekt ist unter [LIZENZ EINFÜGEN] lizenziert - siehe die LICENSE-Datei für Details.
+Dieses Projekt ist unter MIT License lizenziert - siehe die LICENSE-Datei für Details.
 
 ---
 
