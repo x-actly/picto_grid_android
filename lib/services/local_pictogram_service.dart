@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import '../models/pictogram.dart';
 import 'custom_pictogram_service.dart';
@@ -25,10 +26,14 @@ class LocalPictogramService {
       final List<dynamic> jsonData = json.decode(jsonString);
       _pictogramData = jsonData.cast<Map<String, dynamic>>();
       _isInitialized = true;
-      print(
+      if (kDebugMode) {
+        print(
           'Lokale Piktogramm-Daten geladen: ${_pictogramData!.length} Einträge');
+      }
     } catch (e) {
-      print('Fehler beim Laden der lokalen Piktogramm-Daten: $e');
+      if (kDebugMode) {
+        print('Fehler beim Laden der lokalen Piktogramm-Daten: $e');
+      }
       _pictogramData = [];
       _isInitialized = true;
     }
@@ -42,7 +47,9 @@ class LocalPictogramService {
     final availableFiles = await _loadAvailableFiles();
 
     if (availableFiles.isEmpty) {
-      print('Keine lokalen Dateien verfügbar');
+      if (kDebugMode) {
+        print('Keine lokalen Dateien verfügbar');
+      }
       return [];
     }
 
@@ -113,8 +120,10 @@ class LocalPictogramService {
     // Begrenze die Anzahl der Ergebnisse für bessere Performance
     final limitedResults = results.take(50).toList();
 
-    print(
+    if (kDebugMode) {
+      print(
         'Lokale Suche für "$keyword": ${limitedResults.length} von ${results.length} Ergebnissen angezeigt');
+    }
     return limitedResults;
   }
 
@@ -219,7 +228,9 @@ class LocalPictogramService {
         category: category,
       );
     } catch (e) {
-      print('Piktogramm mit ID $id nicht in lokalen Daten gefunden');
+      if (kDebugMode) {
+        print('Piktogramm mit ID $id nicht in lokalen Daten gefunden');
+      }
       return null;
     }
   }
@@ -235,10 +246,14 @@ class LocalPictogramService {
           await rootBundle.loadString('assets/data/available_files.json');
       final List<dynamic> jsonData = json.decode(jsonString);
       _availableFiles = jsonData.cast<String>();
-      print('Verfügbare Dateien geladen: ${_availableFiles!.length} Dateien');
+      if (kDebugMode) {
+        print('Verfügbare Dateien geladen: ${_availableFiles!.length} Dateien');
+      }
       return _availableFiles!;
     } catch (e) {
-      print('Fehler beim Laden der verfügbaren Dateien: $e');
+      if (kDebugMode) {
+        print('Fehler beim Laden der verfügbaren Dateien: $e');
+      }
       return [];
     }
   }
@@ -247,15 +262,19 @@ class LocalPictogramService {
   Future<Pictogram?> getPictogramByName(String name) async {
     await initialize();
 
-    print('🔍 Suche nach Datei für Namen: "$name"');
+    if (kDebugMode) {
+      print('🔍 Suche nach Datei für Namen: "$name"');
+    }
 
     // Zuerst prüfen ob es ein benutzerdefiniertes Piktogramm ist
     final customPictograms =
         await CustomPictogramService.instance.getAllCustomPictograms();
     for (final customPictogram in customPictograms) {
       if (customPictogram.keyword == name) {
-        print(
+        if (kDebugMode) {
+          print(
             '✅ Benutzerdefiniertes Piktogramm gefunden: "$name" → "${customPictogram.imageUrl}"');
+        }
         return customPictogram;
       }
     }
@@ -269,7 +288,9 @@ class LocalPictogramService {
         final match = RegExp(r'_(\d+)\.png$').firstMatch(filename);
         final int fileId = match != null ? int.parse(match.group(1)!) : 0;
 
-        print('✅ Exakte Übereinstimmung: "$name" → "$filename"');
+        if (kDebugMode) {
+          print('✅ Exakte Übereinstimmung: "$name" → "$filename"');
+        }
         return _createPictogramFromFile(filename, fileId, nameFromFile);
       }
     }
@@ -281,7 +302,9 @@ class LocalPictogramService {
         final match = RegExp(r'_(\d+)\.png$').firstMatch(filename);
         final int fileId = match != null ? int.parse(match.group(1)!) : 0;
 
-        print('✅ Synonym gefunden: "$name" → "$filename"');
+        if (kDebugMode) {
+          print('✅ Synonym gefunden: "$name" → "$filename"');
+        }
         return _createPictogramFromFile(
             filename, fileId, filename.split('_')[0]);
       }
@@ -295,12 +318,16 @@ class LocalPictogramService {
         final match = RegExp(r'_(\d+)\.png$').firstMatch(filename);
         final int fileId = match != null ? int.parse(match.group(1)!) : 0;
 
-        print('✅ Partielle Übereinstimmung: "$name" → "$filename"');
+        if (kDebugMode) {
+          print('✅ Partielle Übereinstimmung: "$name" → "$filename"');
+        }
         return _createPictogramFromFile(filename, fileId, nameFromFile);
       }
     }
 
-    print('❌ Keine Datei gefunden für Namen: "$name"');
+    if (kDebugMode) {
+      print('❌ Keine Datei gefunden für Namen: "$name"');
+    }
     return null;
   }
 

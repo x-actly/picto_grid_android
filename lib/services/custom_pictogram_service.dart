@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -37,10 +38,14 @@ class CustomPictogramService {
       await _loadCustomPictograms();
       _isInitialized = true;
 
-      print(
+      if (kDebugMode) {
+        print(
           'Custom Pictogram Service initialisiert: ${_customPictograms.length} Piktogramme geladen');
+      }
     } catch (e) {
-      print('Fehler beim Initialisieren des Custom Pictogram Service: $e');
+      if (kDebugMode) {
+        print('Fehler beim Initialisieren des Custom Pictogram Service: $e');
+      }
       _customPictograms = [];
       _isInitialized = true;
     }
@@ -65,7 +70,9 @@ class CustomPictogramService {
         }).toList();
       }
     } catch (e) {
-      print('Fehler beim Laden der Custom Pictogram Metadaten: $e');
+      if (kDebugMode) {
+        print('Fehler beim Laden der Custom Pictogram Metadaten: $e');
+      }
       _customPictograms = [];
     }
   }
@@ -87,25 +94,35 @@ class CustomPictogramService {
 
       await metadataFile.writeAsString(json.encode(jsonData));
     } catch (e) {
-      print('Fehler beim Speichern der Custom Pictogram Metadaten: $e');
+      if (kDebugMode) {
+        print('Fehler beim Speichern der Custom Pictogram Metadaten: $e');
+      }
     }
   }
 
   /// Nimmt ein Foto mit der Kamera auf
   Future<Pictogram?> captureFromCamera() async {
-    print('🔵 Service: Initialize...');
+    if (kDebugMode) {
+      print('🔵 Service: Initialize...');
+    }
     await initialize();
 
     // Überprüfe Kamera-Berechtigung
-    print('🔵 Service: Prüfe Kamera-Berechtigung...');
+    if (kDebugMode) {
+      print('🔵 Service: Prüfe Kamera-Berechtigung...');
+    }
     final cameraStatus = await Permission.camera.request();
     if (!cameraStatus.isGranted) {
-      print('🔴 Service: Kamera-Berechtigung verweigert');
+      if (kDebugMode) {
+        print('🔴 Service: Kamera-Berechtigung verweigert');
+      }
       throw Exception('Kamera-Berechtigung wurde nicht gewährt');
     }
 
     try {
-      print('🔵 Service: Öffne Kamera...');
+      if (kDebugMode) {
+        print('🔵 Service: Öffne Kamera...');
+      }
       final XFile? image = await _picker.pickImage(
         source: ImageSource.camera,
         maxWidth: 1024,
@@ -114,16 +131,24 @@ class CustomPictogramService {
       );
 
       if (image != null) {
-        print('🔵 Service: Bild erhalten, verarbeite: ${image.path}');
+        if (kDebugMode) {
+          print('🔵 Service: Bild erhalten, verarbeite: ${image.path}');
+        }
         final result = await _processSelectedImage(image);
-        print('🔵 Service: Verarbeitung abgeschlossen: ${result?.imageUrl}');
+        if (kDebugMode) {
+          print('🔵 Service: Verarbeitung abgeschlossen: ${result?.imageUrl}');
+        }
         return result;
       } else {
-        print('🔴 Service: Kein Bild von der Kamera erhalten');
+        if (kDebugMode) {
+          print('🔴 Service: Kein Bild von der Kamera erhalten');
+        }
         return null;
       }
     } catch (e) {
-      print('🔴 Service: Fehler beim Aufnehmen des Fotos: $e');
+      if (kDebugMode) {
+        print('🔴 Service: Fehler beim Aufnehmen des Fotos: $e');
+      }
       throw Exception('Fehler beim Aufnehmen des Fotos: $e');
     }
   }
@@ -157,7 +182,9 @@ class CustomPictogramService {
       }
       return null;
     } catch (e) {
-      print('Fehler beim Auswählen des Bildes: $e');
+      if (kDebugMode) {
+        print('Fehler beim Auswählen des Bildes: $e');
+      }
       throw Exception('Fehler beim Auswählen des Bildes: $e');
     }
   }
@@ -165,13 +192,17 @@ class CustomPictogramService {
   /// Verarbeitet das ausgewählte Bild
   Future<Pictogram?> _processSelectedImage(XFile image) async {
     try {
-      print('🔵 Service: Starte Bildverarbeitung...');
+      if (kDebugMode) {
+        print('🔵 Service: Starte Bildverarbeitung...');
+      }
       // Generiere eine eindeutige ID
       final int newId = DateTime.now().millisecondsSinceEpoch;
       final String filename = 'custom_$newId.jpg';
       final String targetPath = '$_customPictogramsDir/$filename';
 
-      print('🔵 Service: Kopiere Bild von ${image.path} nach $targetPath');
+      if (kDebugMode) {
+        print('🔵 Service: Kopiere Bild von ${image.path} nach $targetPath');
+      }
       // Kopiere das Bild in das App-Verzeichnis
       final File sourceFile = File(image.path);
       final File targetFile = File(targetPath);
@@ -179,7 +210,9 @@ class CustomPictogramService {
 
       // Prüfe ob Datei existiert
       final bool exists = await targetFile.exists();
-      print('🔵 Service: Zieldatei existiert: $exists');
+      if (kDebugMode) {
+        print('🔵 Service: Zieldatei existiert: $exists');
+      }
 
       // Erstelle das Pictogram-Objekt (noch ohne Namen)
       final Pictogram pictogram = Pictogram(
@@ -190,10 +223,14 @@ class CustomPictogramService {
         category: 'Benutzerdefiniert',
       );
 
-      print('🔵 Service: Pictogram erstellt: ID=$newId, Pfad=$targetPath');
+      if (kDebugMode) {
+        print('🔵 Service: Pictogram erstellt: ID=$newId, Pfad=$targetPath');
+      }
       return pictogram;
     } catch (e) {
-      print('🔴 Service: Fehler beim Verarbeiten des Bildes: $e');
+      if (kDebugMode) {
+        print('🔴 Service: Fehler beim Verarbeiten des Bildes: $e');
+      }
       throw Exception('Fehler beim Verarbeiten des Bildes: $e');
     }
   }
@@ -245,7 +282,9 @@ class CustomPictogramService {
         await imageFile.delete();
       }
     } catch (e) {
-      print('Fehler beim Löschen der Bilddatei: $e');
+      if (kDebugMode) {
+        print('Fehler beim Löschen der Bilddatei: $e');
+      }
     }
 
     // Entferne aus der Liste

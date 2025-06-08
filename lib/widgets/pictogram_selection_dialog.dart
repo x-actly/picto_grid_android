@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import '../models/pictogram.dart';
@@ -116,27 +117,37 @@ class PictogramSelectionDialog {
   static Future<void> _captureFromCamera(
       BuildContext context, Function(Pictogram) onSelected) async {
     try {
-      print('🔵 Starte Kamera-Aufnahme...');
+      if (kDebugMode) {
+        print('🔵 Starte Kamera-Aufnahme...');
+      }
 
       // Prüfe Context vorm ersten Schritt
       if (!context.mounted) {
-        print('🔴 Context bereits unmounted vor Kamera-Aufnahme');
+        if (kDebugMode) {
+          print('🔴 Context bereits unmounted vor Kamera-Aufnahme');
+        }
         return;
       }
 
       final pictogram =
           await CustomPictogramService.instance.captureFromCamera();
-      print('🔵 Kamera-Aufnahme abgeschlossen: ${pictogram?.imageUrl}');
+      if (kDebugMode) {
+        print('🔵 Kamera-Aufnahme abgeschlossen: ${pictogram?.imageUrl}');
+      }
 
       if (pictogram != null) {
         // Verwende den Root-Context für den Dialog
         if (context.mounted) {
           final rootContext =
               Navigator.of(context, rootNavigator: true).context;
-          print('🔵 Zeige Benennungs-Dialog mit Root-Context...');
+          if (kDebugMode) {
+            print('🔵 Zeige Benennungs-Dialog mit Root-Context...');
+          }
           await _showNamingDialog(rootContext, pictogram, onSelected);
         } else {
-          print('🔴 Context ist nicht mehr mounted');
+          if (kDebugMode) {
+            print('🔴 Context ist nicht mehr mounted');
+          }
           // Erstelle einen temporären Namen wenn Context verloren
           final tempName = 'Foto_${DateTime.now().millisecondsSinceEpoch}';
           final namedPictogram = Pictogram(
@@ -149,13 +160,19 @@ class PictogramSelectionDialog {
           await CustomPictogramService.instance
               .addCustomPictogram(namedPictogram);
           onSelected(namedPictogram);
-          print('🔵 Temporäres Piktogramm erstellt: $tempName');
+          if (kDebugMode) {
+            print('🔵 Temporäres Piktogramm erstellt: $tempName');
+          }
         }
       } else {
-        print('🔴 Kein Bild von der Kamera erhalten');
+        if (kDebugMode) {
+          print('🔴 Kein Bild von der Kamera erhalten');
+        }
       }
     } catch (e) {
-      print('🔴 Fehler bei Kamera-Aufnahme: $e');
+      if (kDebugMode) {
+        print('🔴 Fehler bei Kamera-Aufnahme: $e');
+      }
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Fehler: $e'), backgroundColor: Colors.red),
@@ -167,24 +184,34 @@ class PictogramSelectionDialog {
   static Future<void> _pickFromGallery(
       BuildContext context, Function(Pictogram) onSelected) async {
     try {
-      print('🔵 Starte Galerie-Auswahl...');
+      if (kDebugMode) {
+        print('🔵 Starte Galerie-Auswahl...');
+      }
 
       if (!context.mounted) {
-        print('🔴 Context bereits unmounted vor Galerie-Auswahl');
+        if (kDebugMode) {
+          print('🔴 Context bereits unmounted vor Galerie-Auswahl');
+        }
         return;
       }
 
       final pictogram = await CustomPictogramService.instance.pickFromGallery();
-      print('🔵 Galerie-Auswahl abgeschlossen: ${pictogram?.imageUrl}');
+      if (kDebugMode) {
+        print('🔵 Galerie-Auswahl abgeschlossen: ${pictogram?.imageUrl}');
+      }
 
       if (pictogram != null) {
         if (context.mounted) {
           final rootContext =
               Navigator.of(context, rootNavigator: true).context;
-          print('🔵 Zeige Benennungs-Dialog mit Root-Context...');
+          if (kDebugMode) {
+            print('🔵 Zeige Benennungs-Dialog mit Root-Context...');
+          }
           await _showNamingDialog(rootContext, pictogram, onSelected);
         } else {
-          print('🔴 Context ist nicht mehr mounted');
+          if (kDebugMode) {
+            print('🔴 Context ist nicht mehr mounted');
+          }
           // Erstelle einen temporären Namen wenn Context verloren
           final tempName = 'Galerie_${DateTime.now().millisecondsSinceEpoch}';
           final namedPictogram = Pictogram(
@@ -197,13 +224,19 @@ class PictogramSelectionDialog {
           await CustomPictogramService.instance
               .addCustomPictogram(namedPictogram);
           onSelected(namedPictogram);
-          print('🔵 Temporäres Piktogramm erstellt: $tempName');
+          if (kDebugMode) {
+            print('🔵 Temporäres Piktogramm erstellt: $tempName');
+          }
         }
       } else {
-        print('🔴 Kein Bild aus der Galerie erhalten');
+        if (kDebugMode) {
+          print('🔴 Kein Bild aus der Galerie erhalten');
+        }
       }
     } catch (e) {
-      print('🔴 Fehler bei Galerie-Auswahl: $e');
+      if (kDebugMode) {
+        print('🔴 Fehler bei Galerie-Auswahl: $e');
+      }
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Fehler: $e'), backgroundColor: Colors.red),
@@ -214,7 +247,9 @@ class PictogramSelectionDialog {
 
   static Future<void> _showNamingDialog(BuildContext context,
       Pictogram pictogram, Function(Pictogram) onSelected) async {
-    print('🔵 Benennungs-Dialog gestartet für: ${pictogram.imageUrl}');
+    if (kDebugMode) {
+      print('🔵 Benennungs-Dialog gestartet für: ${pictogram.imageUrl}');
+    }
     final nameController = TextEditingController();
     final descriptionController = TextEditingController();
 

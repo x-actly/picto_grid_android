@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 class TtsService {
@@ -16,8 +17,10 @@ class TtsService {
       List<dynamic> languages = await _flutterTts.getLanguages;
       List<dynamic> voices = await _flutterTts.getVoices;
 
-      print('Verfügbare Sprachen: $languages');
-      print('Verfügbare Stimmen: $voices');
+      if (kDebugMode) {
+        print('Verfügbare Sprachen: $languages');
+        print('Verfügbare Stimmen: $voices');
+      }
 
       // Versuche deutsche Stimme zu finden
       bool germanVoiceSet = false;
@@ -25,7 +28,7 @@ class TtsService {
       // Suche nach deutschen Stimmen
       for (var voice in voices) {
         if (voice is Map) {
-          String? name = voice['name']?.toString().toLowerCase();
+          voice['name']?.toString().toLowerCase();
           String? locale = voice['locale']?.toString().toLowerCase();
 
           if (locale != null &&
@@ -36,7 +39,9 @@ class TtsService {
               'locale': voice['locale']?.toString() ?? '',
             };
             await _flutterTts.setVoice(voiceMap);
-            print('Deutsche Stimme gefunden und gesetzt: $voice');
+            if (kDebugMode) {
+              print('Deutsche Stimme gefunden und gesetzt: $voice');
+            }
             germanVoiceSet = true;
             break;
           }
@@ -51,11 +56,15 @@ class TtsService {
           try {
             var result = await _flutterTts.setLanguage(locale);
             if (result == 1) {
-              print('Deutsche Sprache gesetzt: $locale');
+              if (kDebugMode) {
+                print('Deutsche Sprache gesetzt: $locale');
+              }
               break;
             }
           } catch (e) {
-            print('Konnte Sprache $locale nicht setzen: $e');
+            if (kDebugMode) {
+              print('Konnte Sprache $locale nicht setzen: $e');
+            }
           }
         }
       }
@@ -70,9 +79,13 @@ class TtsService {
       await _flutterTts.setPitch(1.0);
 
       _isInitialized = true;
-      print('TTS-Service erfolgreich initialisiert');
+      if (kDebugMode) {
+        print('TTS-Service erfolgreich initialisiert');
+      }
     } catch (e) {
-      print('Fehler bei TTS-Initialisierung: $e');
+      if (kDebugMode) {
+        print('Fehler bei TTS-Initialisierung: $e');
+      }
     }
   }
 
@@ -87,9 +100,13 @@ class TtsService {
 
       // Spreche den Text
       await _flutterTts.speak(text);
-      print('TTS spricht: $text');
+      if (kDebugMode) {
+        print('TTS spricht: $text');
+      }
     } catch (e) {
-      print('Fehler bei Sprachausgabe: $e');
+      if (kDebugMode) {
+        print('Fehler bei Sprachausgabe: $e');
+      }
     }
   }
 
@@ -97,7 +114,9 @@ class TtsService {
     try {
       await _flutterTts.stop();
     } catch (e) {
-      print('Fehler beim Stoppen der TTS: $e');
+      if (kDebugMode) {
+        print('Fehler beim Stoppen der TTS: $e');
+      }
     }
   }
 
@@ -105,7 +124,9 @@ class TtsService {
     try {
       await _flutterTts.setVolume(volume.clamp(0.0, 1.0));
     } catch (e) {
-      print('Fehler beim Setzen der Lautstärke: $e');
+      if (kDebugMode) {
+        print('Fehler beim Setzen der Lautstärke: $e');
+      }
     }
   }
 
@@ -113,7 +134,9 @@ class TtsService {
     try {
       await _flutterTts.setSpeechRate(rate.clamp(0.0, 1.0));
     } catch (e) {
-      print('Fehler beim Setzen der Sprechgeschwindigkeit: $e');
+      if (kDebugMode) {
+        print('Fehler beim Setzen der Sprechgeschwindigkeit: $e');
+      }
     }
   }
 }
