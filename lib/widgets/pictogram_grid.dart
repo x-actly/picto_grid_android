@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show listEquals;
+import 'package:flutter/foundation.dart';
 import 'dart:io';
 import '../models/pictogram.dart';
 import 'package:provider/provider.dart';
@@ -26,14 +26,14 @@ class PictogramGrid extends StatefulWidget {
   State<PictogramGrid> createState() => PictogramGridState();
 }
 
-class _GridDimensions {
+class GridDimensions {
   final int columns;
   final int rows;
   final double itemWidth;
   final double itemHeight;
   final int maxGridSize;
 
-  _GridDimensions({
+  GridDimensions({
     required this.columns,
     required this.rows,
     required this.itemWidth,
@@ -48,8 +48,6 @@ class PictogramGridState extends State<PictogramGrid>
   int _gridSize = 4; // Standardmäßig 4x2
   bool _showGridLines = true;
   bool _isEditMode = false;
-  final double _minItemSize = 100.0;
-  final double _spacing = 10.0;
   bool _isInitialized = false;
 
   // TTS und visuelles Feedback
@@ -60,11 +58,11 @@ class PictogramGridState extends State<PictogramGrid>
   double _ttsVolume = 0.8;
   double _ttsSpeechRate = 0.5;
 
-  static const int MIN_GRID_SIZE = 4; // Minimum ist jetzt 4
-  static const int MAX_GRID_SIZE = 8; // Maximum ist jetzt 8
+  static const int minGridSize = 4; // Minimum ist jetzt 4
+  static const int maxGridSize = 8; // Maximum ist jetzt 8
 
   // Definiere die verfügbaren Grid-Größen
-  static const Map<int, int> AVAILABLE_GRID_SIZES = {
+  static const Map<int, int> availableGridSizes = {
     4: 2, // 4x2
     8: 3, // 8x3
   };
@@ -188,25 +186,25 @@ class PictogramGridState extends State<PictogramGrid>
     }
   }
 
-  _GridDimensions calculateGridDimensions(Size size) {
+  GridDimensions calculateGridDimensions(Size size) {
     // Berechne den tatsächlich verfügbaren Platz
     final availableWidth = size.width;
     final availableHeight = size.height;
 
     // Bestimme die Spalten basierend auf der gewählten Gridgröße
     final columns = _gridSize;
-    final rows = AVAILABLE_GRID_SIZES[columns] ?? 2;
+    final rows = availableGridSizes[columns] ?? 2;
 
     // Berechne die Kästchengröße so, dass der gesamte verfügbare Platz genutzt wird
     final itemWidth = availableWidth / columns;
     final itemHeight = availableHeight / rows;
 
-    return _GridDimensions(
+    return GridDimensions(
       columns: columns,
       rows: rows,
       itemWidth: itemWidth,
       itemHeight: itemHeight,
-      maxGridSize: MAX_GRID_SIZE,
+      maxGridSize: maxGridSize,
     );
   }
 
@@ -235,7 +233,7 @@ class PictogramGridState extends State<PictogramGrid>
     );
   }
 
-  Widget _buildDropTargets(_GridDimensions dimensions) {
+  Widget _buildDropTargets(GridDimensions dimensions) {
     return Stack(
       children: [
         for (int row = 0; row < dimensions.rows; row++)
@@ -247,9 +245,9 @@ class PictogramGridState extends State<PictogramGrid>
                 width: dimensions.itemWidth,
                 height: dimensions.itemHeight,
                 child: DragTarget<PictogramPosition>(
-                  onWillAccept: (data) => true,
-                  onAccept: (draggedPosition) {
-                    _movePictogram(draggedPosition, row, col);
+                  onWillAcceptWithDetails: (data) => true,
+                  onAcceptWithDetails: (details) {
+                    _movePictogram(details.data, row, col);
                   },
                   builder: (context, candidateData, rejectedData) {
                     final isTargeted = candidateData.isNotEmpty;
@@ -261,12 +259,12 @@ class PictogramGridState extends State<PictogramGrid>
                           border: Border.all(
                             color: isTargeted
                                 ? Colors.orange
-                                : Colors.grey.withOpacity(0.3),
+                                : Colors.grey.withAlpha(30),
                             width: isTargeted ? 2 : 1,
                           ),
                           borderRadius: BorderRadius.circular(8),
                           color: isTargeted
-                              ? Colors.orange.withOpacity(0.1)
+                              ? Colors.orange.withAlpha(10)
                               : Colors.transparent,
                         ),
                         child: const Center(
@@ -285,7 +283,7 @@ class PictogramGridState extends State<PictogramGrid>
     );
   }
 
-  List<Widget> _buildPictogramTiles(_GridDimensions dimensions) {
+  List<Widget> _buildPictogramTiles(GridDimensions dimensions) {
     return _pictogramPositions.map((position) {
       final tile = SizedBox(
         width: dimensions.itemWidth,
@@ -314,7 +312,7 @@ class PictogramGridState extends State<PictogramGrid>
             height: dimensions.itemHeight,
             decoration: BoxDecoration(
               border: Border.all(
-                color: Colors.grey.withOpacity(0.3),
+                color: Colors.grey.withAlpha(30),
                 width: 1,
               ),
               borderRadius: BorderRadius.circular(8),
@@ -333,7 +331,7 @@ class PictogramGridState extends State<PictogramGrid>
                     child: Container(
                       padding: const EdgeInsets.all(2),
                       decoration: BoxDecoration(
-                        color: Colors.orange.withOpacity(0.8),
+                        color: Colors.orange.withAlpha(80),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Icon(
@@ -351,7 +349,7 @@ class PictogramGridState extends State<PictogramGrid>
     }).toList();
   }
 
-  Widget _buildGridLines(_GridDimensions dimensions) {
+  Widget _buildGridLines(GridDimensions dimensions) {
     return Stack(
       children: [
         ...List.generate(dimensions.rows + 1, (row) {
@@ -399,7 +397,7 @@ class PictogramGridState extends State<PictogramGrid>
                 elevation:
                     _isEditMode ? 4 : (isActive ? 3 : 2), // Weniger Elevation
                 color: isActive
-                    ? Colors.teal.withOpacity(0.05)
+                    ? Colors.teal.withAlpha(5)
                     : null, // Weniger sichtbare Farbe
                 child: Container(
                   width: size,
@@ -409,8 +407,7 @@ class PictogramGridState extends State<PictogramGrid>
                       ? BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Colors.teal.withOpacity(
-                                0.6), // Weniger intensive Randfarbe
+                            color: Colors.teal.withAlpha(60), // Weniger intensive Randfarbe
                             width: 1.5, // Dünnerer Rand
                           ),
                         )
@@ -432,7 +429,7 @@ class PictogramGridState extends State<PictogramGrid>
                                 child: Container(
                                   padding: const EdgeInsets.all(2),
                                   decoration: BoxDecoration(
-                                    color: Colors.teal.withOpacity(0.8),
+                                    color: Colors.teal.withAlpha(80),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: const Icon(
@@ -456,7 +453,7 @@ class PictogramGridState extends State<PictogramGrid>
                                 ? FontWeight.w500
                                 : FontWeight.normal, // Weniger fett
                             color: isActive
-                                ? Colors.teal.withOpacity(0.8)
+                                ? Colors.teal.withAlpha(80)
                                 : null, // Weniger intensive Textfarbe
                           ),
                           maxLines: 2,
@@ -498,7 +495,7 @@ class PictogramGridState extends State<PictogramGrid>
     }
   }
 
-  void showGridSettingsDialog(_GridDimensions dimensions) {
+  void showGridSettingsDialog(GridDimensions dimensions) {
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -523,7 +520,7 @@ class PictogramGridState extends State<PictogramGrid>
                         },
                         style: TextButton.styleFrom(
                           backgroundColor: _gridSize == 4
-                              ? Colors.teal.withOpacity(0.2)
+                              ? Colors.teal.withAlpha(20)
                               : null,
                         ),
                         child: const Text('4x2'),
@@ -538,7 +535,7 @@ class PictogramGridState extends State<PictogramGrid>
                         },
                         style: TextButton.styleFrom(
                           backgroundColor: _gridSize == 8
-                              ? Colors.teal.withOpacity(0.2)
+                              ? Colors.teal.withAlpha(20)
                               : null,
                         ),
                         child: const Text('8x3'),
@@ -642,26 +639,26 @@ class PictogramGridState extends State<PictogramGrid>
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Löschen'),
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
+            child: const Text('Löschen'),
           ),
         ],
       ),
     );
 
-    if (confirmed == true && context.mounted) {
+    if (confirmed == true) {
+      if (!context.mounted) return; // <-- Add this check
       final gridProvider = context.read<GridProvider>();
       await gridProvider.removePictogramFromGrid(pictogram);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${pictogram.keyword} wurde aus dem Grid entfernt'),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
+      if (!context.mounted) return; // <-- Add this check
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${pictogram.keyword} wurde aus dem Grid entfernt'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
     }
   }
 
@@ -691,10 +688,12 @@ class PictogramGridState extends State<PictogramGrid>
         print('🔵 Grid: Zeige Naming-Dialog für temporäres Piktogramm');
         final renamedPictogram =
             await _showNamingDialogForPictogram(context, selectedPictogram);
+        if (!context.mounted) return; // Guard after await
         if (renamedPictogram != null) {
           _addPictogramToGrid(context, renamedPictogram);
         }
       } else {
+        if (!context.mounted) return; // Guard before using context
         _addPictogramToGrid(context, selectedPictogram);
       }
     });
@@ -777,10 +776,11 @@ class PictogramGridState extends State<PictogramGrid>
       ),
     );
 
-    if (result != null) {
-      print(
-          '🔵 Grid: Benenne Piktogramm um: ${pictogram.keyword} → ${result['name']}');
+    // Correct guard for a passed-in BuildContext after await
+    if (!context.mounted) return null;
 
+    if (result != null) {
+      print('🔵 Grid: Benenne Piktogramm um: ${pictogram.keyword} → ${result['name']}');
       // Erstelle neues Piktogramm mit dem gewählten Namen
       final renamedPictogram = Pictogram(
         id: pictogram.id,
@@ -793,6 +793,8 @@ class PictogramGridState extends State<PictogramGrid>
       // Aktualisiere das Custom-Piktogramm im Service
       await CustomPictogramService.instance
           .updateCustomPictogram(renamedPictogram);
+          
+      if (!context.mounted) return null; // Guard again if needed
 
       return renamedPictogram;
     }
@@ -935,7 +937,7 @@ class DraggablePictogramTile extends StatelessWidget {
       childWhenDragging: Container(
         decoration: BoxDecoration(
           border: Border.all(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withAlpha(30),
             width: 1,
           ),
           borderRadius: BorderRadius.circular(8),
