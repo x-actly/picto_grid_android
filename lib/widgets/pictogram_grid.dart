@@ -60,11 +60,11 @@ class PictogramGridState extends State<PictogramGrid>
   double _ttsVolume = 0.8;
   double _ttsSpeechRate = 0.5;
 
-  static const int MIN_GRID_SIZE = 4; // Minimum ist jetzt 4
-  static const int MAX_GRID_SIZE = 8; // Maximum ist jetzt 8
+  static const int minGridSize = 4; // Minimum ist jetzt 4
+  static const int maxGridSize = 8; // Maximum ist jetzt 8
 
   // Definiere die verfügbaren Grid-Größen
-  static const Map<int, int> AVAILABLE_GRID_SIZES = {
+  static const Map<int, int> availableGridSizes = {
     4: 2, // 4x2
     8: 3, // 8x3
   };
@@ -195,7 +195,7 @@ class PictogramGridState extends State<PictogramGrid>
 
     // Bestimme die Spalten basierend auf der gewählten Gridgröße
     final columns = _gridSize;
-    final rows = AVAILABLE_GRID_SIZES[columns] ?? 2;
+    final rows = availableGridSizes[columns] ?? 2;
 
     // Berechne die Kästchengröße so, dass der gesamte verfügbare Platz genutzt wird
     final itemWidth = availableWidth / columns;
@@ -206,7 +206,7 @@ class PictogramGridState extends State<PictogramGrid>
       rows: rows,
       itemWidth: itemWidth,
       itemHeight: itemHeight,
-      maxGridSize: MAX_GRID_SIZE,
+      maxGridSize: maxGridSize,
     );
   }
 
