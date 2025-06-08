@@ -3,6 +3,7 @@
 ## Wo müssen die Bilddateien hin?
 
 ### 1. Verzeichnisstruktur
+
 Platziere deine heruntergeladenen Piktogramm-Bilder in folgendem Verzeichnis:
 
 ```
@@ -32,17 +33,22 @@ assets/
 ```
 
 ### 2. Dateinamen-Format
+
 Die Bilddateien müssen nach folgendem Schema benannt werden:
+
 - **Format:** `{ID}.png`
 - **Beispiel:** `2.png`, `5.png`, `120.png`
 
 ### 3. Metadaten erweitern
+
 Um weitere Piktogramme hinzuzufügen, bearbeite die Datei:
+
 ```
 assets/data/pictograms.json
 ```
 
 Beispiel für einen neuen Eintrag:
+
 ```json
 {
   "id": 150,
@@ -66,23 +72,26 @@ static const bool useLocalPictograms = false;
 
 ## Vorteile der lokalen Integration
 
-✅ **Offline-Funktionalität:** Keine Internetverbindung erforderlich  
-✅ **Schnellere Ladezeiten:** Bilder werden direkt aus den App-Assets geladen  
-✅ **Reduzierter Datenverbrauch:** Keine Downloads zur Laufzeit  
-✅ **Zuverlässigkeit:** Keine Abhängigkeit von externer API-Verfügbarkeit  
-✅ **Bessere Performance:** Assets werden beim App-Build optimiert  
+✅ **Offline-Funktionalität:** Keine Internetverbindung erforderlich\
+✅ **Schnellere Ladezeiten:** Bilder werden direkt aus den App-Assets geladen\
+✅ **Reduzierter Datenverbrauch:** Keine Downloads zur Laufzeit\
+✅ **Zuverlässigkeit:** Keine Abhängigkeit von externer API-Verfügbarkeit\
+✅ **Bessere Performance:** Assets werden beim App-Build optimiert
 
 ## Entwicklung mit eigenen Piktogrammen
 
 1. **Neue Bilder hinzufügen:**
+
    - Platziere PNG-Dateien in `assets/pictograms/`
    - Benenne sie nach ID-Schema: `{ID}.png`
 
-2. **Metadaten aktualisieren:**
+1. **Metadaten aktualisieren:**
+
    - Erweitere `assets/data/pictograms.json`
    - Füge Keywords und Kategorien hinzu
 
-3. **Hot Reload verwenden:**
+1. **Hot Reload verwenden:**
+
    - Nach Änderungen in `pubspec.yaml`: App neu starten
    - Nach Änderungen in JSON: Hot Reload reicht
 
@@ -96,12 +105,14 @@ static const bool useLocalPictograms = false;
 ## Fehlerbehebung
 
 ### Problem: Bild wird nicht angezeigt
+
 1. Prüfe Dateiname und Pfad
-2. Stelle sicher, dass die JSON-Metadaten korrekt sind
-3. Führe `flutter clean` und `flutter pub get` aus
-4. Starte die App neu
+1. Stelle sicher, dass die JSON-Metadaten korrekt sind
+1. Führe `flutter clean` und `flutter pub get` aus
+1. Starte die App neu
 
 ### Problem: Assets nicht gefunden
+
 1. Prüfe `pubspec.yaml` Assets-Konfiguration
-2. Stelle sicher, dass Assets-Pfade korrekt sind
-3. Führe `flutter pub get` aus 
+1. Stelle sicher, dass Assets-Pfade korrekt sind
+1. Führe `flutter pub get` aus

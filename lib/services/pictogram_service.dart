@@ -16,7 +16,7 @@ class PictogramService {
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = json.decode(response.body);
-        
+
         return jsonData.map((json) {
           // Sichere Extraktion der Keywords
           final List<dynamic> keywords = json['keywords'] ?? [];
@@ -58,4 +58,4 @@ class PictogramService {
   String getImageUrl(int pictogramId) {
     return '$imageBaseUrl/$pictogramId/${pictogramId}_500.png';
   }
-} 
+}
