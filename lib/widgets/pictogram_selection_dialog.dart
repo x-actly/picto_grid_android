@@ -323,7 +323,9 @@ class PictogramSelectionDialog {
     );
 
     if (result != null) {
-      print('🔵 Dialog: Benutzer hat Namen eingegeben: ${result['name']}');
+      if (kDebugMode) {
+        print('🔵 Dialog: Benutzer hat Namen eingegeben: ${result['name']}');
+      }
       final namedPictogram = Pictogram(
         id: pictogram.id,
         keyword: result['name']!,
@@ -332,10 +334,14 @@ class PictogramSelectionDialog {
         category: 'Benutzerdefiniert',
       );
 
-      print('🔵 Dialog: Speichere Piktogramm...');
+      if (kDebugMode) {
+        print('🔵 Dialog: Speichere Piktogramm...');
+      }
       await CustomPictogramService.instance.addCustomPictogram(namedPictogram);
 
-      print('🔵 Dialog: Rufe onSelected Callback...');
+      if (kDebugMode) {
+        print('🔵 Dialog: Rufe onSelected Callback...');
+      }
       onSelected(namedPictogram);
 
       if (context.mounted) {
@@ -346,7 +352,9 @@ class PictogramSelectionDialog {
         );
       }
     } else {
-      print('🔴 Dialog: Benutzer hat Dialog abgebrochen');
+      if (kDebugMode) {
+        print('🔴 Dialog: Benutzer hat Dialog abgebrochen');
+      }
     }
   }
 }
