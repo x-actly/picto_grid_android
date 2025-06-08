@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/pictogram.dart';
@@ -90,17 +91,23 @@ class DatabaseHelper {
 
     if (oldVersion < 3) {
       // Version 3: Lösche alle gespeicherten Piktogramme wegen Dateinamen-Änderung
-      print(
+      if (kDebugMode) {
+        print(
           'DatabaseHelper: Lösche alle Piktogramme wegen Dateinamen-Korrektur');
+      }
       await db.execute('DELETE FROM grid_pictograms');
     }
 
     if (oldVersion < 4) {
       // Version 4: Kompletter Neuaufbau - lösche alle ARASAAC-basierten Daten
       await db.execute('DELETE FROM grid_pictograms');
-      print(
+      if (kDebugMode) {
+        print(
           '🔄 DatabaseHelper: Kompletter Neuaufbau - alle alten Piktogramme entfernt (Version 4)');
-      print('💡 Ab jetzt werden nur noch lokale Dateien verwendet');
+      }
+      if (kDebugMode) {
+        print('💡 Ab jetzt werden nur noch lokale Dateien verwendet');
+      }
     }
   }
 
@@ -119,8 +126,10 @@ class DatabaseHelper {
   Future<void> addPictogramToGrid(
       int gridId, Pictogram pictogram, int position) async {
     final db = await database;
-    print(
+    if (kDebugMode) {
+      print(
         'DatabaseHelper: Füge Piktogramm ${pictogram.id} zu Grid $gridId hinzu');
+    }
 
     await db.insert('grid_pictograms', {
       'grid_id': gridId,
@@ -131,12 +140,16 @@ class DatabaseHelper {
       'category': pictogram.category,
     });
 
-    print('DatabaseHelper: Piktogramm erfolgreich in Datenbank eingefügt');
+    if (kDebugMode) {
+      print('DatabaseHelper: Piktogramm erfolgreich in Datenbank eingefügt');
+    }
   }
 
   Future<List<Map<String, dynamic>>> getPictogramsInGrid(int gridId) async {
     final db = await database;
-    print('DatabaseHelper: Lade Piktogramme für Grid $gridId');
+    if (kDebugMode) {
+      print('DatabaseHelper: Lade Piktogramme für Grid $gridId');
+    }
 
     final results = await db.query(
       'grid_pictograms',
@@ -145,7 +158,9 @@ class DatabaseHelper {
       orderBy: 'position',
     );
 
-    print('DatabaseHelper: ${results.length} Piktogramme gefunden');
+    if (kDebugMode) {
+      print('DatabaseHelper: ${results.length} Piktogramme gefunden');
+    }
     return results;
   }
 

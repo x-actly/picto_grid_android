@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/pictogram.dart';
 import 'local_pictogram_service.dart';
@@ -33,7 +34,9 @@ class ArasaacService {
         final List<dynamic> jsonData = json.decode(response.body);
 
         if (jsonData.isEmpty) {
-          print('Keine Piktogramme gefunden für: $keyword');
+          if (kDebugMode) {
+            print('Keine Piktogramme gefunden für: $keyword');
+          }
           return [];
         }
 
@@ -68,13 +71,19 @@ class ArasaacService {
           );
         }).toList();
       } else {
-        print('API Fehler: ${response.statusCode}');
-        print('Response Body: ${response.body}');
+        if (kDebugMode) {
+          print('API Fehler: ${response.statusCode}');
+        }
+        if (kDebugMode) {
+          print('Response Body: ${response.body}');
+        }
         throw Exception(
             'Fehler beim Laden der Piktogramme: ${response.statusCode}');
       }
     } catch (e) {
-      print('Netzwerkfehler: $e');
+      if (kDebugMode) {
+        print('Netzwerkfehler: $e');
+      }
       throw Exception('Netzwerkfehler: $e');
     }
   }

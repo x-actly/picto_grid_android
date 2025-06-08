@@ -55,12 +55,16 @@ class GridProvider with ChangeNotifier {
           await _localPictogramService.getPictogramByName(keyword);
 
       if (localPictogramByName != null) {
-        print(
+        if (kDebugMode) {
+          print(
             '✅ Piktogramm gefunden: "$keyword" → ${localPictogramByName.imageUrl}');
+        }
         _currentGridPictograms.add(localPictogramByName);
       } else {
         // PIKTOGRAMM NICHT GEFUNDEN: Überspringe es (Offline-Modus)
-        print('❌ Piktogramm nicht gefunden (offline): "$keyword"');
+        if (kDebugMode) {
+          print('❌ Piktogramm nicht gefunden (offline): "$keyword"');
+        }
         // Füge das Piktogramm NICHT hinzu - es wird einfach nicht angezeigt
       }
     }
@@ -71,9 +75,13 @@ class GridProvider with ChangeNotifier {
   Future<void> addPictogramToGrid(Pictogram pictogram) async {
     if (_selectedGridId == null) return;
 
-    print('GridProvider: Füge Piktogramm zum Grid ${_selectedGridId} hinzu');
-    print(
+    if (kDebugMode) {
+      print('GridProvider: Füge Piktogramm zum Grid $_selectedGridId hinzu');
+    }
+    if (kDebugMode) {
+      print(
         'GridProvider: Aktuelle Piktogramme vor dem Hinzufügen: ${_currentGridPictograms.length}');
+    }
 
     await _db.addPictogramToGrid(
       _selectedGridId!,
@@ -82,12 +90,16 @@ class GridProvider with ChangeNotifier {
     );
 
     _currentGridPictograms.add(pictogram);
-    print(
+    if (kDebugMode) {
+      print(
         'GridProvider: Piktogramm zur Liste hinzugefügt, neue Länge: ${_currentGridPictograms.length}');
+    }
 
     await loadGridPictograms(); // Lade die Piktogramme neu von der Datenbank
-    print(
+    if (kDebugMode) {
+      print(
         'GridProvider: Piktogramme neu geladen, aktuelle Länge: ${_currentGridPictograms.length}');
+    }
 
     notifyListeners();
   }
