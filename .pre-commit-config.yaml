@@ -1,0 +1,232 @@
+# Apply to all files without committing:
+#   pre-commit run --all-files
+# Update this file:
+#   pre-commit autoupdate
+
+default_language_version:
+  # force all unspecified python hooks to run python3
+  dart: dart
+
+# https://pre-commit.ci/
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: false
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: monthly
+  skip:
+    - eslint  # Fails due to missing node environment in CI
+  submodules: false
+
+  exclude: |
+    (?x)(
+      .github/|
+      LICENSE|
+      .min(.css|.css.map|.js|.js.map)|
+    )
+
+# pre-commit setup
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      # Identify invalid files
+      - id: check-yaml
+        name: check-yaml (YAML)
+        description: Check for syntax errors in YAML files.
+
+      - id: check-json
+        name: check-json (JSON)
+        description: Check for syntax errors in JSON files.
+
+      - id: check-toml
+        name: check-toml (TOML)
+        description: Check for syntax errors in TOML files.
+
+      # git checks
+      - id: check-merge-conflict
+        name: Check for merge conflict strings
+        description: Check for files that contain merge conflict strings.
+
+      - id: check-added-large-files
+        name: Check for large files
+        description: Check for large files that were added to the repository.
+        args:
+          - --maxkb=1000
+
+      - id: detect-private-key
+        name: Detect private key
+        description: Check for private keys in the repository.
+
+      - id: check-case-conflict
+        name: Check for case conflicts
+        description: Check for files with names that differ only in case.
+
+      # General quality checks
+      - id: mixed-line-ending
+        name: Mixed line ending
+        description: Check for mixed line endings.
+        args:
+          - --fix=lf
+
+      - id: trailing-whitespace
+        name: Trailing whitespace
+        description: Check for trailing whitespace.
+        args:
+          - --markdown-linebreak-ext=md
+        exclude: |
+          (?x)(
+            .min(.css|.css.map|.js|.js.map)|
+            locale/|
+            static/(.*)/libs/
+          )
+
+      - id: check-executables-have-shebangs
+        name: Check for shebangs in executables
+        description: Check that executables have shebangs.
+
+      - id: end-of-file-fixer
+        name: End of file fixer
+        description: Ensure that files end with a newline.
+        exclude: |
+          (?x)(
+            .min(.css|.css.map|.js|.js.map)|
+            locale/|
+            static/(.*)/libs/
+          )
+
+  - repo: https://github.com/eslint/eslint
+    rev: v9.25.1
+    hooks:
+      - id: eslint
+        name: ESLint
+        description: Check for problems in JavaScript files.
+        exclude: |
+          (?x)(
+            .min(.js|.js.map)|
+            static/(.*)/libs/
+          )
+        args: [--fix, --color, --max-warnings, '0']
+
+  - repo: https://github.com/thibaudcolas/pre-commit-stylelint
+    rev: v16.19.1
+    hooks:
+      - id: stylelint
+        name: Stylelint
+        description: Check for problems in CSS files.
+        exclude: |
+          (?x)(
+            .min(.css|.css.map)|
+            static/(.*)/libs/
+          )
+        args:
+          - --formatter=compact
+        additional_dependencies:
+          # stylelint itself needs to be here when using additional_dependencies.
+          - stylelint@16.19.0  # https://github.com/stylelint/stylelint/releases/latest
+          - stylelint-config-standard@38.0.0  # https://github.com/stylelint/stylelint-config-standard/releases/latest
+
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
+    rev: 3.2.1
+    hooks:
+      - id: editorconfig-checker
+        name: EditorConfig Checker
+        description: Check for compliance with the definitions in the EditorConfig file.
+        exclude: |
+          (?x)(
+            LICENSE|
+            .min(.css|.css.map|.js|.js.map)|
+            static/(.*)/libs/
+          )
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.19.1
+    hooks:
+      - id: pyupgrade
+        name: PyUpgrade
+        description: Upgrade syntax to newer versions of Python.
+        args:
+          - --py310-plus  # Minimum required Python version for AA. Update as needed.
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.2.0
+    hooks:
+      - id: flake8
+        name: Flake8
+        description: Check for style and complexity issues in Python code.
+
+  - repo: https://github.com/asottile/yesqa
+    rev: v1.5.0
+    hooks:
+      - id: yesqa
+        name: YesQA
+        description: Check for extraneous `# noqa` comments.
+
+  - repo: https://github.com/PyCQA/isort
+    rev: 6.0.1
+    hooks:
+      - id: isort
+        name: Isort
+        description: Sort imports.
+
+  - repo: https://github.com/Pierre-Sassoulas/black-disable-checker/
+    rev: v1.1.3
+    hooks:
+      - id: black-disable-checker
+        name: Black disable checker
+        description: Check for black disable comments.
+
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+        name: Black
+        description: Format Python code.
+        args:
+          - --target-version=py310  # Minimum required Python version for AA. Update as needed.
+
+  - repo: https://github.com/asottile/blacken-docs
+    rev: 1.19.1
+    hooks:
+      - id: blacken-docs
+        name: Blacken docs
+        description: Format Python code in documentation files.
+        additional_dependencies:
+          - black==25.1.0  # https://github.com/psf/black/releases/latest
+        args:
+          - --target-version=py310  # Minimum required Python version for AA. Update as needed.
+
+  - repo: https://github.com/executablebooks/mdformat
+    rev: 0.7.22
+    hooks:
+      - id: mdformat
+        name: Mdformat
+        description: Format Markdown files.
+        exclude: |
+          (?x)(
+            .github/|
+            static/(.*)/libs/
+          )
+        additional_dependencies:
+          - mdformat-gfm==0.4.1  # Mdformat plugin for GitHub Flavored Markdown compatibility » https://github.com/hukkin/mdformat-gfm/tags
+          - mdformat-toc==0.3.0  # Mdformat plugin to generate a table of contents » https://github.com/hukkin/mdformat-toc/tags
+          - mdformat-black==0.1.1  # Mdformat plugin to Blacken Python code blocks » https://github.com/hukkin/mdformat-black/tags
+          - mdformat-shfmt==0.1.0  # Mdformat plugin to format shell code blocks » https://github.com/hukkin/mdformat-shfmt/tags
+
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.33.0
+    hooks:
+      - id: check-github-actions
+        name: Check GitHub Actions
+        description: This hook checks that GitHub Actions files are valid.
+        args:
+          - --verbose
+
+      - id: check-github-workflows
+        name: Check GitHub Workflows
+        description: This hook checks that GitHub Workflows files are valid.
+        args:
+          - --verbose
