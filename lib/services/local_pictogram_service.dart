@@ -99,10 +99,12 @@ class LocalPictogramService {
       if (bLower == searchTerm && aLower != searchTerm) return 1;
 
       // Dann Treffer die mit dem Suchbegriff beginnen
-      if (aLower.startsWith(searchTerm) && !bLower.startsWith(searchTerm))
+      if (aLower.startsWith(searchTerm) && !bLower.startsWith(searchTerm)) {
         return -1;
-      if (bLower.startsWith(searchTerm) && !aLower.startsWith(searchTerm))
+      }
+      if (bLower.startsWith(searchTerm) && !aLower.startsWith(searchTerm)) {
         return 1;
+      }
 
       // Dann alphabetisch sortieren
       return aLower.compareTo(bLower);
@@ -187,7 +189,7 @@ class LocalPictogramService {
   String getLocalImagePath(String filename) {
     // Wenn der Filename nur eine ID ist, versuche verschiedene Formate
     if (RegExp(r'^\d+\.png$').hasMatch(filename)) {
-      final id = filename.replaceAll('.png', '');
+      filename.replaceAll('.png', '');
       // Standardformat: versuche zuerst den originalen Dateinamen aus der JSON
       return 'assets/pictograms/$filename';
     }
