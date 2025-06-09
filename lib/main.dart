@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'providers/pictogram_provider.dart';
 import 'providers/grid_provider.dart';
 import 'widgets/pictogram_grid.dart';
+import 'widgets/loading_screen.dart';
 
 import 'services/tts_service.dart';
 import 'services/local_pictogram_service.dart';
@@ -58,9 +60,37 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool _showSearch = true;
   final _gridKey = GlobalKey<PictogramGridState>();
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeApp();
+  }
+
+  Future<void> _initializeApp() async {
+    // Simulate loading time to show the loading screen
+    await Future.delayed(const Duration(seconds: 5));
+    
+    // Nach dem Loading Screen: Nur Querformat erlauben
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+    
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const LoadingScreen();
+    }
+
     final gridProvider = context.watch<GridProvider>();
 
     return Scaffold(
