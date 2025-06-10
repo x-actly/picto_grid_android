@@ -1,7 +1,19 @@
 name: PictoGram - Application CI
 
 on:
+  push:
+    paths-ignore:
+      - "**.js"
+      - "**.md"
+
+    branches:
+      - 'main'
+
   pull_request:
+    paths-ignore:
+      - "**.js"
+      - "**.md"
+
     branches:
       - 'main'
 
