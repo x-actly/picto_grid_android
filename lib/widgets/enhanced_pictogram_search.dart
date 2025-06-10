@@ -408,7 +408,7 @@ class _EnhancedPictogramSearchState extends State<EnhancedPictogramSearch> {
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withAlpha(10),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
