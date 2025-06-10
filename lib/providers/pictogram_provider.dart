@@ -33,4 +33,4 @@ class PictogramProvider with ChangeNotifier {
       notifyListeners();
     }
   }
-} 
+}

@@ -11,11 +11,13 @@ PictoGrid wurde um die Möglichkeit erweitert, **eigene Piktogramme** zu erstell
 ## 🚀 Neue Funktionen
 
 ### 1. **Kästchen-basierte Auswahl**
+
 - **Direkter Zugriff**: Klick auf leeres Grid-Kästchen im Bearbeitungsmodus
 - **Kontextuelle Auswahl**: Dialog mit zwei klaren Optionen pro Kästchen
 - **Visuelle Führung**: ➕-Symbol zeigt verfügbare Kästchen an
 
 ### 2. **Foto-Integration**
+
 ```
 📷 Kamera            📱 Galerie
 ├─ Direktaufnahme    ├─ DCIM-Ordner
@@ -26,6 +28,7 @@ PictoGrid wurde um die Möglichkeit erweitert, **eigene Piktogramme** zu erstell
 ```
 
 ### 3. **Piktogramm-Verwaltung**
+
 - **Benennung**: Jedes eigene Bild bekommt einen aussagekräftigen Namen
 - **Beschreibung**: Optional zusätzliche Details
 - **Kategorie**: Automatisch als "Benutzerdefiniert" kategorisiert
@@ -36,25 +39,27 @@ PictoGrid wurde um die Möglichkeit erweitert, **eigene Piktogramme** zu erstell
 ### Neues Piktogramm hinzufügen:
 
 1. **Bearbeitungsmodus aktivieren** (✏️-Button in der AppBar)
-2. **Leeres Kästchen im Grid anklicken** (mit ➕-Symbol)
-3. **Auswahl zwischen zwei Optionen**:
+1. **Leeres Kästchen im Grid anklicken** (mit ➕-Symbol)
+1. **Auswahl zwischen zwei Optionen**:
    - 🔍 **"Lokale Piktogramme durchsuchen"** → Durchsuchbarer Dialog mit 13.514 Piktogrammen
    - 📁 **"Bilder vom Gerät auswählen"** → Kamera oder Galerie
-4. **Bei eigenen Bildern**: 
+1. **Bei eigenen Bildern**:
    - 📷 "Foto aufnehmen" → Kamera wird geöffnet
    - 📱 "Aus Galerie wählen" → DCIM, Downloads, etc.
-5. **Bild benennen**:
-   - Name eingeben (z.B. "Mein Auto", "Lieblingsspielzeug") 
+1. **Bild benennen**:
+   - Name eingeben (z.B. "Mein Auto", "Lieblingsspielzeug")
    - Optional: Beschreibung hinzufügen
-6. **Speichern** → Piktogramm wird sofort ins Kästchen eingefügt
+1. **Speichern** → Piktogramm wird sofort ins Kästchen eingefügt
 
 ### Piktogramm verwenden:
+
 1. **In der Suchleiste** tippen (z.B. "Auto")
-2. **Eigenes Bild** erscheint in den Suchergebnissen
-3. **Antippen** → Wird dem Grid hinzugefügt
-4. **TTS funktioniert** mit dem vergebenen Namen
+1. **Eigenes Bild** erscheint in den Suchergebnissen
+1. **Antippen** → Wird dem Grid hinzugefügt
+1. **TTS funktioniert** mit dem vergebenen Namen
 
 ### Piktogramm verwalten:
+
 - **Suchen**: In "Eigene Bilder" nach Namen suchen
 - **Löschen**: 3-Punkte-Menü → "Löschen"
 - **Aktualisieren**: Automatisch in allen Grids
@@ -64,11 +69,13 @@ PictoGrid wurde um die Möglichkeit erweitert, **eigene Piktogramme** zu erstell
 Die App fragt beim ersten Mal nach folgenden Berechtigungen:
 
 ### Android:
+
 - **Kamera**: Für Fotoaufnahme
 - **Speicher**: Für Galerie-Zugriff (Android < 13)
 - **Medien**: Für Bilder-Zugriff (Android 13+)
 
 ### Automatische Behandlung:
+
 - Berechtigungen werden nur bei Bedarf angefragt
 - Fallback-Verhalten bei fehlenden Berechtigungen
 - Klare Fehlermeldungen für den Benutzer
@@ -76,6 +83,7 @@ Die App fragt beim ersten Mal nach folgenden Berechtigungen:
 ## 💾 Datenspeicherung
 
 ### Speicherort:
+
 ```
 /data/data/com.example.picto_grid/files/
 └── custom_pictograms/
@@ -86,6 +94,7 @@ Die App fragt beim ersten Mal nach folgenden Berechtigungen:
 ```
 
 ### Datenformat (metadata.json):
+
 ```json
 [
   {
@@ -99,6 +108,7 @@ Die App fragt beim ersten Mal nach folgenden Berechtigungen:
 ```
 
 ### Sicherheit:
+
 - **App-privater Speicher**: Nur die App kann auf die Bilder zugreifen
 - **Automatische Bereinigung**: Bei App-Deinstallation werden alle Daten entfernt
 - **Keine Cloud-Synchronisation**: Alle Daten bleiben lokal
@@ -106,17 +116,20 @@ Die App fragt beim ersten Mal nach folgenden Berechtigungen:
 ## 🎯 Technische Details
 
 ### Bildverarbeitung:
+
 - **Automatische Größenanpassung**: Max. 1024×1024 Pixel
 - **Komprimierung**: 85% Qualität für optimale Performance
 - **Format**: JPEG für kleinere Dateigröße
 - **Eindeutige IDs**: Timestamp-basiert für Kollisionsvermeidung
 
 ### Performance:
+
 - **Lazy Loading**: Bilder werden nur bei Bedarf geladen
 - **Caching**: Schnelle Wiederholung von Suchergebnissen
 - **Asynchrone Verarbeitung**: UI bleibt responsiv
 
 ### Integration:
+
 - **Nahtlose Grid-Integration**: Custom Pictograms funktionieren wie lokale Assets
 - **TTS-Unterstützung**: Spricht den vergebenen Namen aus
 - **Drag-and-Drop**: Funktioniert in allen Grid-Modi
@@ -124,6 +137,7 @@ Die App fragt beim ersten Mal nach folgenden Berechtigungen:
 ## 🔧 Für Entwickler
 
 ### Neue Services:
+
 ```dart
 // Custom Pictogram Service
 CustomPictogramService.instance.captureFromCamera()
@@ -133,6 +147,7 @@ CustomPictogramService.instance.searchCustomPictograms(query)
 ```
 
 ### Erweiterte UI-Komponenten:
+
 ```dart
 // Neue erweiterte Suchkomponente
 EnhancedPictogramSearch(
@@ -141,19 +156,21 @@ EnhancedPictogramSearch(
 ```
 
 ### Dependencies hinzugefügt:
+
 - `image_picker: ^1.0.4` - Kamera/Galerie-Zugriff
 - `permission_handler: ^11.0.1` - Berechtigungsmanagement
 
 ## 🚨 Bekannte Limitierungen
 
 1. **iOS-Support**: Noch nicht implementiert (nur Android-Berechtigungen)
-2. **Cloud-Sync**: Keine Synchronisation zwischen Geräten
-3. **Bulk-Import**: Noch kein Massen-Import von Bildern
-4. **Kategorien**: Custom Pictograms sind alle in "Benutzerdefiniert"
+1. **Cloud-Sync**: Keine Synchronisation zwischen Geräten
+1. **Bulk-Import**: Noch kein Massen-Import von Bildern
+1. **Kategorien**: Custom Pictograms sind alle in "Benutzerdefiniert"
 
 ## 📈 Zukünftige Erweiterungen
 
 ### Geplante Features:
+
 - **📁 Kategorien-Editor**: Eigene Kategorien für Custom Pictograms
 - **🔄 Export/Import**: Backup und Wiederherstellung von Custom Pictograms
 - **🎨 Bildbearbeitung**: Zuschneiden und Filter direkt in der App
@@ -161,11 +178,12 @@ EnhancedPictogramSearch(
 - **🌐 Cloud-Sync**: Optional synchronisation über Cloud-Dienste
 
 ### Technische Verbesserungen:
+
 - **iOS-Unterstützung**: Vollständige iOS-Implementierung
 - **Bulk-Operations**: Mehrere Bilder gleichzeitig verarbeiten
 - **Advanced Search**: Erweiterte Suchfilter für Custom Pictograms
 - **Metadaten-Editor**: Nachträgliche Bearbeitung von Namen/Beschreibungen
 
----
+______________________________________________________________________
 
-**Die Custom Pictogram-Funktionalität macht PictoGrid zu einer vollständig personalisierbaren Kommunikationshilfe! 🎉** 
+**Die Custom Pictogram-Funktionalität macht PictoGrid zu einer vollständig personalisierbaren Kommunikationshilfe! 🎉**

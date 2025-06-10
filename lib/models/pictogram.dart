@@ -32,4 +32,4 @@ class Pictogram {
       'category': category,
     };
   }
-} 
+}
