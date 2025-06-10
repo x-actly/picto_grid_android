@@ -261,12 +261,12 @@ class PictogramGridState extends State<PictogramGrid>
                           border: Border.all(
                             color: isTargeted
                                 ? Colors.orange
-                                : Colors.grey.withOpacity(0.3),
+                                : Colors.grey.withAlpha(30),
                             width: isTargeted ? 2 : 1,
                           ),
                           borderRadius: BorderRadius.circular(8),
                           color: isTargeted
-                              ? Colors.orange.withOpacity(0.1)
+                              ? Colors.orange.withAlpha(10)
                               : Colors.transparent,
                         ),
                         child: const Center(
@@ -314,7 +314,7 @@ class PictogramGridState extends State<PictogramGrid>
             height: dimensions.itemHeight,
             decoration: BoxDecoration(
               border: Border.all(
-                color: Colors.grey.withOpacity(0.3),
+                color: Colors.grey.withAlpha(30),
                 width: 1,
               ),
               borderRadius: BorderRadius.circular(8),
@@ -333,7 +333,7 @@ class PictogramGridState extends State<PictogramGrid>
                     child: Container(
                       padding: const EdgeInsets.all(2),
                       decoration: BoxDecoration(
-                        color: Colors.orange.withOpacity(0.8),
+                        color: Colors.orange.withAlpha(80),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Icon(
@@ -399,7 +399,7 @@ class PictogramGridState extends State<PictogramGrid>
                 elevation:
                     _isEditMode ? 4 : (isActive ? 3 : 2), // Weniger Elevation
                 color: isActive
-                    ? Colors.teal.withOpacity(0.05)
+                    ? Colors.teal.withAlpha(5)
                     : null, // Weniger sichtbare Farbe
                 child: Container(
                   width: size,
@@ -409,8 +409,7 @@ class PictogramGridState extends State<PictogramGrid>
                       ? BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Colors.teal.withOpacity(
-                                0.6), // Weniger intensive Randfarbe
+                            color: Colors.teal.withAlpha(60), // Weniger intensive Randfarbe
                             width: 1.5, // Dünnerer Rand
                           ),
                         )
@@ -432,7 +431,7 @@ class PictogramGridState extends State<PictogramGrid>
                                 child: Container(
                                   padding: const EdgeInsets.all(2),
                                   decoration: BoxDecoration(
-                                    color: Colors.teal.withOpacity(0.8),
+                                    color: Colors.teal.withAlpha(80),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: const Icon(
@@ -456,7 +455,7 @@ class PictogramGridState extends State<PictogramGrid>
                                 ? FontWeight.w500
                                 : FontWeight.normal, // Weniger fett
                             color: isActive
-                                ? Colors.teal.withOpacity(0.8)
+                                ? Colors.teal.withAlpha(80)
                                 : null, // Weniger intensive Textfarbe
                           ),
                           maxLines: 2,
@@ -523,7 +522,7 @@ class PictogramGridState extends State<PictogramGrid>
                         },
                         style: TextButton.styleFrom(
                           backgroundColor: _gridSize == 4
-                              ? Colors.teal.withOpacity(0.2)
+                              ? Colors.teal.withAlpha(20)
                               : null,
                         ),
                         child: const Text('4x2'),
@@ -538,7 +537,7 @@ class PictogramGridState extends State<PictogramGrid>
                         },
                         style: TextButton.styleFrom(
                           backgroundColor: _gridSize == 8
-                              ? Colors.teal.withOpacity(0.2)
+                              ? Colors.teal.withAlpha(20)
                               : null,
                         ),
                         child: const Text('8x3'),
@@ -935,7 +934,7 @@ class DraggablePictogramTile extends StatelessWidget {
       childWhenDragging: Container(
         decoration: BoxDecoration(
           border: Border.all(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withAlpha(30),
             width: 1,
           ),
           borderRadius: BorderRadius.circular(8),
