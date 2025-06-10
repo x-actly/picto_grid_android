@@ -247,9 +247,9 @@ class PictogramGridState extends State<PictogramGrid>
                 width: dimensions.itemWidth,
                 height: dimensions.itemHeight,
                 child: DragTarget<PictogramPosition>(
-                  onWillAccept: (data) => true,
-                  onAccept: (draggedPosition) {
-                    _movePictogram(draggedPosition, row, col);
+                  onWillAcceptWithDetails: (data) => true,
+                  onAcceptWithDetails: (details) {
+                    _movePictogram(details.data, row, col);
                   },
                   builder: (context, candidateData, rejectedData) {
                     final isTargeted = candidateData.isNotEmpty;
