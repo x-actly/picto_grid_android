@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show listEquals;
+import 'package:flutter/foundation.dart';
 import 'dart:io';
 import '../models/pictogram.dart';
 import 'package:provider/provider.dart';
@@ -114,7 +114,9 @@ class PictogramGridState extends State<PictogramGrid>
   Future<void> _playPictogram(Pictogram pictogram) async {
     if (_isEditMode) return; // Kein TTS im Bearbeitungsmodus
 
-    print('Spiele Piktogramm ab: ${pictogram.keyword}');
+    if (kDebugMode) {
+      print('Spiele Piktogramm ab: ${pictogram.keyword}');
+    }
 
     setState(() {
       _activePictogram = pictogram;
@@ -129,7 +131,9 @@ class PictogramGridState extends State<PictogramGrid>
     try {
       await _ttsService.speak(pictogram.keyword);
     } catch (e) {
-      print('Fehler bei TTS: $e');
+      if (kDebugMode) {
+        print('Fehler bei TTS: $e');
+      }
       // Fallback: Zeige Snackbar wenn TTS nicht funktioniert
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -181,9 +185,11 @@ class PictogramGridState extends State<PictogramGrid>
     super.didUpdateWidget(oldWidget);
     if (widget.pictograms.length != oldWidget.pictograms.length ||
         !listEquals(widget.pictograms, oldWidget.pictograms)) {
-      print('PictogramGrid: Piktogramme haben sich geändert');
-      print('Alte Anzahl: ${oldWidget.pictograms.length}');
-      print('Neue Anzahl: ${widget.pictograms.length}');
+      if (kDebugMode) {
+        print('PictogramGrid: Piktogramme haben sich geändert');
+        print('Alte Anzahl: ${oldWidget.pictograms.length}');
+        print('Neue Anzahl: ${widget.pictograms.length}');
+      }
       _updatePositionsWithCurrentDimensions();
     }
   }
@@ -681,13 +687,19 @@ class PictogramGridState extends State<PictogramGrid>
 
   /// Zeigt den Piktogramm-Auswahl-Dialog für ein spezifisches Kästchen
   void _showPictogramSelectionDialog(BuildContext context, int row, int col) {
-    print('🔵 Grid: Zeige Piktogramm-Auswahl-Dialog für Kästchen ($row,$col)');
+    if (kDebugMode) {
+      print('🔵 Grid: Zeige Piktogramm-Auswahl-Dialog für Kästchen ($row,$col)');
+    }
     PictogramSelectionDialog.show(context, (Pictogram selectedPictogram) async {
-      print('🔵 Grid: Piktogramm ausgewählt: ${selectedPictogram.keyword}');
+      if (kDebugMode) {
+        print('🔵 Grid: Piktogramm ausgewählt: ${selectedPictogram.keyword}');
+      }
 
       // Prüfe ob es sich um ein temporäres benutzerdefiniertes Piktogramm handelt
       if (_isTemporaryCustomPictogram(selectedPictogram)) {
-        print('🔵 Grid: Zeige Naming-Dialog für temporäres Piktogramm');
+        if (kDebugMode) {
+          print('🔵 Grid: Zeige Naming-Dialog für temporäres Piktogramm');
+        }
         final renamedPictogram =
             await _showNamingDialogForPictogram(context, selectedPictogram);
         if (renamedPictogram != null) {
@@ -777,8 +789,10 @@ class PictogramGridState extends State<PictogramGrid>
     );
 
     if (result != null) {
-      print(
+      if (kDebugMode) {
+        print(
           '🔵 Grid: Benenne Piktogramm um: ${pictogram.keyword} → ${result['name']}');
+      }
 
       // Erstelle neues Piktogramm mit dem gewählten Namen
       final renamedPictogram = Pictogram(
@@ -839,7 +853,9 @@ class _PictogramImageWidget extends StatelessWidget {
         imageUrl,
         fit: fit,
         errorBuilder: (context, error, stackTrace) {
-          print('Fehler beim Laden des lokalen Bildes: $error');
+          if (kDebugMode) {
+            print('Fehler beim Laden des lokalen Bildes: $error');
+          }
           return const Center(
             child: Icon(Icons.error, color: Colors.red),
           );
@@ -852,7 +868,9 @@ class _PictogramImageWidget extends StatelessWidget {
         File(imageUrl),
         fit: fit,
         errorBuilder: (context, error, stackTrace) {
-          print('Fehler beim Laden des benutzerdefinierten Bildes: $error');
+          if (kDebugMode) {
+            print('Fehler beim Laden des benutzerdefinierten Bildes: $error');
+          }
           return const Center(
             child: Icon(Icons.photo, color: Colors.grey),
           );
@@ -864,7 +882,9 @@ class _PictogramImageWidget extends StatelessWidget {
         imageUrl,
         fit: fit,
         errorBuilder: (context, error, stackTrace) {
-          print('Fehler beim Laden des Online-Bildes: $error');
+          if (kDebugMode) {
+            print('Fehler beim Laden des Online-Bildes: $error');
+          }
           return const Center(
             child: Icon(Icons.error, color: Colors.red),
           );

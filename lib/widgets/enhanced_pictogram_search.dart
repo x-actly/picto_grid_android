@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import '../models/pictogram.dart';
@@ -101,7 +102,9 @@ class _EnhancedPictogramSearchState extends State<EnhancedPictogramSearch> {
         _searchResults = [];
         _isLoading = false;
       });
-      print('Fehler bei der Suche: $e');
+      if (kDebugMode) {
+        print('Fehler bei der Suche: $e');
+      }
     }
   }
 
