@@ -1,17 +1,4 @@
 class Pictogram {
-  final int id;
-  final String keyword;
-  final String imageUrl;
-  final String description;
-  final String category;
-
-  Pictogram({
-    required this.id,
-    required this.keyword,
-    required this.imageUrl,
-    required this.description,
-    required this.category,
-  });
 
   factory Pictogram.fromJson(Map<String, dynamic> json) {
     return Pictogram(
@@ -22,6 +9,19 @@ class Pictogram {
       category: json['category'] as String,
     );
   }
+
+  Pictogram({
+    required this.id,
+    required this.keyword,
+    required this.imageUrl,
+    required this.description,
+    required this.category,
+  });
+  final int id;
+  final String keyword;
+  final String imageUrl;
+  final String description;
+  final String category;
 
   Map<String, dynamic> toJson() {
     return {

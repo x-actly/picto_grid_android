@@ -12,12 +12,12 @@ enum PictogramSource {
 }
 
 class EnhancedPictogramSearch extends StatefulWidget {
-  final Function(Pictogram) onPictogramSelected;
 
   const EnhancedPictogramSearch({
     super.key,
     required this.onPictogramSelected,
   });
+  final Function(Pictogram) onPictogramSelected;
 
   @override
   State<EnhancedPictogramSearch> createState() =>

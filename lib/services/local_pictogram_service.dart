@@ -5,13 +5,13 @@ import '../models/pictogram.dart';
 import 'custom_pictogram_service.dart';
 
 class LocalPictogramService {
+
+  LocalPictogramService._internal();
   static LocalPictogramService? _instance;
   static LocalPictogramService get instance {
     _instance ??= LocalPictogramService._internal();
     return _instance!;
   }
-
-  LocalPictogramService._internal();
 
   List<Map<String, dynamic>>? _pictogramData;
   bool _isInitialized = false;
@@ -58,7 +58,7 @@ class LocalPictogramService {
       return [];
     }
 
-    List<Pictogram> results = [];
+    final List<Pictogram> results = [];
 
     // Durchsuche alle verfügbaren Dateien
     for (var filename in availableFiles) {

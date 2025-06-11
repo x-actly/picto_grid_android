@@ -360,10 +360,10 @@ class PictogramSelectionDialog {
 }
 
 class LocalPictogramSearchWidget extends StatefulWidget {
-  final Function(Pictogram) onPictogramSelected;
 
   const LocalPictogramSearchWidget(
       {super.key, required this.onPictogramSelected});
+  final Function(Pictogram) onPictogramSelected;
 
   @override
   State<LocalPictogramSearchWidget> createState() =>

@@ -3,12 +3,12 @@ import '../models/pictogram.dart';
 import '../services/local_pictogram_service.dart';
 
 class PictogramSearchDropdown extends StatefulWidget {
-  final Function(Pictogram) onPictogramSelected;
 
   const PictogramSearchDropdown({
     super.key,
     required this.onPictogramSelected,
   });
+  final Function(Pictogram) onPictogramSelected;
 
   @override
   State<PictogramSearchDropdown> createState() =>

@@ -9,10 +9,6 @@ import '../widgets/pictogram_selection_dialog.dart';
 import '../services/custom_pictogram_service.dart';
 
 class PictogramGrid extends StatefulWidget {
-  final List<Pictogram> pictograms;
-  final double itemSize;
-  final Function? onGridSettingsPressed;
-  final Function(bool)? onEditModeChanged;
 
   const PictogramGrid({
     super.key,
@@ -21,17 +17,16 @@ class PictogramGrid extends StatefulWidget {
     this.onGridSettingsPressed,
     this.onEditModeChanged,
   });
+  final List<Pictogram> pictograms;
+  final double itemSize;
+  final Function? onGridSettingsPressed;
+  final Function(bool)? onEditModeChanged;
 
   @override
   State<PictogramGrid> createState() => PictogramGridState();
 }
 
 class GridDimensions {
-  final int columns;
-  final int rows;
-  final double itemWidth;
-  final double itemHeight;
-  final int maxGridSize;
 
   GridDimensions({
     required this.columns,
@@ -40,6 +35,11 @@ class GridDimensions {
     required this.itemHeight,
     required this.maxGridSize,
   });
+  final int columns;
+  final int rows;
+  final double itemWidth;
+  final double itemHeight;
+  final int maxGridSize;
 }
 
 class PictogramGridState extends State<PictogramGrid>
@@ -504,7 +504,7 @@ class PictogramGridState extends State<PictogramGrid>
   void showGridSettingsDialog(GridDimensions dimensions) {
     showDialog(
       context: context,
-      builder: (BuildContext dialogContext) {
+      builder: (dialogContext) {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
@@ -688,7 +688,7 @@ class PictogramGridState extends State<PictogramGrid>
     if (kDebugMode) {
       print('🔵 Grid: Zeige Piktogramm-Auswahl-Dialog für Kästchen ($row,$col)');
     }
-    PictogramSelectionDialog.show(context, (Pictogram selectedPictogram) async {
+    PictogramSelectionDialog.show(context, (selectedPictogram) async {
       if (kDebugMode) {
         print('🔵 Grid: Piktogramm ausgewählt: ${selectedPictogram.keyword}');
       }
@@ -835,13 +835,13 @@ class PictogramGridState extends State<PictogramGrid>
 
 /// Wiederverwendbares Widget für Piktogramm-Bilder
 class _PictogramImageWidget extends StatelessWidget {
-  final String imageUrl;
-  final BoxFit fit;
 
   const _PictogramImageWidget({
     required this.imageUrl,
     this.fit = BoxFit.contain,
   });
+  final String imageUrl;
+  final BoxFit fit;
 
   @override
   Widget build(BuildContext context) {
@@ -893,26 +893,26 @@ class _PictogramImageWidget extends StatelessWidget {
 }
 
 class PictogramPosition {
-  final Pictogram pictogram;
-  int row;
-  int column;
 
   PictogramPosition({
     required this.pictogram,
     required this.row,
     required this.column,
   });
+  final Pictogram pictogram;
+  int row;
+  int column;
 }
 
 class DraggablePictogramTile extends StatelessWidget {
-  final PictogramPosition position;
-  final double size;
 
   const DraggablePictogramTile({
     super.key,
     required this.position,
     required this.size,
   });
+  final PictogramPosition position;
+  final double size;
 
   @override
   Widget build(BuildContext context) {

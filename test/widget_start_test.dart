@@ -12,7 +12,7 @@ void main() {
     databaseFactory = databaseFactoryFfi;
   });
 
-  testWidgets('App startet ohne Fehler', (WidgetTester tester) async {
+  testWidgets('App startet ohne Fehler', (tester) async {
     await tester.pumpWidget(const PictoGridApp()); // Passe ggf. den Namen deines Root-Widgets an
     expect(find.byType(MaterialApp), findsOneWidget);
   });

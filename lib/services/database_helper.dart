@@ -3,13 +3,13 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/pictogram.dart';
 
-class DatabaseHelper {
-  static const String _databaseName = 'pictogrid.db';
-  static const int _databaseVersion =
-      4; // Version 4: Kompletter Neuaufbau für lokale Dateien
+class DatabaseHelper { // Version 4: Kompletter Neuaufbau für lokale Dateien
 
   // Singleton-Pattern
   DatabaseHelper._privateConstructor();
+  static const String _databaseName = 'pictogrid.db';
+  static const int _databaseVersion =
+      4;
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
 
   static Database? _database;

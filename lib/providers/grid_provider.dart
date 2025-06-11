@@ -4,16 +4,16 @@ import '../services/database_helper.dart';
 import '../services/local_pictogram_service.dart';
 
 class GridProvider with ChangeNotifier {
+
+  GridProvider() {
+    loadGrids();
+  }
   final DatabaseHelper _db = DatabaseHelper.instance;
   final LocalPictogramService _localPictogramService =
       LocalPictogramService.instance;
   List<Map<String, dynamic>> _grids = [];
   int? _selectedGridId;
   List<Pictogram> _currentGridPictograms = [];
-
-  GridProvider() {
-    loadGrids();
-  }
 
   List<Map<String, dynamic>> get grids => _grids;
   int? get selectedGridId => _selectedGridId;
