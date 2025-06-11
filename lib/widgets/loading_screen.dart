@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class LoadingScreen extends StatefulWidget {
   const LoadingScreen({super.key});
@@ -58,12 +59,23 @@ class _LoadingScreenState extends State<LoadingScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF7DDBD4), // Mint/Teal background wie im Bild
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+    return OrientationBuilder(
+      builder: (context, orientation) {
+        // Responsive Layout für alle Orientierungen
+        final isPortrait = orientation == Orientation.portrait;
+        final screenSize = MediaQuery.of(context).size;
+        
+        return Scaffold(
+          backgroundColor: const Color(0xFF7DDBD4), // Mint/Teal background wie im Bild
+          body: Center(
+            child: SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: screenSize.height * 0.8,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
             // Logo und Hauptbild
             AnimatedBuilder(
               animation: _scaleAnimation,
@@ -88,10 +100,10 @@ class _LoadingScreenState extends State<LoadingScreen>
                           ),
                           const SizedBox(height: 40),
                           
-                          // Tablet Mockup (vereinfacht für jetzt)
+                          // Tablet Mockup - responsive Größe
                           Container(
-                            width: 300,
-                            height: 400,
+                            width: isPortrait ? 250 : 300,
+                            height: isPortrait ? 320 : 400,
                             decoration: BoxDecoration(
                               color: Colors.grey[300],
                               borderRadius: BorderRadius.circular(20),
@@ -136,18 +148,18 @@ class _LoadingScreenState extends State<LoadingScreen>
                                   ),
                                 ),
                                 
-                                // Grid Area
+                                // Grid Area - responsive
                                 Expanded(
                                   child: Padding(
-                                    padding: const EdgeInsets.all(20),
+                                    padding: EdgeInsets.all(isPortrait ? 15 : 20),
                                     child: GridView.builder(
                                       physics: const NeverScrollableScrollPhysics(),
-                                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 3,
-                                        crossAxisSpacing: 8,
-                                        mainAxisSpacing: 8,
+                                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: isPortrait ? 2 : 3,
+                                        crossAxisSpacing: isPortrait ? 6 : 8,
+                                        mainAxisSpacing: isPortrait ? 6 : 8,
                                       ),
-                                      itemCount: 12,
+                                      itemCount: isPortrait ? 8 : 12,
                                       itemBuilder: (context, index) {
                                         return Container(
                                           decoration: BoxDecoration(
@@ -201,21 +213,26 @@ class _LoadingScreenState extends State<LoadingScreen>
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     strokeWidth: 3,
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: isPortrait ? 15 : 20),
                   Text(
                     'Piktogramme werden geladen...',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.9),
-                      fontSize: 16,
+                      fontSize: isPortrait ? 14 : 16,
                       fontWeight: FontWeight.w500,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 } 

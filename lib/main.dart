@@ -45,6 +45,9 @@ class PictoGridApp extends StatelessWidget {
           useMaterial3: true,
         ),
         home: const HomeScreen(),
+        builder: (context, child) {
+          return child!;
+        },
       ),
     );
   }
@@ -66,17 +69,31 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _initializeApp();
+    // Sofortige Orientierungs-Einstellung für bessere UX
+    _setInitialOrientation();
+  }
+
+  void _setInitialOrientation() {
+    // App-UI rotiert sich automatisch über Transform.rotate
   }
 
   Future<void> _initializeApp() async {
     // Simulate loading time to show the loading screen
     await Future.delayed(const Duration(seconds: 5));
     
-    // Nach dem Loading Screen: Nur Querformat erlauben
+    // Nach Loading Screen: Orientierung auf Querformat setzen
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
+    
+    // System UI optimieren
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: Colors.transparent,
+      ),
+    );
     
     if (mounted) {
       setState(() {
@@ -93,6 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final gridProvider = context.watch<GridProvider>();
 
+    // ChatGPT-Lösung: Einfache Querformat-App ohne komplexe Rotation
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
