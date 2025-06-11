@@ -56,7 +56,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool _showSearch = true;
+  bool _showHints = true;
+  bool _isEditMode = false;
   final _gridKey = GlobalKey<PictogramGridState>();
 
   @override
@@ -150,21 +151,24 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
             IconButton(
-              icon: const Icon(Icons.edit),
-              tooltip: 'Bearbeitungsmodus',
+              icon: Icon(_isEditMode ? Icons.edit_off : Icons.edit),
+              tooltip: _isEditMode ? 'Bearbeitungsmodus deaktivieren' : 'Bearbeitungsmodus aktivieren',
               onPressed: () {
                 if (_gridKey.currentState != null) {
                   _gridKey.currentState!.toggleEditMode();
+                  setState(() {
+                    _isEditMode = !_isEditMode;
+                  });
                 }
               },
             ),
           ],
           IconButton(
-            icon: Icon(_showSearch ? Icons.search_off : Icons.search),
-            tooltip: _showSearch ? 'Suche ausblenden' : 'Suche einblenden',
+            icon: Icon(_showHints ? Icons.info : Icons.info_outlined),
+            tooltip: _showHints ? 'Hinweise ausblenden' : 'Hinweise einblenden',
             onPressed: () {
               setState(() {
-                _showSearch = !_showSearch;
+                _showHints = !_showHints;
               });
             },
           ),
@@ -186,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Column(
         children: [
           // Info-Karte für Bearbeitungsmodus
-          if (_showSearch)
+          if (_showHints)
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Card(
