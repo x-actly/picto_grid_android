@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/pictogram.dart';
+import 'package:picto_grid/models/pictogram.dart';
 
 class SearchDropdown extends StatefulWidget {
 

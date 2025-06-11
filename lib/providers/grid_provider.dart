@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import '../models/pictogram.dart';
-import '../services/database_helper.dart';
-import '../services/local_pictogram_service.dart';
+import 'package:picto_grid/models/pictogram.dart';
+import 'package:picto_grid/services/database_helper.dart';
+import 'package:picto_grid/services/local_pictogram_service.dart';
 
 class GridProvider with ChangeNotifier {
 

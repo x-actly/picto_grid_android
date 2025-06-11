@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/pictogram.dart';
+import 'package:picto_grid/models/pictogram.dart';
 
 class PictogramService {
   static const String apiBaseUrl = 'https://api.arasaac.org/api/pictograms';

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
-import '../models/pictogram.dart';
+import 'package:picto_grid/models/pictogram.dart';
 import 'package:provider/provider.dart';
-import '../providers/grid_provider.dart';
-import '../services/tts_service.dart';
-import '../widgets/pictogram_selection_dialog.dart';
-import '../services/custom_pictogram_service.dart';
+import 'package:picto_grid/providers/grid_provider.dart';
+import 'package:picto_grid/services/tts_service.dart';
+import 'package:picto_grid/widgets/pictogram_selection_dialog.dart';
+import 'package:picto_grid/services/custom_pictogram_service.dart';
 
 class PictogramGrid extends StatefulWidget {
 

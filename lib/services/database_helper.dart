@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import '../models/pictogram.dart';
+import 'package:picto_grid/models/pictogram.dart';
 
 class DatabaseHelper { // Version 4: Kompletter Neuaufbau für lokale Dateien
 

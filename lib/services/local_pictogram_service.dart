@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import '../models/pictogram.dart';
-import 'custom_pictogram_service.dart';
+import 'package:picto_grid/models/pictogram.dart';
+import 'package:picto_grid/services/custom_pictogram_service.dart';
 
 class LocalPictogramService {
 

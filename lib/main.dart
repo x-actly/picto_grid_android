@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'providers/pictogram_provider.dart';
-import 'providers/grid_provider.dart';
-import 'widgets/pictogram_grid.dart';
+import 'package:picto_grid/providers/pictogram_provider.dart';
+import 'package:picto_grid/providers/grid_provider.dart';
+import 'package:picto_grid/widgets/pictogram_grid.dart';
 
-import 'services/tts_service.dart';
-import 'services/local_pictogram_service.dart';
-import 'services/custom_pictogram_service.dart';
+import 'package:picto_grid/services/tts_service.dart';
+import 'package:picto_grid/services/local_pictogram_service.dart';
+import 'package:picto_grid/services/custom_pictogram_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

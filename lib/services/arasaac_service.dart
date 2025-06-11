@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import '../models/pictogram.dart';
-import 'local_pictogram_service.dart';
+import 'package:picto_grid/models/pictogram.dart';
+import 'package:picto_grid/services/local_pictogram_service.dart';
 
 class ArasaacService {
   static const String apiBaseUrl = 'https://api.arasaac.org/api/pictograms';
