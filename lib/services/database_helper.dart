@@ -6,7 +6,7 @@ import '../models/pictogram.dart';
 class DatabaseHelper {
   static const String _databaseName = 'pictogrid.db';
   static const int _databaseVersion =
-      4; // Version 4: Kompletter Neuaufbau für lokale Dateien
+      5; // Version 5: Profile-System hinzugefügt
 
   // Singleton-Pattern
   DatabaseHelper._privateConstructor();
@@ -30,11 +30,23 @@ class DatabaseHelper {
   }
 
   Future<void> _onCreate(Database db, int version) async {
-    // Tabelle für gespeicherte Grids
+    // Tabelle für Profile
+    await db.execute('''
+      CREATE TABLE profiles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    ''');
+
+    // Tabelle für gespeicherte Grids (mit Profil-Referenz)
     await db.execute('''
       CREATE TABLE grids (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL
+        profile_id INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (profile_id) REFERENCES profiles (id) ON DELETE CASCADE
       )
     ''');
 
@@ -51,6 +63,9 @@ class DatabaseHelper {
         FOREIGN KEY (grid_id) REFERENCES grids (id) ON DELETE CASCADE
       )
     ''');
+
+    // Standard-Profil erstellen
+    await db.insert('profiles', {'name': 'Standard-Profil'});
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -109,17 +124,111 @@ class DatabaseHelper {
         print('💡 Ab jetzt werden nur noch lokale Dateien verwendet');
       }
     }
+
+    if (oldVersion < 5) {
+      // Version 5: Profile-System hinzufügen
+      if (kDebugMode) {
+        print('🏗️ DatabaseHelper: Erweitere Datenbank um Profile (Version 5)');
+      }
+
+      // Erstelle Profile-Tabelle
+      await db.execute('''
+        CREATE TABLE profiles (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      ''');
+
+      // Erstelle Standard-Profil
+      final standardProfileId = await db.insert('profiles', {'name': 'Standard-Profil'});
+
+      // Sichere bestehende Grids
+      final existingGrids = await db.query('grids');
+
+      // Lösche alte Grids-Tabelle
+      await db.execute('DROP TABLE grids');
+
+      // Erstelle neue Grids-Tabelle mit Profil-Referenz
+      await db.execute('''
+        CREATE TABLE grids (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          profile_id INTEGER NOT NULL,
+          name TEXT NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (profile_id) REFERENCES profiles (id) ON DELETE CASCADE
+        )
+      ''');
+
+      // Migriere alte Grids zum Standard-Profil
+      for (var grid in existingGrids) {
+        await db.insert('grids', {
+          'profile_id': standardProfileId,
+          'name': grid['name'],
+        });
+      }
+
+      if (kDebugMode) {
+        print('✅ DatabaseHelper: ${existingGrids.length} Grids zum Standard-Profil migriert');
+      }
+    }
   }
 
-  // Grid-Operationen
-  Future<int> createGrid(String name) async {
+  // Profil-Operationen
+  Future<int> createProfile(String name) async {
     final db = await database;
-    return await db.insert('grids', {'name': name});
+    return await db.insert('profiles', {'name': name});
+  }
+
+  Future<List<Map<String, dynamic>>> getAllProfiles() async {
+    final db = await database;
+    return await db.query('profiles', orderBy: 'created_at ASC');
+  }
+
+  Future<void> deleteProfile(int profileId) async {
+    final db = await database;
+    // Lösche Profil (Grids werden automatisch durch CASCADE gelöscht)
+    await db.delete('profiles', where: 'id = ?', whereArgs: [profileId]);
+  }
+
+  Future<int> getGridCountForProfile(int profileId) async {
+    final db = await database;
+    final result = await db.rawQuery(
+      'SELECT COUNT(*) as count FROM grids WHERE profile_id = ?',
+      [profileId],
+    );
+    return (result.first['count'] as int?) ?? 0;
+  }
+
+  // Grid-Operationen (erweitert mit Profil-ID)
+  Future<int> createGrid(String name, int profileId) async {
+    final db = await database;
+
+    // Prüfe ob das Profil bereits 3 Grids hat
+    final gridCount = await getGridCountForProfile(profileId);
+    if (gridCount >= 3) {
+      throw Exception('Profil kann maximal 3 Grids haben');
+    }
+
+    return await db.insert('grids', {
+      'name': name,
+      'profile_id': profileId,
+    });
   }
 
   Future<List<Map<String, dynamic>>> getAllGrids() async {
     final db = await database;
-    return await db.query('grids');
+    return await db.query('grids', orderBy: 'created_at ASC');
+  }
+
+  Future<List<Map<String, dynamic>>> getGridsForProfile(int profileId) async {
+    final db = await database;
+    return await db.query(
+      'grids',
+      where: 'profile_id = ?',
+      whereArgs: [profileId],
+      orderBy: 'created_at ASC',
+    );
   }
 
   // Piktogramm-Operationen

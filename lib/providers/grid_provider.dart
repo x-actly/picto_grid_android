@@ -10,24 +10,38 @@ class GridProvider with ChangeNotifier {
   List<Map<String, dynamic>> _grids = [];
   int? _selectedGridId;
   List<Pictogram> _currentGridPictograms = [];
+  int? _currentProfileId;
 
-  GridProvider() {
-    loadGrids();
-  }
+  GridProvider();
 
   List<Map<String, dynamic>> get grids => _grids;
   int? get selectedGridId => _selectedGridId;
   List<Pictogram> get currentGridPictograms =>
       List.from(_currentGridPictograms);
 
-  Future<void> loadGrids() async {
-    _grids = await _db.getAllGrids();
+  void setCurrentProfile(int? profileId) {
+    _currentProfileId = profileId;
+    _selectedGridId = null;
+    _currentGridPictograms = [];
+    loadGridsForCurrentProfile();
+  }
+
+  Future<void> loadGridsForCurrentProfile() async {
+    if (_currentProfileId == null) {
+      _grids = [];
+    } else {
+      _grids = await _db.getGridsForProfile(_currentProfileId!);
+    }
     notifyListeners();
   }
 
   Future<void> createGrid(String name) async {
-    final id = await _db.createGrid(name);
-    _grids = await _db.getAllGrids();
+    if (_currentProfileId == null) {
+      throw Exception('Kein Profil ausgewählt');
+    }
+
+    final id = await _db.createGrid(name, _currentProfileId!);
+    await loadGridsForCurrentProfile();
     _selectedGridId = id;
     _currentGridPictograms = [];
     notifyListeners();
@@ -118,7 +132,7 @@ class GridProvider with ChangeNotifier {
       _selectedGridId = null;
       _currentGridPictograms = [];
     }
-    await loadGrids();
+    await loadGridsForCurrentProfile();
     notifyListeners();
   }
 }
