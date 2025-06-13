@@ -163,10 +163,11 @@ class _HomeScreenState extends State<HomeScreen> {
               tween: Tween(begin: 0.0, end: 1.0),
               curve: Curves.easeOutBack,
               builder: (context, value, child) {
+                final clampedValue = value.clamp(0.0, 1.0);
                 return Transform.scale(
                   scale: value,
                   child: Opacity(
-                    opacity: value,
+                    opacity: clampedValue,
                     child: Material(
                       elevation: 16,
                       borderRadius: BorderRadius.circular(16),
