@@ -29,6 +29,22 @@ class DatabaseHelper { // Version 5: Profile-System hinzugefügt
     );
   }
 
+  // Hilfsfunktion: Prüft, ob eine Tabelle existiert
+  Future<bool> _tableExists(Database db, String tableName) async {
+    try {
+      final result = await db.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+        [tableName],
+      );
+      return result.isNotEmpty;
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Fehler beim Prüfen der Tabelle $tableName: $e');
+      }
+      return false;
+    }
+  }
+
   Future<void> _onCreate(Database db, int version) async {
     // Tabelle für Profile
     await db.execute('''
@@ -131,45 +147,92 @@ class DatabaseHelper { // Version 5: Profile-System hinzugefügt
         print('🏗️ DatabaseHelper: Erweitere Datenbank um Profile (Version 5)');
       }
 
-      // Erstelle Profile-Tabelle
-      await db.execute('''
-        CREATE TABLE profiles (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-      ''');
+      // Prüfe, ob Profile-Tabelle bereits existiert
+      final profilesExists = await _tableExists(db, 'profiles');
+      
+      int standardProfileId;
+      
+      if (!profilesExists) {
+        // Erstelle Profile-Tabelle nur wenn sie nicht existiert
+        await db.execute('''
+          CREATE TABLE profiles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+          )
+        ''');
 
-      // Erstelle Standard-Profil
-      final standardProfileId = await db.insert('profiles', {'name': 'Standard-Profil'});
-
-      // Sichere bestehende Grids
-      final existingGrids = await db.query('grids');
-
-      // Lösche alte Grids-Tabelle
-      await db.execute('DROP TABLE grids');
-
-      // Erstelle neue Grids-Tabelle mit Profil-Referenz
-      await db.execute('''
-        CREATE TABLE grids (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          profile_id INTEGER NOT NULL,
-          name TEXT NOT NULL,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (profile_id) REFERENCES profiles (id) ON DELETE CASCADE
-        )
-      ''');
-
-      // Migriere alte Grids zum Standard-Profil
-      for (var grid in existingGrids) {
-        await db.insert('grids', {
-          'profile_id': standardProfileId,
-          'name': grid['name'],
-        });
+        // Erstelle Standard-Profil
+        standardProfileId = await db.insert('profiles', {'name': 'Standard-Profil'});
+        if (kDebugMode) {
+          print('✅ Profile-Tabelle erstellt und Standard-Profil angelegt');
+        }
+      } else {
+        // Profile-Tabelle existiert bereits, finde Standard-Profil oder erstelle es
+        final existingProfiles = await db.query('profiles', where: 'name = ?', whereArgs: ['Standard-Profil']);
+        if (existingProfiles.isNotEmpty) {
+          standardProfileId = existingProfiles.first['id'] as int;
+          if (kDebugMode) {
+            print('✅ Standard-Profil bereits vorhanden (ID: $standardProfileId)');
+          }
+        } else {
+          standardProfileId = await db.insert('profiles', {'name': 'Standard-Profil'});
+          if (kDebugMode) {
+            print('✅ Standard-Profil erstellt (ID: $standardProfileId)');
+          }
+        }
       }
 
-      if (kDebugMode) {
-        print('✅ DatabaseHelper: ${existingGrids.length} Grids zum Standard-Profil migriert');
+      // Sichere bestehende Grids (falls vorhanden)
+      List<Map<String, dynamic>> existingGrids = [];
+      try {
+        existingGrids = await db.query('grids');
+      } catch (e) {
+        if (kDebugMode) {
+          print('ℹ️ Keine bestehenden Grids gefunden oder Tabelle existiert nicht: $e');
+        }
+      }
+
+      // Prüfe, ob die Grids-Tabelle bereits die neue Struktur hat
+      bool gridsNeedUpdate = false;
+      try {
+        await db.rawQuery('SELECT profile_id FROM grids LIMIT 1');
+        if (kDebugMode) {
+          print('✅ Grids-Tabelle hat bereits die neue Struktur');
+        }
+      } catch (e) {
+        gridsNeedUpdate = true;
+        if (kDebugMode) {
+          print('🔄 Grids-Tabelle muss aktualisiert werden');
+        }
+      }
+
+      if (gridsNeedUpdate) {
+        // Lösche alte Grids-Tabelle
+        await db.execute('DROP TABLE IF EXISTS grids');
+
+        // Erstelle neue Grids-Tabelle mit Profil-Referenz
+        await db.execute('''
+          CREATE TABLE grids (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            profile_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (profile_id) REFERENCES profiles (id) ON DELETE CASCADE
+          )
+        ''');
+
+        // Migriere alte Grids zum Standard-Profil
+        for (var grid in existingGrids) {
+          await db.insert('grids', {
+            'profile_id': standardProfileId,
+            'name': grid['name'],
+          });
+        }
+
+        if (kDebugMode) {
+          print('✅ DatabaseHelper: ${existingGrids.length} Grids zum Standard-Profil migriert');
+        }
       }
     }
   }
