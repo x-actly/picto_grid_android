@@ -2,15 +2,15 @@
     "@@locale": "de",
     "loadingText": "Piktogramme werden geladen...",
     "@loadingText": {
-    "description": "Text shown while pictograms are loading"
-  },
-    "editmodeactiveText": "Bearbeitungsmodus TSSTS - Klicken Sie auf ein Feld, um Piktogramme hinzuzufügen",
+        "description": "Text shown while pictograms are loading"
+    },
+    "editmodeactiveText": "Bearbeitungsmodus aktiviert - Klicken Sie auf ein Feld, um Piktogramme hinzuzufügen",
     "@editmodeactiveText": {
-    "description": "Text wird angezeigt, wenn der Bearbeitungsmodus aktiviert ist"
+        "description": "Text wird angezeigt, wenn der Bearbeitungsmodus aktiviert ist"
     },
     "editmodeinactiveText": "Bearbeitungsmodus deaktiviert",
     "@editmodeinactiveText": {
-    "description": "Text wird angezeigt, wenn der Bearbeitungsmodus deaktiviert ist"
+        "description": "Text wird angezeigt, wenn der Bearbeitungsmodus deaktiviert ist"
     },
     "gridsAvailableText": "{count} Grid(s) verfügbar",
     "@gridsAvailableText": {
@@ -21,13 +21,93 @@
     },
     "chooseGridText": "Wählen Sie ein Grid aus der Dropdown-Liste oben aus",
     "@chooseGridText": {
-    "description": "Text, der angezeigt wird, wenn ein Raster ausgewählt werden soll"
+        "description": "Text, der angezeigt wird, wenn ein Raster ausgewählt werden soll"
     },
     "profileText": "Profil: {profilename}",
     "@profileText": {
-    "description": "Text, der für den Profilbereich angezeigt wird",
+        "description": "Text, der für den Profilbereich angezeigt wird",
         "placeholders": {
             "profilename": {}
         }
+    },
+    "searchPictoGram": "Piktogramm suchen...",
+    "@searchPictoGram": {
+        "description": "Text, der für die Piktogrammsuche angezeigt wird"
+    },
+    "localPictogramSearchTitle": "Lokale Piktogramme suchen",
+    "@localPictogramSearchTitle": {
+        "description": "Titel für den Abschnitt der lokalen Piktogrammsuche"
+    },
+    "searchFieldPlaceholder": "Geben Sie einen Suchbegriff ein",
+    "@searchFieldPlaceholder": {
+        "description": "Platzhaltertext für das Suchfeld"
+    },
+    "searchFieldNoResults": "Keine Ergebnisse gefunden",
+    "@searchFieldNoResults": {
+        "description": "Text, der angezeigt wird, wenn keine Ergebnisse gefunden wurden"
+    },
+    "addPictogramText": "Piktogramm hinzufügen",
+    "@addPictogramText": {
+        "description": "Text, der für das Hinzufügen eines Piktogramms angezeigt wird"
+    },
+    "addPictogramContentText": "Wie möchten Sie ein Piktogramm hinzufügen?",
+    "@addPictogramContentText": {
+        "description": "Text, der für das Hinzufügen eines Piktogramminhalts angezeigt wird"
+    },
+    "removePictogramText": "Piktogramm entfernen",
+    "@removePictogramText": {
+        "description": "Text, der für das Entfernen eines Piktogramms angezeigt wird"
+    },
+    "editPictogramText": "Piktogramm bearbeiten",
+    "@editPictogramText": {
+        "description": "Text, der für das Bearbeiten eines Piktogramms angezeigt wird"
+    },
+    "namePictogramText": "Piktogramm benennen",
+    "@namePictogramText": {
+        "description": "Text, der für das Benennen eines Piktogramms angezeigt wird"
+    },
+    "namePictogramPlaceholder": "z.B. Haus, Auto, spielen...",
+    "@namePictogramPlaceholder": {
+        "description": "Platzhaltertext für das Benennen eines Piktogramms"
+    },
+    "cancelButtonText": "Abbrechen",
+    "@cancelButtonText": {
+        "description": "Text, der für das Abbrechen einer Aktion angezeigt wird"
+    },
+    "saveText": "Speichern",
+    "@saveText": {
+        "description": "Text, der für das Speichern einer Aktion angezeigt wird"
+    },
+    "confirmText": "Bestätigen",
+    "@confirmText": {
+        "description": "Text, der für die Bestätigung einer Aktion angezeigt wird"
+    },
+    "selectImageFromDeviceTitle": "Bilder vom Gerät auswählen",
+    "@selectImageFromDeviceTitle": {
+        "description": "Text, der für das Hinzufügen von lokalen Piktogrammen angezeigt wird"
+    },
+    "selectSingleImageFromDeviceText": "Bild vom Gerät wählen",
+    "@selectSingleImageFromDeviceText": {
+        "description": "Text, der für das Hinzufügen eines einzelnen lokalen Piktogramms angezeigt wird"
+    },
+    "takePhotoText": "Foto aufnehmen",
+    "@takePhotoText": {
+        "description": "Text, der für das Aufnehmen eines Fotos angezeigt wird"
+    },
+    "takePhotoSubtitleText": "Mit der Kamera fotografieren",
+    "@takePhotoSubtitleText": {
+        "description": "Text, der für das Aufnehmen eines Piktogramms mit der Kamera angezeigt wird"
+    },
+    "selectFromGalleryText": "Aus Galerie auswählen",
+    "@selectFromGalleryText": {
+        "description": "Text, der für das Auswählen eines Piktogramms aus der Galerie angezeigt wird"
+    },
+    "selectFromGallerySubtitleText": "DCIM, Downloads, etc.",
+    "@selectFromGallerySubtitleText": {
+        "description": "Text, der für das Auswählen eines Piktogramms aus der Galerie angezeigt wird"
+    },
+    "descriptionText": "Beschreibung (optional)",
+    "@descriptionText": {
+        "description": "Label für die optionale Beschreibung eines Piktogramms"
     }
 }

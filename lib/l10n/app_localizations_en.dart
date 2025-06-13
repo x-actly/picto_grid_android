@@ -29,4 +29,64 @@ class AppLocalizationsEn extends AppLocalizations {
   String profileText(Object profilename) {
     return 'Profile: $profilename';
   }
+
+  @override
+  String get localPictogramSearchTitle => 'Search local pictograms';
+
+  @override
+  String get searchPictoGramPlaceHolder => 'Search pictogram...';
+
+  @override
+  String get searchFieldPlaceholder => 'Enter search term';
+
+  @override
+  String get searchFieldNoResults => 'No results found';
+
+  @override
+  String get addPictogramText => 'Add pictogram';
+
+  @override
+  String get addPictogramContentText => 'How would you like to add a pictogram?';
+
+  @override
+  String get removePictogramText => 'Remove pictogram';
+
+  @override
+  String get editPictogramText => 'Edit pictogram';
+
+  @override
+  String get namePictogramText => 'Name pictogram';
+
+  @override
+  String get namePictogramPlaceholder => 'e.g. House, Car, Play...';
+
+  @override
+  String get cancelButtonText => 'Cancel';
+
+  @override
+  String get saveText => 'Save';
+
+  @override
+  String get confirmText => 'Confirm';
+
+  @override
+  String get selectImageFromDeviceTitle => 'Select images from device';
+
+  @override
+  String get selectSingleImageFromDeviceText => 'Select image from device';
+
+  @override
+  String get takePhotoText => 'Take photo';
+
+  @override
+  String get takePhotoSubtitleText => 'Take a photo with the camera';
+
+  @override
+  String get selectFromGalleryText => 'Select from gallery';
+
+  @override
+  String get selectFromGallerySubtitleText => 'DCIM, Downloads, etc.';
+
+  @override
+  String get descriptionText => 'Description';
 }

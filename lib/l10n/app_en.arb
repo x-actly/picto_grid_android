@@ -2,32 +2,112 @@
     "@@locale": "en",
     "loadingText": "Loading pictograms...",
     "@loadingText": {
-    "description": "Text shown while pictograms are loading"
+      "description": "Text shown while pictograms are loading"
     },
     "editmodeactiveText": "Edit mode activated - Click on a box to add pictograms",
     "@editmodeactiveText": {
-    "description": "Text shown while in edit mode"
+      "description": "Text shown while in edit mode"
     },
     "editmodeinactiveText": "Edit mode deactivated",
     "@editmodeinactiveText": {
-    "description": "Text shown when edit mode is deactivated"
+      "description": "Text shown when edit mode is deactivated"
     },
     "gridsAvailableText": "{count} Grid(s) available",
     "@gridsAvailableText": {
-    "description": "Text shown when grids are available",
+      "description": "Text shown when grids are available",
       "placeholders": {
         "count": {}
       }
     },
     "chooseGridText": "Select a grid from the dropdown above",
     "@chooseGridText": {
-    "description": "Text shown when a grid should be selected"
+      "description": "Text shown when a grid should be selected"
     },
     "profileText": "Profile: {profilename}",
     "@profileText": {
-    "description": "Text shown for the profile section",
+      "description": "Text shown for the profile section",
       "placeholders": {
           "profilename": {}
       }
+    },
+    "localPictogramSearchTitle": "Search local pictograms",
+    "@localPictogramSearchTitle": {
+        "description": "Title for the local pictogram search section"
+    },
+    "searchPictoGramPlaceHolder": "Search pictogram...",
+    "@searchPictoGramPlaceHolder": {
+        "description": "Text shown for the pictogram search"
+    },
+    "searchFieldPlaceholder": "Enter search term",
+    "@searchFieldPlaceholder": {
+        "description": "Placeholder text for the search field"
+    },
+    "searchFieldNoResults": "No results found",
+    "@searchFieldNoResults": {
+        "description": "Text shown when no results are found"
+    },
+    "addPictogramText": "Add pictogram",
+    "@addPictogramText": {
+        "description": "Text shown for adding a pictogram"
+    },
+    "addPictogramContentText": "How would you like to add a pictogram?",
+    "@addPictogramContentText": {
+        "description": "Text shown for adding pictogram content"
+    },
+    "removePictogramText": "Remove pictogram",
+    "@removePictogramText": {
+        "description": "Text shown for removing a pictogram"
+    },
+    "editPictogramText": "Edit pictogram",
+    "@editPictogramText": {
+        "description": "Text shown for editing a pictogram"
+    },
+    "namePictogramText": "Name pictogram",
+    "@namePictogramText": {
+        "description": "Text shown for naming a pictogram"
+    },
+    "namePictogramPlaceholder": "e.g. House, Car, Play...",
+    "@namePictogramPlaceholder": {
+        "description": "Placeholder text for naming a pictogram"
+    },
+    "cancelButtonText": "Cancel",
+    "@cancelButtonText": {
+        "description": "Text shown for canceling an action"
+    },
+    "saveText": "Save",
+    "@saveText": {
+        "description": "Text shown for saving an action"
+    },
+    "confirmText": "Confirm",
+    "@confirmText": {
+        "description": "Text shown for confirming an action"
+    },
+    "selectImageFromDeviceTitle": "Select images from device",
+    "@selectImageFromDeviceTitle": {
+        "description": "Text shown for adding local pictograms"
+    },
+    "selectSingleImageFromDeviceText": "Select image from device",
+    "@selectSingleImageFromDeviceText": {
+        "description": "Text shown for adding a single local pictogram"
+    },
+    "takePhotoText": "Take photo",
+    "@takePhotoText": {
+        "description": "Text shown for taking a pictogram with the camera"
+    },
+    "takePhotoSubtitleText": "Take a photo with the camera",
+    "@takePhotoSubtitleText": {
+        "description": "Text shown for taking a pictogram with the camera"
+    },
+    "selectFromGalleryText": "Select from gallery",
+    "@selectFromGalleryText": {
+        "description": "Text shown for selecting a pictogram from the gallery"
+    },
+    "selectFromGallerySubtitleText": "DCIM, Downloads, etc.",
+    "@selectFromGallerySubtitleText": {
+        "description": "Text shown for selecting a pictogram from the gallery"
+    },
+    "descriptionText": "Description",
+    "@descriptionText": {
+        "description": "Text shown for the description field"
     }
 }

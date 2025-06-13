@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:picto_grid/l10n/app_localizations.dart';
 import 'dart:io';
 import 'package:picto_grid/models/pictogram.dart';
 import 'package:picto_grid/services/local_pictogram_service.dart';
@@ -11,8 +12,12 @@ class PictogramSelectionDialog {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Piktogramm hinzufügen'),
-        content: const Text('Wie möchten Sie ein Piktogramm hinzufügen?'),
+        title: Text(
+          AppLocalizations.of(context)!.addPictogramText
+        ),
+        content: Text(
+          AppLocalizations.of(context)!.addPictogramContentText
+        ),
         actions: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -23,7 +28,9 @@ class PictogramSelectionDialog {
                   _showLocalPictogramSearch(context, onSelected);
                 },
                 icon: const Icon(Icons.search),
-                label: const Text('Lokale Piktogramme durchsuchen'),
+                label: Text(
+                  AppLocalizations.of(context)!.localPictogramSearchTitle,
+                ),
               ),
               const SizedBox(height: 8),
               ElevatedButton.icon(
@@ -32,12 +39,16 @@ class PictogramSelectionDialog {
                   _showDeviceImageOptions(context, onSelected);
                 },
                 icon: const Icon(Icons.folder),
-                label: const Text('Bilder vom Gerät auswählen'),
+                label: Text(
+                  AppLocalizations.of(context)!.selectImageFromDeviceTitle,
+                ),
               ),
               const SizedBox(height: 8),
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Abbrechen'),
+                child: Text(
+                  AppLocalizations.of(context)!.cancelButtonText,
+                ),
               ),
             ],
           ),
@@ -78,15 +89,19 @@ class PictogramSelectionDialog {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Bild vom Gerät wählen',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              AppLocalizations.of(context)!.selectImageFromDeviceTitle,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             ListTile(
               leading: const Icon(Icons.camera_alt, color: Colors.blue),
-              title: const Text('Foto aufnehmen'),
-              subtitle: const Text('Mit der Kamera fotografieren'),
+              title: Text(
+                AppLocalizations.of(context)!.takePhotoText,
+              ),
+              subtitle: Text(
+                AppLocalizations.of(context)!.takePhotoSubtitleText,
+              ),
               onTap: () async {
                 Navigator.pop(context);
                 // Starte Kamera-Capture im nächsten Frame
@@ -97,8 +112,12 @@ class PictogramSelectionDialog {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library, color: Colors.green),
-              title: const Text('Aus Galerie wählen'),
-              subtitle: const Text('DCIM, Downloads, etc.'),
+              title: Text(
+                AppLocalizations.of(context)!.selectFromGalleryText,
+              ),
+              subtitle: Text(
+                AppLocalizations.of(context)!.selectFromGallerySubtitleText,
+              ),
               onTap: () async {
                 Navigator.pop(context);
                 // Starte Galerie-Auswahl im nächsten Frame
@@ -256,7 +275,9 @@ class PictogramSelectionDialog {
     final result = await showDialog<Map<String, String>>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Piktogramm benennen'),
+        title: Text(
+          AppLocalizations.of(context)!.namePictogramText,
+        ),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -283,19 +304,19 @@ class PictogramSelectionDialog {
               const SizedBox(height: 16),
               TextField(
                 controller: nameController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Name *',
-                  hintText: 'z.B. Haus, Auto, spielen...',
-                  border: OutlineInputBorder(),
+                  hintText: AppLocalizations.of(context)!.namePictogramPlaceholder,
+                  border: const OutlineInputBorder(),
                 ),
                 autofocus: true,
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Beschreibung (optional)',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.descriptionText,
+                  border: const OutlineInputBorder(),
                 ),
                 maxLines: 2,
               ),
@@ -305,7 +326,9 @@ class PictogramSelectionDialog {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Abbrechen'),
+            child: Text(
+              AppLocalizations.of(context)!.cancelButtonText,
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -316,7 +339,9 @@ class PictogramSelectionDialog {
                 });
               }
             },
-            child: const Text('Speichern'),
+            child: Text(
+              AppLocalizations.of(context)!.saveText,
+            ),
           ),
         ],
       ),
@@ -416,8 +441,9 @@ class _LocalPictogramSearchWidgetState
         Row(
           children: [
             Expanded(
-              child: Text('Lokale Piktogramme durchsuchen',
-                  style: Theme.of(context).textTheme.headlineSmall),
+              child: Text(
+                AppLocalizations.of(context)!.localPictogramSearchTitle,
+                style: Theme.of(context).textTheme.headlineSmall),
             ),
             IconButton(
                 onPressed: () => Navigator.pop(context),
@@ -428,7 +454,7 @@ class _LocalPictogramSearchWidgetState
         TextField(
           controller: _searchController,
           decoration: InputDecoration(
-            hintText: 'Piktogramm suchen...',
+            hintText: AppLocalizations.of(context)!.searchPictoGramPlaceHolder,
             prefixIcon: const Icon(Icons.search),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             suffixIcon: _searchController.text.isNotEmpty
@@ -458,8 +484,8 @@ class _LocalPictogramSearchWidgetState
                           const SizedBox(height: 16),
                           Text(
                             _searchController.text.isEmpty
-                                ? 'Geben Sie einen Suchbegriff ein'
-                                : 'Keine Ergebnisse gefunden',
+                                ? AppLocalizations.of(context)!.searchFieldPlaceholder
+                                : AppLocalizations.of(context)!.searchFieldNoResults,
                             style: TextStyle(color: Colors.grey[600]),
                           ),
                         ],

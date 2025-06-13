@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:picto_grid/l10n/app_localizations.dart';
 import 'package:picto_grid/models/pictogram.dart';
 import 'package:picto_grid/services/local_pictogram_service.dart';
 
@@ -79,7 +80,7 @@ class _PictogramSearchDropdownState extends State<PictogramSearchDropdown> {
           controller: _searchController,
           focusNode: _focusNode,
           decoration: InputDecoration(
-            hintText: 'Piktogramm suchen...',
+            hintText: AppLocalizations.of(context)!.searchPictoGramPlaceHolder,
             prefixIcon: const Icon(Icons.search),
             suffixIcon: _searchController.text.isNotEmpty
                 ? IconButton(
@@ -124,9 +125,11 @@ class _PictogramSearchDropdownState extends State<PictogramSearchDropdown> {
                     ),
                   )
                 : _searchResults.isEmpty
-                    ? const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text('Keine Ergebnisse gefunden'),
+                    ? Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          AppLocalizations.of(context)!.searchFieldNoResults,
+                        ),
                       )
                     : ListView.builder(
                         shrinkWrap: true,

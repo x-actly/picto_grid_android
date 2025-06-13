@@ -130,6 +130,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile: {profilename}'**
   String profileText(Object profilename);
+
+  /// Title for the local pictogram search section
+  ///
+  /// In en, this message translates to:
+  /// **'Search local pictograms'**
+  String get localPictogramSearchTitle;
+
+  /// Text shown for the pictogram search
+  ///
+  /// In en, this message translates to:
+  /// **'Search pictogram...'**
+  String get searchPictoGramPlaceHolder;
+
+  /// Placeholder text for the search field
+  ///
+  /// In en, this message translates to:
+  /// **'Enter search term'**
+  String get searchFieldPlaceholder;
+
+  /// Text shown when no results are found
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get searchFieldNoResults;
+
+  /// Text shown for adding a pictogram
+  ///
+  /// In en, this message translates to:
+  /// **'Add pictogram'**
+  String get addPictogramText;
+
+  /// Text shown for adding pictogram content
+  ///
+  /// In en, this message translates to:
+  /// **'How would you like to add a pictogram?'**
+  String get addPictogramContentText;
+
+  /// Text shown for removing a pictogram
+  ///
+  /// In en, this message translates to:
+  /// **'Remove pictogram'**
+  String get removePictogramText;
+
+  /// Text shown for editing a pictogram
+  ///
+  /// In en, this message translates to:
+  /// **'Edit pictogram'**
+  String get editPictogramText;
+
+  /// Text shown for naming a pictogram
+  ///
+  /// In en, this message translates to:
+  /// **'Name pictogram'**
+  String get namePictogramText;
+
+  /// Placeholder text for naming a pictogram
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. House, Car, Play...'**
+  String get namePictogramPlaceholder;
+
+  /// Text shown for canceling an action
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelButtonText;
+
+  /// Text shown for saving an action
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get saveText;
+
+  /// Text shown for confirming an action
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirmText;
+
+  /// Text shown for adding local pictograms
+  ///
+  /// In en, this message translates to:
+  /// **'Select images from device'**
+  String get selectImageFromDeviceTitle;
+
+  /// Text shown for adding a single local pictogram
+  ///
+  /// In en, this message translates to:
+  /// **'Select image from device'**
+  String get selectSingleImageFromDeviceText;
+
+  /// Text shown for taking a pictogram with the camera
+  ///
+  /// In en, this message translates to:
+  /// **'Take photo'**
+  String get takePhotoText;
+
+  /// Text shown for taking a pictogram with the camera
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo with the camera'**
+  String get takePhotoSubtitleText;
+
+  /// Text shown for selecting a pictogram from the gallery
+  ///
+  /// In en, this message translates to:
+  /// **'Select from gallery'**
+  String get selectFromGalleryText;
+
+  /// Text shown for selecting a pictogram from the gallery
+  ///
+  /// In en, this message translates to:
+  /// **'DCIM, Downloads, etc.'**
+  String get selectFromGallerySubtitleText;
+
+  /// Text shown for the description field
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get descriptionText;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

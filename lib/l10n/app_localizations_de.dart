@@ -29,4 +29,64 @@ class AppLocalizationsDe extends AppLocalizations {
   String profileText(Object profilename) {
     return 'Profil: $profilename';
   }
+
+  @override
+  String get localPictogramSearchTitle => 'Lokale Piktogramme suchen';
+
+  @override
+  String get searchPictoGramPlaceHolder => 'Search pictogram...';
+
+  @override
+  String get searchFieldPlaceholder => 'Geben Sie einen Suchbegriff ein';
+
+  @override
+  String get searchFieldNoResults => 'Keine Ergebnisse gefunden';
+
+  @override
+  String get addPictogramText => 'Piktogramm hinzufügen';
+
+  @override
+  String get addPictogramContentText => 'Wie möchten Sie ein Piktogramm hinzufügen?';
+
+  @override
+  String get removePictogramText => 'Piktogramm entfernen';
+
+  @override
+  String get editPictogramText => 'Piktogramm bearbeiten';
+
+  @override
+  String get namePictogramText => 'Piktogramm benennen';
+
+  @override
+  String get namePictogramPlaceholder => 'z.B. Haus, Auto, spielen...';
+
+  @override
+  String get cancelButtonText => 'Abbrechen';
+
+  @override
+  String get saveText => 'Speichern';
+
+  @override
+  String get confirmText => 'Bestätigen';
+
+  @override
+  String get selectImageFromDeviceTitle => 'Bilder vom Gerät auswählen';
+
+  @override
+  String get selectSingleImageFromDeviceText => 'Bild vom Gerät wählen';
+
+  @override
+  String get takePhotoText => 'Foto aufnehmen';
+
+  @override
+  String get takePhotoSubtitleText => 'Mit der Kamera fotografieren';
+
+  @override
+  String get selectFromGalleryText => 'Aus Galerie auswählen';
+
+  @override
+  String get selectFromGallerySubtitleText => 'DCIM, Downloads, etc.';
+
+  @override
+  String get descriptionText => 'Beschreibung (optional)';
 }
