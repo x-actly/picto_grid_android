@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class LoadingScreen extends StatefulWidget {
   const LoadingScreen({super.key});
@@ -18,12 +17,12 @@ class _LoadingScreenState extends State<LoadingScreen>
   @override
   void initState() {
     super.initState();
-    
+
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-    
+
     _scaleController = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
@@ -64,7 +63,7 @@ class _LoadingScreenState extends State<LoadingScreen>
         // Responsive Layout für alle Orientierungen
         final isPortrait = orientation == Orientation.portrait;
         final screenSize = MediaQuery.of(context).size;
-        
+
         return Scaffold(
           backgroundColor: const Color(0xFF7DDBD4), // Mint/Teal background wie im Bild
           body: Center(
@@ -99,7 +98,7 @@ class _LoadingScreenState extends State<LoadingScreen>
                             ),
                           ),
                           const SizedBox(height: 40),
-                          
+
                           // Tablet Mockup - responsive Größe
                           Container(
                             width: isPortrait ? 250 : 300,
@@ -109,7 +108,7 @@ class _LoadingScreenState extends State<LoadingScreen>
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
+                                  color: Colors.black.withAlpha(20),
                                   blurRadius: 20,
                                   offset: const Offset(0, 10),
                                 ),
@@ -147,7 +146,7 @@ class _LoadingScreenState extends State<LoadingScreen>
                                     ],
                                   ),
                                 ),
-                                
+
                                 // Grid Area - responsive
                                 Expanded(
                                   child: Padding(
@@ -180,11 +179,11 @@ class _LoadingScreenState extends State<LoadingScreen>
                                     ),
                                   ),
                                 ),
-                                
+
                                 // Home Button
-                                Container(
+                                const SizedBox(
                                   height: 40,
-                                  child: const Center(
+                                  child: Center(
                                     child: CircleAvatar(
                                       radius: 15,
                                       backgroundColor: Colors.grey,
@@ -201,9 +200,9 @@ class _LoadingScreenState extends State<LoadingScreen>
                 );
               },
             ),
-            
+
             const SizedBox(height: 40),
-            
+
             // Loading Indicator
             FadeTransition(
               opacity: _fadeAnimation,
@@ -217,7 +216,7 @@ class _LoadingScreenState extends State<LoadingScreen>
                   Text(
                     'Piktogramme werden geladen...',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withAlpha(90),
                       fontSize: isPortrait ? 14 : 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -235,4 +234,4 @@ class _LoadingScreenState extends State<LoadingScreen>
       },
     );
   }
-} 
+}

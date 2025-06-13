@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
-import '../services/database_helper.dart';
+import 'package:picto_grid/services/database_helper.dart';
 
 class ProfileProvider with ChangeNotifier {
-  final DatabaseHelper _db = DatabaseHelper.instance;
-  List<Map<String, dynamic>> _profiles = [];
-  int? _selectedProfileId;
 
   ProfileProvider() {
     loadProfiles();
   }
+  final DatabaseHelper _db = DatabaseHelper.instance;
+  List<Map<String, dynamic>> _profiles = [];
+  int? _selectedProfileId;
 
   List<Map<String, dynamic>> get profiles => _profiles;
   int? get selectedProfileId => _selectedProfileId;

@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:io';
-import '../models/pictogram.dart';
+import 'package:picto_grid/models/pictogram.dart';
 import 'package:provider/provider.dart';
-import '../providers/grid_provider.dart';
-import '../services/tts_service.dart';
-import '../widgets/pictogram_selection_dialog.dart';
-import '../services/custom_pictogram_service.dart';
+import 'package:picto_grid/providers/grid_provider.dart';
+import 'package:picto_grid/services/tts_service.dart';
+import 'package:picto_grid/widgets/pictogram_selection_dialog.dart';
+import 'package:picto_grid/services/custom_pictogram_service.dart';
 
 class PictogramGrid extends StatefulWidget {
-  final List<Pictogram> pictograms;
-  final double itemSize;
-  final Function? onGridSettingsPressed;
-  final Function(bool)? onEditModeChanged;
 
   const PictogramGrid({
     super.key,
@@ -21,25 +17,29 @@ class PictogramGrid extends StatefulWidget {
     this.onGridSettingsPressed,
     this.onEditModeChanged,
   });
+  final List<Pictogram> pictograms;
+  final double itemSize;
+  final Function? onGridSettingsPressed;
+  final Function(bool)? onEditModeChanged;
 
   @override
   State<PictogramGrid> createState() => PictogramGridState();
 }
 
-class _GridDimensions {
-  final int columns;
-  final int rows;
-  final double itemWidth;
-  final double itemHeight;
-  final int maxGridSize;
+class GridDimensions {
 
-  _GridDimensions({
+  GridDimensions({
     required this.columns,
     required this.rows,
     required this.itemWidth,
     required this.itemHeight,
     required this.maxGridSize,
   });
+  final int columns;
+  final int rows;
+  final double itemWidth;
+  final double itemHeight;
+  final int maxGridSize;
 }
 
 class PictogramGridState extends State<PictogramGrid>
@@ -48,8 +48,6 @@ class PictogramGridState extends State<PictogramGrid>
   int _gridSize = 4; // Standardmäßig 4x2
   bool _showGridLines = true;
   bool _isEditMode = false;
-  final double _minItemSize = 100.0;
-  final double _spacing = 10.0;
   bool _isInitialized = false;
 
   // TTS und visuelles Feedback
@@ -194,7 +192,7 @@ class PictogramGridState extends State<PictogramGrid>
     }
   }
 
-  _GridDimensions calculateGridDimensions(Size size) {
+  GridDimensions calculateGridDimensions(Size size) {
     // Berechne den tatsächlich verfügbaren Platz
     final availableWidth = size.width;
     final availableHeight = size.height;
@@ -207,7 +205,7 @@ class PictogramGridState extends State<PictogramGrid>
     final itemWidth = availableWidth / columns;
     final itemHeight = availableHeight / rows;
 
-    return _GridDimensions(
+    return GridDimensions(
       columns: columns,
       rows: rows,
       itemWidth: itemWidth,
@@ -241,7 +239,7 @@ class PictogramGridState extends State<PictogramGrid>
     );
   }
 
-  Widget _buildDropTargets(_GridDimensions dimensions) {
+  Widget _buildDropTargets(GridDimensions dimensions) {
     return Stack(
       children: [
         for (int row = 0; row < dimensions.rows; row++)
@@ -291,7 +289,7 @@ class PictogramGridState extends State<PictogramGrid>
     );
   }
 
-  List<Widget> _buildPictogramTiles(_GridDimensions dimensions) {
+  List<Widget> _buildPictogramTiles(GridDimensions dimensions) {
     return _pictogramPositions.map((position) {
       final tile = SizedBox(
         width: dimensions.itemWidth,
@@ -357,7 +355,7 @@ class PictogramGridState extends State<PictogramGrid>
     }).toList();
   }
 
-  Widget _buildGridLines(_GridDimensions dimensions) {
+  Widget _buildGridLines(GridDimensions dimensions) {
     return Stack(
       children: [
         ...List.generate(dimensions.rows + 1, (row) {
@@ -503,10 +501,10 @@ class PictogramGridState extends State<PictogramGrid>
     }
   }
 
-  void showGridSettingsDialog(_GridDimensions dimensions) {
+  void showGridSettingsDialog(GridDimensions dimensions) {
     showDialog(
       context: context,
-      builder: (BuildContext dialogContext) {
+      builder: (dialogContext) {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
@@ -647,10 +645,10 @@ class PictogramGridState extends State<PictogramGrid>
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Löschen'),
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
+            child: const Text('Löschen'),
           ),
         ],
       ),
@@ -690,7 +688,7 @@ class PictogramGridState extends State<PictogramGrid>
     if (kDebugMode) {
       print('🔵 Grid: Zeige Piktogramm-Auswahl-Dialog für Kästchen ($row,$col)');
     }
-    PictogramSelectionDialog.show(context, (Pictogram selectedPictogram) async {
+    PictogramSelectionDialog.show(context, (selectedPictogram) async {
       if (kDebugMode) {
         print('🔵 Grid: Piktogramm ausgewählt: ${selectedPictogram.keyword}');
       }
@@ -702,7 +700,7 @@ class PictogramGridState extends State<PictogramGrid>
         }
         final renamedPictogram =
             await _showNamingDialogForPictogram(context, selectedPictogram);
-        if (renamedPictogram != null) {
+        if (renamedPictogram != null && context.mounted) {
           _addPictogramToGrid(context, renamedPictogram);
         }
       } else {
@@ -837,13 +835,13 @@ class PictogramGridState extends State<PictogramGrid>
 
 /// Wiederverwendbares Widget für Piktogramm-Bilder
 class _PictogramImageWidget extends StatelessWidget {
-  final String imageUrl;
-  final BoxFit fit;
 
   const _PictogramImageWidget({
     required this.imageUrl,
     this.fit = BoxFit.contain,
   });
+  final String imageUrl;
+  final BoxFit fit;
 
   @override
   Widget build(BuildContext context) {
@@ -895,26 +893,26 @@ class _PictogramImageWidget extends StatelessWidget {
 }
 
 class PictogramPosition {
-  final Pictogram pictogram;
-  int row;
-  int column;
 
   PictogramPosition({
     required this.pictogram,
     required this.row,
     required this.column,
   });
+  final Pictogram pictogram;
+  int row;
+  int column;
 }
 
 class DraggablePictogramTile extends StatelessWidget {
-  final PictogramPosition position;
-  final double size;
 
   const DraggablePictogramTile({
     super.key,
     required this.position,
     required this.size,
   });
+  final PictogramPosition position;
+  final double size;
 
   @override
   Widget build(BuildContext context) {

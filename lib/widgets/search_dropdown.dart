@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/pictogram.dart';
+import 'package:picto_grid/models/pictogram.dart';
 
 class SearchDropdown extends StatefulWidget {
-  final Function(String) onSearch;
-  final List<Pictogram> searchResults;
-  final Function(Pictogram) onPictogramSelected;
 
   const SearchDropdown({
     super.key,
@@ -12,6 +9,9 @@ class SearchDropdown extends StatefulWidget {
     required this.searchResults,
     required this.onPictogramSelected,
   });
+  final Function(String) onSearch;
+  final List<Pictogram> searchResults;
+  final Function(Pictogram) onPictogramSelected;
 
   @override
   State<SearchDropdown> createState() => _SearchDropdownState();

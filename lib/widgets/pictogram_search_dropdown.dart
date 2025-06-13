@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import '../models/pictogram.dart';
-import '../services/local_pictogram_service.dart';
+import 'package:picto_grid/models/pictogram.dart';
+import 'package:picto_grid/services/local_pictogram_service.dart';
 
 class PictogramSearchDropdown extends StatefulWidget {
-  final Function(Pictogram) onPictogramSelected;
 
   const PictogramSearchDropdown({
     super.key,
     required this.onPictogramSelected,
   });
+  final Function(Pictogram) onPictogramSelected;
 
   @override
   State<PictogramSearchDropdown> createState() =>

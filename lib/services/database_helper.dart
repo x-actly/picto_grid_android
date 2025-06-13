@@ -1,15 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import '../models/pictogram.dart';
+import 'package:picto_grid/models/pictogram.dart';
 
-class DatabaseHelper {
-  static const String _databaseName = 'pictogrid.db';
-  static const int _databaseVersion =
-      5; // Version 5: Profile-System hinzugefügt
+class DatabaseHelper { // Version 5: Profile-System hinzugefügt
 
   // Singleton-Pattern
   DatabaseHelper._privateConstructor();
+  static const String _databaseName = 'pictogrid.db';
+  static const int _databaseVersion =
+      5;
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
 
   static Database? _database;

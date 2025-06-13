@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 class TtsService {
-  static final TtsService _instance = TtsService._internal();
-  factory TtsService() => _instance;
   TtsService._internal();
+  factory TtsService() => _instance;
+  static final TtsService _instance = TtsService._internal();
 
   final FlutterTts _flutterTts = FlutterTts();
   bool _isInitialized = false;
@@ -14,8 +14,8 @@ class TtsService {
 
     try {
       // Verfügbare Sprachen und Stimmen abrufen
-      List<dynamic> languages = await _flutterTts.getLanguages;
-      List<dynamic> voices = await _flutterTts.getVoices;
+      final List<dynamic> languages = await _flutterTts.getLanguages;
+      final List<dynamic> voices = await _flutterTts.getVoices;
 
       if (kDebugMode) {
         print('Verfügbare Sprachen: $languages');
@@ -29,12 +29,12 @@ class TtsService {
       for (var voice in voices) {
         if (voice is Map) {
           voice['name']?.toString().toLowerCase();
-          String? locale = voice['locale']?.toString().toLowerCase();
+          final String? locale = voice['locale']?.toString().toLowerCase();
 
           if (locale != null &&
               (locale.contains('de-de') || locale.contains('de_de'))) {
             // Konvertiere zu Map<String, String> für setVoice
-            Map<String, String> voiceMap = {
+            final Map<String, String> voiceMap = {
               'name': voice['name']?.toString() ?? '',
               'locale': voice['locale']?.toString() ?? '',
             };
@@ -51,10 +51,10 @@ class TtsService {
       // Fallback: Sprache auf Deutsch setzen
       if (!germanVoiceSet) {
         // Versuche verschiedene deutsche Lokale
-        List<String> germanLocales = ['de-DE', 'de-AT', 'de-CH', 'de'];
+        final List<String> germanLocales = ['de-DE', 'de-AT', 'de-CH', 'de'];
         for (String locale in germanLocales) {
           try {
-            var result = await _flutterTts.setLanguage(locale);
+            final result = await _flutterTts.setLanguage(locale);
             if (result == 1) {
               if (kDebugMode) {
                 print('Deutsche Sprache gesetzt: $locale');

@@ -4,16 +4,16 @@ import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import '../models/pictogram.dart';
+import 'package:picto_grid/models/pictogram.dart';
 
 class CustomPictogramService {
+
+  CustomPictogramService._internal();
   static CustomPictogramService? _instance;
   static CustomPictogramService get instance {
     _instance ??= CustomPictogramService._internal();
     return _instance!;
   }
-
-  CustomPictogramService._internal();
 
   final ImagePicker _picker = ImagePicker();
   List<Pictogram> _customPictograms = [];
@@ -331,7 +331,7 @@ class CustomPictogramService {
         await permissionsToRequest.request();
 
     // Überprüfe, ob mindestens Kamera-Berechtigung gewährt wurde
-    bool cameraGranted = statuses[Permission.camera]?.isGranted ?? false;
+    final bool cameraGranted = statuses[Permission.camera]?.isGranted ?? false;
     bool storageGranted = true; // Default für iOS
 
     if (Platform.isAndroid) {

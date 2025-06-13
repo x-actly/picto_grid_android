@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import '../models/pictogram.dart';
-import '../services/arasaac_service.dart';
+import 'package:picto_grid/models/pictogram.dart';
+import 'package:picto_grid/services/arasaac_service.dart';
 
 class PictogramProvider with ChangeNotifier {
   final ArasaacService _arasaacService = ArasaacService();

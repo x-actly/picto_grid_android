@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
-import '../models/pictogram.dart';
-import '../services/database_helper.dart';
-import '../services/local_pictogram_service.dart';
+import 'package:picto_grid/models/pictogram.dart';
+import 'package:picto_grid/services/database_helper.dart';
+import 'package:picto_grid/services/local_pictogram_service.dart';
 
 class GridProvider with ChangeNotifier {
+
+  GridProvider();
   final DatabaseHelper _db = DatabaseHelper.instance;
   final LocalPictogramService _localPictogramService =
       LocalPictogramService.instance;
@@ -11,8 +13,6 @@ class GridProvider with ChangeNotifier {
   int? _selectedGridId;
   List<Pictogram> _currentGridPictograms = [];
   int? _currentProfileId;
-
-  GridProvider();
 
   List<Map<String, dynamic>> get grids => _grids;
   int? get selectedGridId => _selectedGridId;

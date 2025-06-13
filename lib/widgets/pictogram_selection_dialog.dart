@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
-import '../models/pictogram.dart';
-import '../services/local_pictogram_service.dart';
-import '../services/custom_pictogram_service.dart';
+import 'package:picto_grid/models/pictogram.dart';
+import 'package:picto_grid/services/local_pictogram_service.dart';
+import 'package:picto_grid/services/custom_pictogram_service.dart';
 
 class PictogramSelectionDialog {
   static Future<void> show(
@@ -360,10 +360,10 @@ class PictogramSelectionDialog {
 }
 
 class LocalPictogramSearchWidget extends StatefulWidget {
-  final Function(Pictogram) onPictogramSelected;
 
   const LocalPictogramSearchWidget(
       {super.key, required this.onPictogramSelected});
+  final Function(Pictogram) onPictogramSelected;
 
   @override
   State<LocalPictogramSearchWidget> createState() =>

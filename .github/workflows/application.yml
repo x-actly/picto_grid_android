@@ -1,0 +1,50 @@
+name: PictoGram - Application CI
+
+on:
+  push:
+    paths-ignore:
+      - "**.js"
+      - "**.md"
+
+    branches:
+      - 'main'
+
+  pull_request:
+    paths-ignore:
+      - "**.js"
+      - "**.md"
+
+    branches:
+      - 'main'
+
+jobs:
+  pre-commit:
+    name: Pre Commit Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Set up Python for pre-commit
+      - name: Run Pre Commit Checks
+        uses: pre-commit/action@v3.0.1
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0' # Passe ggf. an
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze project source
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
