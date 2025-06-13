@@ -1,0 +1,33 @@
+{
+    "@@locale": "de",
+    "loadingText": "Piktogramme werden geladen...",
+    "@loadingText": {
+    "description": "Text shown while pictograms are loading"
+  },
+    "editmodeactiveText": "Bearbeitungsmodus TSSTS - Klicken Sie auf ein Feld, um Piktogramme hinzuzufügen",
+    "@editmodeactiveText": {
+    "description": "Text wird angezeigt, wenn der Bearbeitungsmodus aktiviert ist"
+    },
+    "editmodeinactiveText": "Bearbeitungsmodus deaktiviert",
+    "@editmodeinactiveText": {
+    "description": "Text wird angezeigt, wenn der Bearbeitungsmodus deaktiviert ist"
+    },
+    "gridsAvailableText": "{count} Grid(s) verfügbar",
+    "@gridsAvailableText": {
+    "description": "Text wird angezeigt, wenn Raster verfügbar sind",
+        "placeholders": {
+        "count": {}
+        }
+    },
+    "chooseGridText": "Wählen Sie ein Grid aus der Dropdown-Liste oben aus",
+    "@chooseGridText": {
+    "description": "Text, der angezeigt wird, wenn ein Raster ausgewählt werden soll"
+    },
+    "profileText": "Profil: {profilename}",
+    "@profileText": {
+    "description": "Text, der für den Profilbereich angezeigt wird",
+        "placeholders": {
+            "profilename": {}
+        }
+    }
+}

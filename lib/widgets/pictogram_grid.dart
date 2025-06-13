@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:picto_grid/l10n/app_localizations.dart';
 import 'dart:io';
 import 'package:picto_grid/models/pictogram.dart';
 import 'package:provider/provider.dart';
@@ -676,8 +677,8 @@ class PictogramGridState extends State<PictogramGrid>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(_isEditMode
-            ? 'Bearbeitungsmodus aktiviert - Klicken Sie auf ein Kästchen, um Piktogramme hinzuzufügen'
-            : 'Bearbeitungsmodus deaktiviert'),
+            ? AppLocalizations.of(context)!.editmodeactiveText
+            : AppLocalizations.of(context)!.editmodeinactiveText),
         duration: const Duration(seconds: 2),
       ),
     );

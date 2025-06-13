@@ -1,0 +1,33 @@
+{
+    "@@locale": "en",
+    "loadingText": "Loading pictograms...",
+    "@loadingText": {
+    "description": "Text shown while pictograms are loading"
+    },
+    "editmodeactiveText": "Edit mode activated - Click on a box to add pictograms",
+    "@editmodeactiveText": {
+    "description": "Text shown while in edit mode"
+    },
+    "editmodeinactiveText": "Edit mode deactivated",
+    "@editmodeinactiveText": {
+    "description": "Text shown when edit mode is deactivated"
+    },
+    "gridsAvailableText": "{count} Grid(s) available",
+    "@gridsAvailableText": {
+    "description": "Text shown when grids are available",
+      "placeholders": {
+        "count": {}
+      }
+    },
+    "chooseGridText": "Select a grid from the dropdown above",
+    "@chooseGridText": {
+    "description": "Text shown when a grid should be selected"
+    },
+    "profileText": "Profile: {profilename}",
+    "@profileText": {
+    "description": "Text shown for the profile section",
+      "placeholders": {
+          "profilename": {}
+      }
+    }
+}

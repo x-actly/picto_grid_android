@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:picto_grid/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import 'package:picto_grid/providers/pictogram_provider.dart';
@@ -57,6 +58,9 @@ class PictoGridApp extends StatelessWidget {
         builder: (context, child) {
           return child!;
         },
+        // Localization support
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
       ),
     );
   }
@@ -528,18 +532,18 @@ class _HomeScreenState extends State<HomeScreen> {
           Icon(Icons.touch_app, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
-            'Profil: ${profileProvider.selectedProfileName}',
+            AppLocalizations.of(context)!.profileText(profileProvider.selectedProfileName),
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
-            '${gridProvider.grids.length} Grid(s) verfügbar',
+            AppLocalizations.of(context)!.gridsAvailableText(gridProvider.grids.length),
             style: const TextStyle(fontSize: 16, color: Colors.grey),
           ),
           const SizedBox(height: 24),
-          const Text(
-            'Wählen Sie ein Grid aus der Dropdown-Liste oben aus',
-            style: TextStyle(fontSize: 16),
+          Text(
+            AppLocalizations.of(context)!.chooseGridText,
+            style: const TextStyle(fontSize: 16),
             textAlign: TextAlign.center,
           ),
         ],
