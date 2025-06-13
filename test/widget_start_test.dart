@@ -15,5 +15,6 @@ void main() {
   testWidgets('App startet ohne Fehler', (tester) async {
     await tester.pumpWidget(const PictoGridApp()); // Passe ggf. den Namen deines Root-Widgets an
     expect(find.byType(MaterialApp), findsOneWidget);
+    await tester.pump(const Duration(seconds: 6));
   });
 }
