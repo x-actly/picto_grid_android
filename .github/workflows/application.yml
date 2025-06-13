@@ -31,6 +31,7 @@ jobs:
       - name: Run Pre Commit Checks
         uses: pre-commit/action@v3.0.1
   test:
+    name: Run Application Test
     runs-on: ubuntu-latest
 
     steps:
