@@ -149,9 +149,8 @@ class DatabaseHelper { // Version 5: Profile-System hinzugefügt
 
       // Prüfe, ob Profile-Tabelle bereits existiert
       final profilesExists = await _tableExists(db, 'profiles');
-      
+
       int standardProfileId;
-      
       if (!profilesExists) {
         // Erstelle Profile-Tabelle nur wenn sie nicht existiert
         await db.execute('''
