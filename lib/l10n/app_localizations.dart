@@ -62,7 +62,8 @@ import 'app_localizations_en.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,7 +71,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -82,177 +84,515 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('de'),
-    Locale('en')
+    Locale('en'),
   ];
 
   /// Text shown while pictograms are loading
   ///
-  /// In en, this message translates to:
-  /// **'Loading pictograms...'**
+  /// In de, this message translates to:
+  /// **'Piktogramme werden geladen...'**
   String get loadingText;
 
-  /// Text shown while in edit mode
+  /// Text wird angezeigt, wenn der Bearbeitungsmodus aktiviert ist
   ///
-  /// In en, this message translates to:
-  /// **'Edit mode activated - Click on a box to add pictograms'**
+  /// In de, this message translates to:
+  /// **'Bearbeitungsmodus aktiviert - Klicken Sie auf ein Feld, um Piktogramme hinzuzufügen'**
   String get editmodeactiveText;
 
-  /// Text shown when edit mode is deactivated
+  /// Text wird angezeigt, wenn der Bearbeitungsmodus deaktiviert ist
   ///
-  /// In en, this message translates to:
-  /// **'Edit mode deactivated'**
+  /// In de, this message translates to:
+  /// **'Bearbeitungsmodus deaktiviert'**
   String get editmodeinactiveText;
 
-  /// Text shown when grids are available
+  /// Text, der angezeigt wird, um den Bearbeitungsmodus zu aktivieren
   ///
-  /// In en, this message translates to:
-  /// **'{count} Grid(s) available'**
+  /// In de, this message translates to:
+  /// **'Bearbeitungsmodus aktivieren'**
+  String get activateEditModeText;
+
+  /// Text wird angezeigt, wenn Raster verfügbar sind
+  ///
+  /// In de, this message translates to:
+  /// **'{count} Grid(s) verfügbar'**
   String gridsAvailableText(Object count);
 
-  /// Text shown when a grid should be selected
+  /// Text, der angezeigt wird, wenn ein Raster ausgewählt werden soll
   ///
-  /// In en, this message translates to:
-  /// **'Select a grid from the dropdown above'**
+  /// In de, this message translates to:
+  /// **'Wählen Sie ein Grid aus der Dropdown-Liste oben aus'**
   String get chooseGridText;
 
-  /// Text shown for the profile section
+  /// Text, der für den Profilbereich angezeigt wird
   ///
-  /// In en, this message translates to:
-  /// **'Profile: {profilename}'**
+  /// In de, this message translates to:
+  /// **'Profil: {profilename}'**
   String profileText(Object profilename);
 
-  /// Title for the local pictogram search section
+  /// Text, der für die Piktogrammsuche angezeigt wird
   ///
-  /// In en, this message translates to:
-  /// **'Search local pictograms'**
-  String get localPictogramSearchTitle;
-
-  /// Text shown for the pictogram search
-  ///
-  /// In en, this message translates to:
-  /// **'Search pictogram...'**
+  /// In de, this message translates to:
+  /// **'Piktogramm suchen...'**
   String get searchPictoGramPlaceHolder;
 
-  /// Placeholder text for the search field
+  /// Titel für den Abschnitt der lokalen Piktogrammsuche
   ///
-  /// In en, this message translates to:
-  /// **'Enter search term'**
+  /// In de, this message translates to:
+  /// **'Lokale Piktogramme suchen'**
+  String get localPictogramSearchTitle;
+
+  /// Platzhaltertext für das Suchfeld
+  ///
+  /// In de, this message translates to:
+  /// **'Geben Sie einen Suchbegriff ein'**
   String get searchFieldPlaceholder;
 
-  /// Text shown when no results are found
+  /// Text, der angezeigt wird, wenn keine Ergebnisse gefunden wurden
   ///
-  /// In en, this message translates to:
-  /// **'No results found'**
+  /// In de, this message translates to:
+  /// **'Keine Ergebnisse gefunden'**
   String get searchFieldNoResults;
 
-  /// Text shown for adding a pictogram
+  /// Text, der für das Hinzufügen eines Piktogramms angezeigt wird
   ///
-  /// In en, this message translates to:
-  /// **'Add pictogram'**
+  /// In de, this message translates to:
+  /// **'Piktogramm hinzufügen'**
   String get addPictogramText;
 
-  /// Text shown for adding pictogram content
+  /// Text, der für das Hinzufügen eines Piktogramminhalts angezeigt wird
   ///
-  /// In en, this message translates to:
-  /// **'How would you like to add a pictogram?'**
+  /// In de, this message translates to:
+  /// **'Wie möchten Sie ein Piktogramm hinzufügen?'**
   String get addPictogramContentText;
 
-  /// Text shown for removing a pictogram
+  /// Text, der für das Entfernen eines Piktogramms angezeigt wird
   ///
-  /// In en, this message translates to:
-  /// **'Remove pictogram'**
+  /// In de, this message translates to:
+  /// **'Piktogramm entfernen'**
   String get removePictogramText;
 
-  /// Text shown for editing a pictogram
+  /// Text, der für das Bearbeiten eines Piktogramms angezeigt wird
   ///
-  /// In en, this message translates to:
-  /// **'Edit pictogram'**
+  /// In de, this message translates to:
+  /// **'Piktogramm bearbeiten'**
   String get editPictogramText;
 
-  /// Text shown for naming a pictogram
+  /// Text, der für das Benennen eines Piktogramms angezeigt wird
   ///
-  /// In en, this message translates to:
-  /// **'Name pictogram'**
+  /// In de, this message translates to:
+  /// **'Piktogramm benennen'**
   String get namePictogramText;
 
-  /// Placeholder text for naming a pictogram
+  /// Platzhaltertext für das Benennen eines Piktogramms
   ///
-  /// In en, this message translates to:
-  /// **'e.g. House, Car, Play...'**
+  /// In de, this message translates to:
+  /// **'z.B. Haus, Auto, spielen...'**
   String get namePictogramPlaceholder;
 
-  /// Text shown for canceling an action
+  /// Text, der für das Abbrechen einer Aktion angezeigt wird
   ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
+  /// In de, this message translates to:
+  /// **'Abbrechen'**
   String get cancelButtonText;
 
-  /// Text shown for saving an action
+  /// Text, der für das Speichern einer Aktion angezeigt wird
   ///
-  /// In en, this message translates to:
-  /// **'Save'**
+  /// In de, this message translates to:
+  /// **'Speichern'**
   String get saveText;
 
-  /// Text shown for confirming an action
+  /// Text, der für die Bestätigung einer Aktion angezeigt wird
   ///
-  /// In en, this message translates to:
-  /// **'Confirm'**
+  /// In de, this message translates to:
+  /// **'Bestätigen'**
   String get confirmText;
 
-  /// Text shown for adding local pictograms
+  /// Text, der für das Hinzufügen von lokalen Piktogrammen angezeigt wird
   ///
-  /// In en, this message translates to:
-  /// **'Select images from device'**
+  /// In de, this message translates to:
+  /// **'Bilder vom Gerät auswählen'**
   String get selectImageFromDeviceTitle;
 
-  /// Text shown for adding a single local pictogram
+  /// Text, der für das Hinzufügen eines einzelnen lokalen Piktogramms angezeigt wird
   ///
-  /// In en, this message translates to:
-  /// **'Select image from device'**
+  /// In de, this message translates to:
+  /// **'Bild vom Gerät wählen'**
   String get selectSingleImageFromDeviceText;
 
-  /// Text shown for taking a pictogram with the camera
+  /// Text, der für das Aufnehmen eines Fotos angezeigt wird
   ///
-  /// In en, this message translates to:
-  /// **'Take photo'**
+  /// In de, this message translates to:
+  /// **'Foto aufnehmen'**
   String get takePhotoText;
 
-  /// Text shown for taking a pictogram with the camera
+  /// Text, der für das Aufnehmen eines Piktogramms mit der Kamera angezeigt wird
   ///
-  /// In en, this message translates to:
-  /// **'Take a photo with the camera'**
+  /// In de, this message translates to:
+  /// **'Mit der Kamera fotografieren'**
   String get takePhotoSubtitleText;
 
-  /// Text shown for selecting a pictogram from the gallery
+  /// Text, der für das Auswählen eines Piktogramms aus der Galerie angezeigt wird
   ///
-  /// In en, this message translates to:
-  /// **'Select from gallery'**
+  /// In de, this message translates to:
+  /// **'Aus Galerie auswählen'**
   String get selectFromGalleryText;
 
-  /// Text shown for selecting a pictogram from the gallery
+  /// Text, der für das Auswählen eines Piktogramms aus der Galerie angezeigt wird
   ///
-  /// In en, this message translates to:
+  /// In de, this message translates to:
   /// **'DCIM, Downloads, etc.'**
   String get selectFromGallerySubtitleText;
 
-  /// Text shown for the description field
+  /// Label für die optionale Beschreibung eines Piktogramms
   ///
-  /// In en, this message translates to:
-  /// **'Description'**
+  /// In de, this message translates to:
+  /// **'Beschreibung (optional)'**
   String get descriptionText;
+
+  /// Button text to show more details in the dialog
+  ///
+  /// In de, this message translates to:
+  /// **'More Details'**
+  String get descriptionPictogramPlaceholder;
+
+  /// Fallback-Text, wenn TTS nicht funktioniert
+  ///
+  /// In de, this message translates to:
+  /// **'Sprache: {keyword}'**
+  String ttsErrorText(Object keyword);
+
+  /// Titel für das Grid-Einstellungs-Dialogfenster
+  ///
+  /// In de, this message translates to:
+  /// **'Rastereinstellungen'**
+  String get gridSettingsText;
+
+  /// Label für die Gridgröße im Einstellungsdialog
+  ///
+  /// In de, this message translates to:
+  /// **'Rastergröße'**
+  String get gridSizeText;
+
+  /// Label für den Switch zum Anzeigen der Rasterlinien
+  ///
+  /// In de, this message translates to:
+  /// **'Rasterlinien anzeigen'**
+  String get showGridLinesText;
+
+  /// Label für den Sprach-Einstellungsbereich
+  ///
+  /// In de, this message translates to:
+  /// **'Sprache-Einstellungen'**
+  String get languageSettingsText;
+
+  /// Label für den Lautstärke-Slider
+  ///
+  /// In de, this message translates to:
+  /// **'Lautstärke: '**
+  String get volumeText;
+
+  /// Label für den Geschwindigkeit-Slider
+  ///
+  /// In de, this message translates to:
+  /// **'Geschwindigkeit: '**
+  String get speechRateText;
+
+  /// Button-Text zum Zurücksetzen der Einstellungen
+  ///
+  /// In de, this message translates to:
+  /// **'Zurücksetzen'**
+  String get resetText;
+
+  /// Button-Text zum Schließen des Dialogs
+  ///
+  /// In de, this message translates to:
+  /// **'Schließen'**
+  String get closeText;
+
+  /// Titel für das Löschen-Dialogfenster
+  ///
+  /// In de, this message translates to:
+  /// **'Piktogramm löschen'**
+  String get deletePictogramText;
+
+  /// Text für das Löschen-Dialogfenster
+  ///
+  /// In de, this message translates to:
+  /// **'Möchten Sie das Piktogramm \"{keyword}\" wirklich aus dem Grid entfernen?'**
+  String deletePictogramContent(Object keyword);
+
+  /// Button-Text zum Abbrechen
+  ///
+  /// In de, this message translates to:
+  /// **'Abbrechen'**
+  String get cancelText;
+
+  /// Button-Text zum Löschen
+  ///
+  /// In de, this message translates to:
+  /// **'Löschen'**
+  String get deleteText;
+
+  /// Snackbar-Text nach Entfernen eines Piktogramms
+  ///
+  /// In de, this message translates to:
+  /// **'{keyword} wurde aus dem Grid entfernt'**
+  String removedFromGridText(Object keyword);
+
+  /// Label für das Namensfeld im Benennungsdialog
+  ///
+  /// In de, this message translates to:
+  /// **'Name für Sprachausgabe *'**
+  String get nameForSpeechLabel;
+
+  /// Snackbar-Text nach Hinzufügen eines Piktogramms
+  ///
+  /// In de, this message translates to:
+  /// **'{keyword} wurde hinzugefügt'**
+  String addedToGridText(Object keyword);
+
+  /// Hinweistext, wenn kein Profil existiert
+  ///
+  /// In de, this message translates to:
+  /// **'Erstellen Sie ein Profil, um loszulegen. Pro Profil können Sie bis zu 3 Grids anlegen.'**
+  String get infoNoProfile;
+
+  /// Hinweistext, wenn kein Grid existiert
+  ///
+  /// In de, this message translates to:
+  /// **'Erstellen Sie ein Grid für dieses Profil. Aktivieren Sie dann den Bearbeitungsmodus (✏️), um Piktogramme hinzuzufügen.'**
+  String get infoNoGrid;
+
+  /// Hinweistext, wie man Piktogramme hinzufügt
+  ///
+  /// In de, this message translates to:
+  /// **'Aktivieren Sie den Bearbeitungsmodus (✏️) und klicken Sie auf ein Kästchen, um Piktogramme hinzuzufügen.'**
+  String get infoEditHint;
+
+  /// Willkommensüberschrift
+  ///
+  /// In de, this message translates to:
+  /// **'Willkommen bei PictoGrid!'**
+  String get welcomeText;
+
+  /// Aufforderung, ein Profil zu erstellen
+  ///
+  /// In de, this message translates to:
+  /// **'Erstellen Sie zuerst ein Profil'**
+  String get createProfilePrompt;
+
+  /// Button-Text für neues Profil
+  ///
+  /// In de, this message translates to:
+  /// **'Neues Profil erstellen'**
+  String get createProfileButton;
+
+  /// Snackbar-Text nach Profil-Erstellung
+  ///
+  /// In de, this message translates to:
+  /// **'Profil \"{name}\" wurde erstellt'**
+  String profileCreated(Object name);
+
+  /// Fehlertext bei Profil-Erstellung
+  ///
+  /// In de, this message translates to:
+  /// **'Fehler beim Erstellen: {error}'**
+  String profileCreateError(Object error);
+
+  /// Titel für Profil löschen Dialog
+  ///
+  /// In de, this message translates to:
+  /// **'Profil löschen'**
+  String get profileDeleteText;
+
+  /// Inhalt für Profil löschen Dialog
+  ///
+  /// In de, this message translates to:
+  /// **'Möchten Sie das Profil \"{profile}\" wirklich löschen?\n\nAlle Grids in diesem Profil werden ebenfalls gelöscht.'**
+  String profileDeleteContent(Object profile);
+
+  /// Button-Text zum Abbrechen
+  ///
+  /// In de, this message translates to:
+  /// **'Abbrechen'**
+  String get profileDeleteCancel;
+
+  /// Button-Text zum Löschen
+  ///
+  /// In de, this message translates to:
+  /// **'Löschen'**
+  String get profileDeleteConfirm;
+
+  /// Snackbar-Text nach Profil-Löschung
+  ///
+  /// In de, this message translates to:
+  /// **'Profil wurde gelöscht'**
+  String get profileDeleted;
+
+  /// Fehlertext bei Profil-Löschung
+  ///
+  /// In de, this message translates to:
+  /// **'Fehler beim Löschen: {error}'**
+  String profileDeleteError(Object error);
+
+  /// Text, wenn noch keine Grids existieren
+  ///
+  /// In de, this message translates to:
+  /// **'Noch keine Grids vorhanden'**
+  String get noGrids;
+
+  /// Button-Text für erstes Grid
+  ///
+  /// In de, this message translates to:
+  /// **'Erstes Grid erstellen'**
+  String get createFirstGridButton;
+
+  /// Snackbar-Text nach Grid-Erstellung
+  ///
+  /// In de, this message translates to:
+  /// **'Grid \"{name}\" wurde erstellt'**
+  String gridCreated(Object name);
+
+  /// Fehlertext bei Grid-Erstellung
+  ///
+  /// In de, this message translates to:
+  /// **'Fehler beim Erstellen: {error}'**
+  String gridCreateError(Object error);
+
+  /// Titel für Grid löschen Dialog
+  ///
+  /// In de, this message translates to:
+  /// **'Grid löschen'**
+  String get gridDeleteText;
+
+  /// Inhalt für Grid löschen Dialog
+  ///
+  /// In de, this message translates to:
+  /// **'Möchten Sie das Grid \"{grid}\" wirklich löschen?'**
+  String gridDeleteContent(Object grid);
+
+  /// Button-Text zum Abbrechen
+  ///
+  /// In de, this message translates to:
+  /// **'Abbrechen'**
+  String get gridDeleteCancel;
+
+  /// Button-Text zum Löschen
+  ///
+  /// In de, this message translates to:
+  /// **'Löschen'**
+  String get gridDeleteConfirm;
+
+  /// Snackbar-Text nach Grid-Löschung
+  ///
+  /// In de, this message translates to:
+  /// **'Grid wurde gelöscht'**
+  String get gridDeleted;
+
+  /// Fehlertext bei Grid-Löschung
+  ///
+  /// In de, this message translates to:
+  /// **'Fehler beim Löschen: {error}'**
+  String gridDeleteError(Object error);
+
+  /// Label für den Profilbereich
+  ///
+  /// In de, this message translates to:
+  /// **'Profil'**
+  String get profile;
+
+  /// Button-Text zum Verwalten von Profilen
+  ///
+  /// In de, this message translates to:
+  /// **'Profile verwalten'**
+  String get manageProfiles;
+
+  /// Button-Text zum Erstellen eines neuen Profils
+  ///
+  /// In de, this message translates to:
+  /// **'Neues Profil'**
+  String get newProfile;
+
+  /// Button-Text zum Löschen eines Profils
+  ///
+  /// In de, this message translates to:
+  /// **'Profil löschen'**
+  String get deleteProfile;
+
+  /// Button-Text zum Erstellen eines neuen Grids
+  ///
+  /// In de, this message translates to:
+  /// **'Neues Grid erstellen'**
+  String get createNewGrid;
+
+  /// Text shown when the maximum number of grids is reached
+  ///
+  /// In de, this message translates to:
+  /// **'Maximum {max} Grids erreicht'**
+  String maxGridsReached(Object max);
+
+  /// Button-Text zum Erstellen eines neuen Profils
+  ///
+  /// In de, this message translates to:
+  /// **'Neues Profil erstellen'**
+  String get createNewProfile;
+
+  /// Label für das Profil-Name Eingabefeld
+  ///
+  /// In de, this message translates to:
+  /// **'Profil-Name'**
+  String get prfileName;
+
+  /// Platzhaltertext für das Profil-Name Eingabefeld
+  ///
+  /// In de, this message translates to:
+  /// **'z.B. Person, Familie, Einrichtung...'**
+  String get profileNamePlaceholder;
+
+  /// Button-Text zum Erstellen eines Profils oder Grids
+  ///
+  /// In de, this message translates to:
+  /// **'Erstellen'**
+  String get createButtonText;
+
+  /// Label für das Grid-Name Eingabefeld
+  ///
+  /// In de, this message translates to:
+  /// **'Grid-Name'**
+  String get gridName;
+
+  /// Platzhaltertext für das Grid-Name Eingabefeld
+  ///
+  /// In de, this message translates to:
+  /// **'z.B. Grundwortschatz, Essen, Aktivitäten...'**
+  String get gridNamePlaceholder;
+
+  /// Label für das Namensfeld im Benennungsdialog
+  ///
+  /// In de, this message translates to:
+  /// **'Name *'**
+  String get nameText;
+
+  /// Snackbar-Text nach dem Speichern eines Piktogramms
+  ///
+  /// In de, this message translates to:
+  /// **'Piktogramm \'{name}\' wurde gespeichert'**
+  String savePictogramText(Object name);
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -261,25 +601,26 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['de', 'en'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['de', 'en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'de': return AppLocalizationsDe();
-    case 'en': return AppLocalizationsEn();
+    case 'de':
+      return AppLocalizationsDe();
+    case 'en':
+      return AppLocalizationsEn();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
+    'that was used.',
   );
 }

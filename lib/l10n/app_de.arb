@@ -12,6 +12,10 @@
     "@editmodeinactiveText": {
         "description": "Text wird angezeigt, wenn der Bearbeitungsmodus deaktiviert ist"
     },
+    "activateEditModeText": "Bearbeitungsmodus aktivieren",
+    "@activateEditModeText": {
+        "description": "Text, der angezeigt wird, um den Bearbeitungsmodus zu aktivieren"
+    },
     "gridsAvailableText": "{count} Grid(s) verfügbar",
     "@gridsAvailableText": {
     "description": "Text wird angezeigt, wenn Raster verfügbar sind",
@@ -30,8 +34,8 @@
             "profilename": {}
         }
     },
-    "searchPictoGram": "Piktogramm suchen...",
-    "@searchPictoGram": {
+    "searchPictoGramPlaceHolder": "Piktogramm suchen...",
+    "@searchPictoGramPlaceHolder": {
         "description": "Text, der für die Piktogrammsuche angezeigt wird"
     },
     "localPictogramSearchTitle": "Lokale Piktogramme suchen",
@@ -109,5 +113,267 @@
     "descriptionText": "Beschreibung (optional)",
     "@descriptionText": {
         "description": "Label für die optionale Beschreibung eines Piktogramms"
+    },
+    "descriptionPictogramPlaceholder": "More Details",
+    "@descriptionPictogramPlaceholder": {
+        "description": "Button text to show more details in the dialog"
+    },
+    "ttsErrorText": "Sprache: {keyword}",
+    "@ttsErrorText": {
+        "description": "Fallback-Text, wenn TTS nicht funktioniert",
+        "placeholders": {
+        "keyword": {}
+        }
+    },
+    "gridSettingsText": "Rastereinstellungen",
+    "@gridSettingsText": {
+        "description": "Titel für das Grid-Einstellungs-Dialogfenster"
+    },
+    "gridSizeText": "Rastergröße",
+    "@gridSizeText": {
+        "description": "Label für die Gridgröße im Einstellungsdialog"
+    },
+    "showGridLinesText": "Rasterlinien anzeigen",
+    "@showGridLinesText": {
+        "description": "Label für den Switch zum Anzeigen der Rasterlinien"
+    },
+    "languageSettingsText": "Sprache-Einstellungen",
+    "@languageSettingsText": {
+        "description": "Label für den Sprach-Einstellungsbereich"
+    },
+    "volumeText": "Lautstärke: ",
+    "@volumeText": {
+        "description": "Label für den Lautstärke-Slider"
+    },
+    "speechRateText": "Geschwindigkeit: ",
+    "@speechRateText": {
+        "description": "Label für den Geschwindigkeit-Slider"
+    },
+    "resetText": "Zurücksetzen",
+    "@resetText": {
+        "description": "Button-Text zum Zurücksetzen der Einstellungen"
+    },
+    "closeText": "Schließen",
+    "@closeText": {
+        "description": "Button-Text zum Schließen des Dialogs"
+    },
+    "deletePictogramText": "Piktogramm löschen",
+    "@deletePictogramText": {
+        "description": "Titel für das Löschen-Dialogfenster"
+    },
+    "deletePictogramContent": "Möchten Sie das Piktogramm \"{keyword}\" wirklich aus dem Grid entfernen?",
+    "@deletePictogramContent": {
+        "description": "Text für das Löschen-Dialogfenster",
+        "placeholders": {
+        "keyword": {}
+        }
+    },
+    "cancelText": "Abbrechen",
+    "@cancelText": {
+        "description": "Button-Text zum Abbrechen"
+    },
+    "deleteText": "Löschen",
+    "@deleteText": {
+        "description": "Button-Text zum Löschen"
+    },
+    "removedFromGridText": "{keyword} wurde aus dem Grid entfernt",
+    "@removedFromGridText": {
+        "description": "Snackbar-Text nach Entfernen eines Piktogramms",
+        "placeholders": {
+        "keyword": {}
+        }
+    },
+    "nameForSpeechLabel": "Name für Sprachausgabe *",
+    "@nameForSpeechLabel": {
+        "description": "Label für das Namensfeld im Benennungsdialog"
+    },
+    "addedToGridText": "{keyword} wurde hinzugefügt",
+    "@addedToGridText": {
+        "description": "Snackbar-Text nach Hinzufügen eines Piktogramms",
+        "placeholders": {
+        "keyword": {}
+        }
+    },
+    "infoNoProfile": "Erstellen Sie ein Profil, um loszulegen. Pro Profil können Sie bis zu 3 Grids anlegen.",
+    "@infoNoProfile": {
+        "description": "Hinweistext, wenn kein Profil existiert"
+    },
+    "infoNoGrid": "Erstellen Sie ein Grid für dieses Profil. Aktivieren Sie dann den Bearbeitungsmodus (✏️), um Piktogramme hinzuzufügen.",
+    "@infoNoGrid": {
+        "description": "Hinweistext, wenn kein Grid existiert"
+    },
+    "infoEditHint": "Aktivieren Sie den Bearbeitungsmodus (✏️) und klicken Sie auf ein Kästchen, um Piktogramme hinzuzufügen.",
+    "@infoEditHint": {
+        "description": "Hinweistext, wie man Piktogramme hinzufügt"
+    },
+    "welcomeText": "Willkommen bei PictoGrid!",
+    "@welcomeText": {
+        "description": "Willkommensüberschrift"
+    },
+    "createProfilePrompt": "Erstellen Sie zuerst ein Profil",
+    "@createProfilePrompt": {
+        "description": "Aufforderung, ein Profil zu erstellen"
+    },
+    "createProfileButton": "Neues Profil erstellen",
+    "@createProfileButton": {
+        "description": "Button-Text für neues Profil"
+    },
+    "profileCreated": "Profil \"{name}\" wurde erstellt",
+    "@profileCreated": {
+        "description": "Snackbar-Text nach Profil-Erstellung",
+        "placeholders": {
+        "name": {}
+        }
+    },
+    "profileCreateError": "Fehler beim Erstellen: {error}",
+    "@profileCreateError": {
+        "description": "Fehlertext bei Profil-Erstellung",
+        "placeholders": {
+        "error": {}
+        }
+    },
+    "profileDeleteText": "Profil löschen",
+    "@profileDeleteText": {
+        "description": "Titel für Profil löschen Dialog"
+    },
+    "profileDeleteContent": "Möchten Sie das Profil \"{profile}\" wirklich löschen?\n\nAlle Grids in diesem Profil werden ebenfalls gelöscht.",
+    "@profileDeleteContent": {
+        "description": "Inhalt für Profil löschen Dialog",
+        "placeholders": {
+        "profile": {}
+        }
+    },
+    "profileDeleteCancel": "Abbrechen",
+    "@profileDeleteCancel": {
+        "description": "Button-Text zum Abbrechen"
+    },
+    "profileDeleteConfirm": "Löschen",
+    "@profileDeleteConfirm": {
+        "description": "Button-Text zum Löschen"
+    },
+    "profileDeleted": "Profil wurde gelöscht",
+    "@profileDeleted": {
+        "description": "Snackbar-Text nach Profil-Löschung"
+    },
+    "profileDeleteError": "Fehler beim Löschen: {error}",
+    "@profileDeleteError": {
+        "description": "Fehlertext bei Profil-Löschung",
+        "placeholders": {
+        "error": {}
+        }
+    },
+    "noGrids": "Noch keine Grids vorhanden",
+    "@noGrids": {
+        "description": "Text, wenn noch keine Grids existieren"
+    },
+    "createFirstGridButton": "Erstes Grid erstellen",
+    "@createFirstGridButton": {
+        "description": "Button-Text für erstes Grid"
+    },
+    "gridCreated": "Grid \"{name}\" wurde erstellt",
+    "@gridCreated": {
+        "description": "Snackbar-Text nach Grid-Erstellung",
+        "placeholders": {
+        "name": {}
+        }
+    },
+    "gridCreateError": "Fehler beim Erstellen: {error}",
+    "@gridCreateError": {
+        "description": "Fehlertext bei Grid-Erstellung",
+        "placeholders": {
+        "error": {}
+        }
+    },
+    "gridDeleteText": "Grid löschen",
+    "@gridDeleteText": {
+        "description": "Titel für Grid löschen Dialog"
+    },
+    "gridDeleteContent": "Möchten Sie das Grid \"{grid}\" wirklich löschen?",
+    "@gridDeleteContent": {
+        "description": "Inhalt für Grid löschen Dialog",
+        "placeholders": {
+        "grid": {}
+        }
+    },
+    "gridDeleteCancel": "Abbrechen",
+    "@gridDeleteCancel": {
+        "description": "Button-Text zum Abbrechen"
+    },
+    "gridDeleteConfirm": "Löschen",
+    "@gridDeleteConfirm": {
+        "description": "Button-Text zum Löschen"
+    },
+    "gridDeleted": "Grid wurde gelöscht",
+    "@gridDeleted": {
+        "description": "Snackbar-Text nach Grid-Löschung"
+    },
+    "gridDeleteError": "Fehler beim Löschen: {error}",
+    "@gridDeleteError": {
+        "description": "Fehlertext bei Grid-Löschung",
+        "placeholders": {
+        "error": {}
+        }
+    },
+    "profile": "Profil",
+    "@profile": {
+        "description": "Label für den Profilbereich"
+    },
+    "manageProfiles": "Profile verwalten",
+    "@manageProfiles": {
+        "description": "Button-Text zum Verwalten von Profilen"
+    },
+    "newProfile": "Neues Profil",
+    "@newProfile": {
+        "description": "Button-Text zum Erstellen eines neuen Profils"
+    },
+    "deleteProfile": "Profil löschen",
+    "@deleteProfile": {
+        "description": "Button-Text zum Löschen eines Profils"
+    },
+    "createNewGrid": "Neues Grid erstellen",
+    "@createNewGrid": {
+        "description": "Button-Text zum Erstellen eines neuen Grids"
+    },
+    "maxGridsReached": "Maximum {max} Grids erreicht",
+    "@maxGridsReached": {
+        "description": "Text shown when the maximum number of grids is reached",
+        "placeholders": {
+            "max": {}
+        }
+    },
+    "createNewProfile": "Neues Profil erstellen",
+    "@createNewProfile": {
+        "description": "Button-Text zum Erstellen eines neuen Profils"
+    },
+    "prfileName": "Profil-Name",
+    "@prfileName": {
+        "description": "Label für das Profil-Name Eingabefeld"
+    },
+    "profileNamePlaceholder": "z.B. Person, Familie, Einrichtung...",
+    "@profileNamePlaceholder": {
+        "description": "Platzhaltertext für das Profil-Name Eingabefeld"
+    },
+    "createButtonText": "Erstellen",
+    "@createButtonText": {
+        "description": "Button-Text zum Erstellen eines Profils oder Grids"
+    },
+    "gridName": "Grid-Name",
+    "@gridName": {
+        "description": "Label für das Grid-Name Eingabefeld"
+    },
+    "gridNamePlaceholder": "z.B. Grundwortschatz, Essen, Aktivitäten...",
+    "@gridNamePlaceholder": {
+        "description": "Platzhaltertext für das Grid-Name Eingabefeld"
+    },
+    "nameText": "Name *",
+    "@nameText": {
+        "description": "Label für das Namensfeld im Benennungsdialog"
+    },
+    "savePictogramText": "Piktogramm '{name}' wurde gespeichert",
+    "@savePictogramText": {
+        "description": "Snackbar-Text nach dem Speichern eines Piktogramms",
+        "placeholders": {
+            "name": {}
+        }
     }
 }

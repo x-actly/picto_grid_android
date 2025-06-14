@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:picto_grid/l10n/app_localizations.dart';
 import 'dart:io';
 import 'package:picto_grid/models/pictogram.dart';
 import 'package:picto_grid/services/local_pictogram_service.dart';
@@ -116,7 +117,7 @@ class _EnhancedPictogramSearchState extends State<EnhancedPictogramSearch> {
     final result = await showDialog<Map<String, String>>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Piktogramm benennen'),
+        title: Text(AppLocalizations.of(context)!.namePictogramText),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -140,20 +141,20 @@ class _EnhancedPictogramSearchState extends State<EnhancedPictogramSearch> {
               const SizedBox(height: 16),
               TextField(
                 controller: nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Name *',
-                  hintText: 'z.B. Haus, Auto, spielen...',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.nameText,
+                  hintText: AppLocalizations.of(context)!.namePictogramPlaceholder,
+                  border: const OutlineInputBorder(),
                 ),
                 autofocus: true,
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Beschreibung (optional)',
-                  hintText: 'Weitere Details...',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.descriptionText,
+                  hintText:  AppLocalizations.of(context)!.descriptionPictogramPlaceholder,
+                  border: const OutlineInputBorder(),
                 ),
                 maxLines: 2,
               ),
@@ -163,7 +164,7 @@ class _EnhancedPictogramSearchState extends State<EnhancedPictogramSearch> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Abbrechen'),
+            child: Text(AppLocalizations.of(context)!.cancelText)
           ),
           ElevatedButton(
             onPressed: () {
@@ -174,7 +175,7 @@ class _EnhancedPictogramSearchState extends State<EnhancedPictogramSearch> {
                 });
               }
             },
-            child: const Text('Speichern'),
+            child: Text(AppLocalizations.of(context)!.saveText)
           ),
         ],
       ),
@@ -200,7 +201,9 @@ class _EnhancedPictogramSearchState extends State<EnhancedPictogramSearch> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Piktogramm "${result['name']}" wurde gespeichert'),
+            content: Text(
+              AppLocalizations.of(context)!.savePictogramText({result['name']}),
+            ),
             duration: const Duration(seconds: 2),
           ),
         );
