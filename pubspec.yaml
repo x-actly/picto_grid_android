@@ -21,6 +21,7 @@ version: 1.0.1
 environment:
   sdk: '>=3.8.0 <4.0.0'
 
+
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
 # consider running `flutter pub upgrade --major-versions`. Alternatively,
@@ -48,7 +49,6 @@ dependencies:
   flutter_launcher_icons: ^0.14.4
   image: ^4.5.4
   dart_pre_commit: ^5.4.5
-  git_hooks: ^1.0.2
 
 dev_dependencies:
   flutter_test:
@@ -116,3 +116,12 @@ flutter_launcher_icons:
   min_sdk_android: 21
   adaptive_icon_background: "#7DDBD4"
   adaptive_icon_foreground: "assets/icon/foreground.png"
+
+dart_pre_commit:
+  hooks:
+    format: true      # Automatically formats code
+    analyze: true     # Runs `dart analyze` to check for issues
+    test: true        # Runs unit tests before allowing a commit
+    outdated: true    # Checks if dependencies are outdated
+    osv_scanner: true # Scans for known security vulnerabilities
+    flutter_compat: true # Checks if the package is compatible with Flutter stable
