@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:picto_grid/l10n/app_localizations.dart';
 import 'package:picto_grid/models/pictogram.dart';
 
 class SearchDropdown extends StatefulWidget {
@@ -116,7 +117,7 @@ class _SearchDropdownState extends State<SearchDropdown> {
         controller: _controller,
         focusNode: _focusNode,
         decoration: InputDecoration(
-          hintText: 'Piktogramm suchen...',
+          hintText: AppLocalizations.of(context)!.searchPictoGramPlaceHolder,
           prefixIcon: const Icon(Icons.search),
           suffixIcon: _controller.text.isNotEmpty
               ? IconButton(

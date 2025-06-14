@@ -1,5 +1,7 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:picto_grid/l10n/app_localizations.dart';
 import 'dart:io';
 import 'package:picto_grid/models/pictogram.dart';
 import 'package:provider/provider.dart';
@@ -136,7 +138,9 @@ class PictogramGridState extends State<PictogramGrid>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Sprache: ${pictogram.keyword}'),
+            content: Text(
+              AppLocalizations.of(context)!.ttsErrorText(pictogram.keyword),
+            ),
             duration: const Duration(seconds: 1),
           ),
         );
@@ -508,11 +512,15 @@ class PictogramGridState extends State<PictogramGrid>
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Rastereinstellungen'),
+              title: Text(
+                AppLocalizations.of(context)!.gridSettingsText,
+              ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('Rastergröße'),
+                  Text(
+                    AppLocalizations.of(context)!.gridSizeText,
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -550,7 +558,9 @@ class PictogramGridState extends State<PictogramGrid>
                   ),
                   const SizedBox(height: 16),
                   SwitchListTile(
-                    title: const Text('Rasterlinien anzeigen'),
+                    title: Text(
+                      AppLocalizations.of(context)!.showGridLinesText,
+                    ),
                     value: _showGridLines,
                     onChanged: (value) {
                       setState(() {
@@ -560,11 +570,15 @@ class PictogramGridState extends State<PictogramGrid>
                     },
                   ),
                   const SizedBox(height: 16),
-                  const Text('Sprache-Einstellungen'),
+                  Text(
+                    AppLocalizations.of(context)!.languageSettingsText,
+                  ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Text('Lautstärke: '),
+                      Text(
+                        AppLocalizations.of(context)!.volumeText
+                      ),
                       Expanded(
                         child: Slider(
                           value: _ttsVolume,
@@ -585,7 +599,9 @@ class PictogramGridState extends State<PictogramGrid>
                   ),
                   Row(
                     children: [
-                      const Text('Geschwindigkeit: '),
+                      Text(
+                        AppLocalizations.of(context)!.speechRateText
+                      ),
                       Expanded(
                         child: Slider(
                           value: _ttsSpeechRate,
@@ -616,11 +632,15 @@ class PictogramGridState extends State<PictogramGrid>
                     this.setState(() {});
                     Navigator.of(context).pop();
                   },
-                  child: const Text('Zurücksetzen'),
+                  child: Text(
+                    AppLocalizations.of(context)!.resetText,
+                  ),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Schließen'),
+                  child: Text(
+                    AppLocalizations.of(context)!.closeText,
+                  ),
                 ),
               ],
             );
@@ -635,20 +655,27 @@ class PictogramGridState extends State<PictogramGrid>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Piktogramm löschen'),
+        title: Text(
+          AppLocalizations.of(context)!.deletePictogramText,
+        ),
         content: Text(
-            'Möchten Sie das Piktogramm "${pictogram.keyword}" wirklich aus dem Grid entfernen?'),
+            AppLocalizations.of(context)!.deletePictogramContent(pictogram.keyword)
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Abbrechen'),
+            child: Text(
+              AppLocalizations.of(context)!.cancelText,
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(
               foregroundColor: Colors.red,
             ),
-            child: const Text('Löschen'),
+            child: Text(
+              AppLocalizations.of(context)!.deleteText,
+            ),
           ),
         ],
       ),
@@ -660,7 +687,9 @@ class PictogramGridState extends State<PictogramGrid>
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${pictogram.keyword} wurde aus dem Grid entfernt'),
+            content: Text(
+              AppLocalizations.of(context)!.removedFromGridText(pictogram.keyword)
+            ),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -676,8 +705,8 @@ class PictogramGridState extends State<PictogramGrid>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(_isEditMode
-            ? 'Bearbeitungsmodus aktiviert - Klicken Sie auf ein Kästchen, um Piktogramme hinzuzufügen'
-            : 'Bearbeitungsmodus deaktiviert'),
+            ? AppLocalizations.of(context)!.editmodeactiveText
+            : AppLocalizations.of(context)!.editmodeinactiveText),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -724,7 +753,9 @@ class PictogramGridState extends State<PictogramGrid>
     final result = await showDialog<Map<String, String>>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Piktogramm benennen'),
+        title: Text(
+          AppLocalizations.of(context)!.namePictogramText,
+        ),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -747,19 +778,19 @@ class PictogramGridState extends State<PictogramGrid>
               const SizedBox(height: 16),
               TextField(
                 controller: nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Name für Sprachausgabe *',
-                  hintText: 'z.B. Haus, Auto, spielen...',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.nameForSpeechLabel,
+                  hintText: AppLocalizations.of(context)!.namePictogramPlaceholder,
+                  border: const OutlineInputBorder(),
                 ),
                 autofocus: true,
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Beschreibung (optional)',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText:  AppLocalizations.of(context)!.descriptionText,
+                  border: const OutlineInputBorder(),
                 ),
                 maxLines: 2,
               ),
@@ -769,7 +800,9 @@ class PictogramGridState extends State<PictogramGrid>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Abbrechen'),
+            child: Text(
+              AppLocalizations.of(context)!.cancelButtonText,
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -780,7 +813,9 @@ class PictogramGridState extends State<PictogramGrid>
                 });
               }
             },
-            child: const Text('Speichern'),
+            child: Text(
+              AppLocalizations.of(context)!.saveText,
+            ),
           ),
         ],
       ),
@@ -825,7 +860,9 @@ class PictogramGridState extends State<PictogramGrid>
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${pictogram.keyword} wurde hinzugefügt'),
+          content: Text(
+            AppLocalizations.of(context)!.addedToGridText(pictogram.keyword)
+          ),
           duration: const Duration(seconds: 1),
         ),
       );

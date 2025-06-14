@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:picto_grid/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import 'package:picto_grid/providers/pictogram_provider.dart';
@@ -57,6 +58,9 @@ class PictoGridApp extends StatelessWidget {
         builder: (context, child) {
           return child!;
         },
+        // Localization support
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
       ),
     );
   }
@@ -199,10 +203,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             Expanded(
                               child: Text(
                                 profileProvider.selectedProfileId == null
-                                    ? 'Erstellen Sie ein Profil, um loszulegen. Pro Profil können Sie bis zu 3 Grids anlegen.'
+                                    ? AppLocalizations.of(context)!.infoNoProfile
                                     : gridProvider.selectedGridId == null
-                                        ? 'Erstellen Sie ein Grid für dieses Profil. Aktivieren Sie dann den Bearbeitungsmodus (✏️), um Piktogramme hinzuzufügen.'
-                                        : 'Aktivieren Sie den Bearbeitungsmodus (✏️) und klicken Sie auf ein Kästchen, um Piktogramme hinzuzufügen.',
+                                        ?  AppLocalizations.of(context)!.infoNoGrid
+                                        :  AppLocalizations.of(context)!.infoEditHint,
                                 style: TextStyle(
                                   color: Colors.blue.shade900,
                                   fontSize: 14,
@@ -268,7 +272,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('Profil', style: TextStyle(fontSize: 12)),
+                  Text(
+                    AppLocalizations.of(context)!.profile,
+                  style: const TextStyle(fontSize: 12)),
                   DropdownButton<int>(
                     value: profileProvider.selectedProfileId,
                     items: profileProvider.profiles.map((profile) {
@@ -330,13 +336,14 @@ class _HomeScreenState extends State<HomeScreen> {
               if (gridProvider.selectedGridId != null)
                 IconButton(
                   icon: const Icon(Icons.delete_outline, size: 20),
-                  tooltip: 'Grid löschen',
+                  tooltip: AppLocalizations.of(context)!.gridDeleteText,
                   onPressed: () => _showDeleteGridDialog(context, gridProvider),
                 ),
             ] else ...[
-              const Expanded(
+              Expanded(
                 flex: 2,
-                child: Text('Keine Grids', style: TextStyle(fontSize: 16, color: Colors.grey)),
+                child: Text(AppLocalizations.of(context)!.noGrids,
+                style: const TextStyle(fontSize: 16, color: Colors.grey)),
               ),
             ],
           ],
@@ -345,7 +352,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Profil-Management
           PopupMenuButton<String>(
             icon: const Icon(Icons.person),
-            tooltip: 'Profile verwalten',
+            tooltip: AppLocalizations.of(context)!.manageProfiles,
             onSelected: (value) async {
               switch (value) {
                 case 'new_profile':
@@ -357,24 +364,29 @@ class _HomeScreenState extends State<HomeScreen> {
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'new_profile',
                 child: Row(
                   children: [
-                    Icon(Icons.person_add),
-                    SizedBox(width: 8),
-                    Text('Neues Profil'),
+                    const Icon(Icons.person_add),
+                    const SizedBox(width: 8),
+                    Text(
+                      AppLocalizations.of(context)!.newProfile,
+                    ),
                   ],
                 ),
               ),
               if (profileProvider.profiles.length > 1)
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'delete_profile',
                   child: Row(
                     children: [
-                      Icon(Icons.person_remove, color: Colors.red),
-                      SizedBox(width: 8),
-                      Text('Profil löschen', style: TextStyle(color: Colors.red)),
+                      const Icon(Icons.person_remove, color: Colors.red),
+                      const SizedBox(width: 8),
+                      Text(
+                        AppLocalizations.of(context)!.deleteProfile,
+                        style: const TextStyle(color: Colors.red)
+                      ),
                     ],
                   ),
                 ),
@@ -386,7 +398,7 @@ class _HomeScreenState extends State<HomeScreen> {
             if (gridProvider.selectedGridId != null) ...[
               IconButton(
                 icon: Icon(_isEditMode ? Icons.edit_off : Icons.edit),
-                tooltip: _isEditMode ? 'Bearbeitungsmodus deaktivieren' : 'Bearbeitungsmodus aktivieren',
+                tooltip: _isEditMode ? AppLocalizations.of(context)!.editmodeinactiveText : AppLocalizations.of(context)!.activateEditModeText,
                 onPressed: () {
                   if (_gridKey.currentState != null) {
                     _gridKey.currentState!.toggleEditMode();
@@ -401,10 +413,11 @@ class _HomeScreenState extends State<HomeScreen> {
               future: profileProvider.canCreateGrid(),
               builder: (context, snapshot) {
                 final canCreate = snapshot.data ?? false;
+                final int maxGrid = 3;
                 return IconButton(
                   icon: Icon(Icons.add_circle,
                             color: canCreate ? null : Colors.grey),
-                  tooltip: canCreate ? 'Neues Grid erstellen' : 'Maximum 3 Grids erreicht',
+                  tooltip: canCreate ? AppLocalizations.of(context)!.createNewGrid : AppLocalizations.of(context)!.maxGridsReached(maxGrid),
                   onPressed: canCreate ? () => _showNewGridDialog(context, gridProvider) : null,
                 );
               },
@@ -452,20 +465,20 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Icon(Icons.person_add, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
-            const Text(
-              'Willkommen bei PictoGrid!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Text(
+              AppLocalizations.of(context)!.welcomeText,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Erstellen Sie zuerst ein Profil',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+            Text(
+              AppLocalizations.of(context)!.createProfilePrompt,
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () => _showNewProfileDialog(context, profileProvider),
               icon: const Icon(Icons.person_add),
-              label: const Text('Neues Profil erstellen'),
+              label: Text(AppLocalizations.of(context)!.createProfileButton),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               ),
@@ -488,9 +501,9 @@ class _HomeScreenState extends State<HomeScreen> {
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Noch keine Grids vorhanden',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+            Text(
+              AppLocalizations.of(context)!.noGrids,
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
             const SizedBox(height: 24),
             FutureBuilder<bool>(
@@ -500,7 +513,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 return ElevatedButton.icon(
                   onPressed: canCreate ? () => _showNewGridDialog(context, gridProvider) : null,
                   icon: const Icon(Icons.add),
-                  label: const Text('Erstes Grid erstellen'),
+                  label: Text(AppLocalizations.of(context)!.createFirstGridButton),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                   ),
@@ -528,18 +541,18 @@ class _HomeScreenState extends State<HomeScreen> {
           Icon(Icons.touch_app, size: 64, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
-            'Profil: ${profileProvider.selectedProfileName}',
+            AppLocalizations.of(context)!.profileText(profileProvider.selectedProfileName),
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
-            '${gridProvider.grids.length} Grid(s) verfügbar',
+            AppLocalizations.of(context)!.gridsAvailableText(gridProvider.grids.length),
             style: const TextStyle(fontSize: 16, color: Colors.grey),
           ),
           const SizedBox(height: 24),
-          const Text(
-            'Wählen Sie ein Grid aus der Dropdown-Liste oben aus',
-            style: TextStyle(fontSize: 16),
+          Text(
+            AppLocalizations.of(context)!.chooseGridText,
+            style: const TextStyle(fontSize: 16),
             textAlign: TextAlign.center,
           ),
         ],
@@ -559,7 +572,9 @@ class _HomeScreenState extends State<HomeScreen> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Profil "$name" wurde erstellt'),
+              content: Text(
+                AppLocalizations.of(context)!.profileCreated(name),
+              ),
               duration: const Duration(seconds: 2),
             ),
           );
@@ -568,7 +583,9 @@ class _HomeScreenState extends State<HomeScreen> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Fehler beim Erstellen: $e'),
+              content: Text(
+                AppLocalizations.of(context)!.profileCreateError(e),
+              ),
               backgroundColor: Colors.red,
             ),
           );
@@ -581,19 +598,25 @@ class _HomeScreenState extends State<HomeScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Profil löschen'),
+        title: Text(AppLocalizations.of(context)!.profileDeleteText),
         content: Text(
-          'Möchten Sie das Profil "${profileProvider.selectedProfileName}" wirklich löschen?\n\nAlle Grids in diesem Profil werden ebenfalls gelöscht.',
+          AppLocalizations.of(context)!.profileDeleteContent(
+            profileProvider.selectedProfileName,
+          )
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Abbrechen'),
+            child: Text(
+              AppLocalizations.of(context)!.cancelButtonText,
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Löschen'),
+            child: Text(
+              AppLocalizations.of(context)!.profileDeleteConfirm,
+            )
           ),
         ],
       ),
@@ -604,9 +627,11 @@ class _HomeScreenState extends State<HomeScreen> {
         await profileProvider.deleteProfile(profileProvider.selectedProfileId!);
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Profil wurde gelöscht'),
-              duration: Duration(seconds: 2),
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(context)!.profileDeleted,
+              ),
+              duration: const Duration(seconds: 2),
             ),
           );
         }
@@ -614,7 +639,9 @@ class _HomeScreenState extends State<HomeScreen> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Fehler beim Löschen: $e'),
+              content: Text(
+                AppLocalizations.of(context)!.profileDeleteError(e),
+              ),
               backgroundColor: Colors.red,
             ),
           );
@@ -634,7 +661,9 @@ class _HomeScreenState extends State<HomeScreen> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Grid "$name" wurde erstellt'),
+              content: Text(
+                AppLocalizations.of(context)!.gridCreated(name),
+              ),
               duration: const Duration(seconds: 2),
             ),
           );
@@ -643,7 +672,9 @@ class _HomeScreenState extends State<HomeScreen> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Fehler beim Erstellen: $e'),
+              content: Text(
+                AppLocalizations.of(context)!.gridCreateError(e),
+              ),
               backgroundColor: Colors.red,
             ),
           );
@@ -661,17 +692,19 @@ class _HomeScreenState extends State<HomeScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Grid löschen'),
-        content: Text('Möchten Sie das Grid "${currentGrid['name']}" wirklich löschen?'),
+        title: Text(AppLocalizations.of(context)!.gridDeleteText),
+        content: Text(
+          AppLocalizations.of(context)!.gridDeleteContent(currentGrid['name'] as String),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Abbrechen'),
+            child: Text(AppLocalizations.of(context)!.cancelButtonText)
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Löschen'),
+            child: Text(AppLocalizations.of(context)!.gridDeleteConfirm)
           ),
         ],
       ),
@@ -681,9 +714,9 @@ class _HomeScreenState extends State<HomeScreen> {
       await gridProvider.deleteGrid(gridProvider.selectedGridId!);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Grid wurde gelöscht'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.gridDeleted),
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -710,23 +743,23 @@ class _NewProfileDialogState extends State<NewProfileDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Neues Profil erstellen'),
+      title: Text(AppLocalizations.of(context)!.createNewProfile),
       content: TextField(
         controller: _controller,
-        decoration: const InputDecoration(
-          labelText: 'Profil-Name',
-          hintText: 'z.B. Person, Familie, Einrichtung...',
+        decoration: InputDecoration(
+          labelText: AppLocalizations.of(context)!.prfileName,
+          hintText: AppLocalizations.of(context)!.profileNamePlaceholder,
         ),
         autofocus: true,
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Abbrechen'),
+          child: Text(AppLocalizations.of(context)!.cancelButtonText),
         ),
         TextButton(
           onPressed: () => Navigator.pop(context, _controller.text),
-          child: const Text('Erstellen'),
+          child: Text(AppLocalizations.of(context)!.createButtonText),
         ),
       ],
     );
@@ -752,23 +785,23 @@ class _NewGridDialogState extends State<NewGridDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Neues Grid erstellen'),
+      title: Text(AppLocalizations.of(context)!.createNewGrid),
       content: TextField(
         controller: _controller,
-        decoration: const InputDecoration(
-          labelText: 'Grid-Name',
-          hintText: 'z.B. Grundwortschatz, Essen, Aktivitäten...',
+        decoration: InputDecoration(
+          labelText: AppLocalizations.of(context)!.gridName,
+          hintText:  AppLocalizations.of(context)!.gridNamePlaceholder,
         ),
         autofocus: true,
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Abbrechen'),
+          child: Text(AppLocalizations.of(context)!.cancelButtonText)
         ),
         TextButton(
           onPressed: () => Navigator.pop(context, _controller.text),
-          child: const Text('Erstellen'),
+          child: Text(AppLocalizations.of(context)!.createButtonText),
         ),
       ],
     );

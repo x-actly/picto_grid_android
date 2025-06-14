@@ -1,0 +1,379 @@
+{
+    "@@locale": "en",
+    "loadingText": "Loading pictograms...",
+    "@loadingText": {
+      "description": "Text shown while pictograms are loading"
+    },
+    "editmodeactiveText": "Edit mode activated - Click on a box to add pictograms",
+    "@editmodeactiveText": {
+      "description": "Text shown while in edit mode"
+    },
+    "editmodeinactiveText": "Edit mode deactivated",
+    "@editmodeinactiveText": {
+      "description": "Text shown when edit mode is deactivated"
+    },
+    "activateEditModeText": "Activate edit mode",
+    "@activateEditModeText": {
+        "description": "Text shown when edit mode is not active"
+    },
+    "gridsAvailableText": "{count} Grid(s) available",
+    "@gridsAvailableText": {
+      "description": "Text shown when grids are available",
+      "placeholders": {
+        "count": {}
+      }
+    },
+    "chooseGridText": "Select a grid from the dropdown above",
+    "@chooseGridText": {
+      "description": "Text shown when a grid should be selected"
+    },
+    "profileText": "Profile: {profilename}",
+    "@profileText": {
+      "description": "Text shown for the profile section",
+      "placeholders": {
+          "profilename": {}
+      }
+    },
+    "localPictogramSearchTitle": "Search local pictograms",
+    "@localPictogramSearchTitle": {
+        "description": "Title for the local pictogram search section"
+    },
+    "searchPictoGramPlaceHolder": "Search pictogram...",
+    "@searchPictoGramPlaceHolder": {
+        "description": "Text shown for the pictogram search"
+    },
+    "searchFieldPlaceholder": "Enter search term",
+    "@searchFieldPlaceholder": {
+        "description": "Placeholder text for the search field"
+    },
+    "searchFieldNoResults": "No results found",
+    "@searchFieldNoResults": {
+        "description": "Text shown when no results are found"
+    },
+    "addPictogramText": "Add pictogram",
+    "@addPictogramText": {
+        "description": "Text shown for adding a pictogram"
+    },
+    "addPictogramContentText": "How would you like to add a pictogram?",
+    "@addPictogramContentText": {
+        "description": "Text shown for adding pictogram content"
+    },
+    "removePictogramText": "Remove pictogram",
+    "@removePictogramText": {
+        "description": "Text shown for removing a pictogram"
+    },
+    "editPictogramText": "Edit pictogram",
+    "@editPictogramText": {
+        "description": "Text shown for editing a pictogram"
+    },
+    "namePictogramText": "Name pictogram",
+    "@namePictogramText": {
+        "description": "Text shown for naming a pictogram"
+    },
+    "namePictogramPlaceholder": "e.g. House, Car, Play...",
+    "@namePictogramPlaceholder": {
+        "description": "Placeholder text for naming a pictogram"
+    },
+    "cancelButtonText": "Cancel",
+    "@cancelButtonText": {
+        "description": "Text shown for canceling an action"
+    },
+    "saveText": "Save",
+    "@saveText": {
+        "description": "Text shown for saving an action"
+    },
+    "confirmText": "Confirm",
+    "@confirmText": {
+        "description": "Text shown for confirming an action"
+    },
+    "selectImageFromDeviceTitle": "Select images from device",
+    "@selectImageFromDeviceTitle": {
+        "description": "Text shown for adding local pictograms"
+    },
+    "selectSingleImageFromDeviceText": "Select image from device",
+    "@selectSingleImageFromDeviceText": {
+        "description": "Text shown for adding a single local pictogram"
+    },
+    "takePhotoText": "Take photo",
+    "@takePhotoText": {
+        "description": "Text shown for taking a pictogram with the camera"
+    },
+    "takePhotoSubtitleText": "Take a photo with the camera",
+    "@takePhotoSubtitleText": {
+        "description": "Text shown for taking a pictogram with the camera"
+    },
+    "selectFromGalleryText": "Select from gallery",
+    "@selectFromGalleryText": {
+        "description": "Text shown for selecting a pictogram from the gallery"
+    },
+    "selectFromGallerySubtitleText": "DCIM, Downloads, etc.",
+    "@selectFromGallerySubtitleText": {
+        "description": "Text shown for selecting a pictogram from the gallery"
+    },
+    "descriptionText": "Description (optional)",
+    "@descriptionText": {
+        "description": "Text shown for the description field"
+    },
+    "descriptionPictogramPlaceholder": "More Details",
+    "@descriptionPictogramPlaceholder": {
+        "description": "Button text to show more details in the dialog"
+    },
+    "ttsErrorText": "Sprache: {keyword}",
+    "@ttsErrorText": {
+        "description": "Fallback-Text, wenn TTS nicht funktioniert",
+        "placeholders": {
+        "keyword": {}
+        }
+    },
+    "gridSettingsText": "Grid Settings",
+    "@gridSettingsText": {
+        "description": "Title for the grid settings dialog"
+    },
+    "gridSizeText": "Grid Size",
+    "@gridSizeText": {
+        "description": "Label for the grid size setting"
+    },
+    "showGridLinesText": "Show grid lines",
+    "@showGridLinesText": {
+        "description": "Label for the option to show grid lines"
+    },
+    "languageSettingsText": "Language Settings",
+    "@languageSettingsText": {
+        "description": "Title for the language settings dialog"
+    },
+    "volumeText": "Volume: ",
+    "@volumeText": {
+        "description": "Label for the volume slider"
+    },
+    "speechRateText": "Speech Rate: ",
+    "@speechRateText": {
+        "description": "Label for the speech rate slider"
+    },
+    "resetText": "Reset Settings",
+    "@resetText": {
+        "description": "Button text for resetting settings"
+    },
+    "closeText": "Close",
+    "@closeText": {
+        "description": "Button text for closing the dialog"
+    },
+    "deletePictogramText": "Delete pictogram",
+    "@deletePictogramText": {
+        "description": "Title for the delete dialog"
+    },
+    "deletePictogramContent": "Do you really want to remove the pictogram \"{keyword}\" from the grid?",
+    "@deletePictogramContent": {
+        "description": "Text for the delete dialog",
+        "placeholders": {
+        "keyword": {}
+        }
+    },
+    "cancelText": "Cancel",
+    "@cancelText": {
+        "description": "Button text for canceling an action"
+    },
+    "deleteText": "Delete",
+    "@deleteText": {
+        "description": "Button text for deleting an action"
+    },
+    "removedFromGridText": "{keyword} has been removed from the grid",
+    "@removedFromGridText": {
+        "description": "Snackbar text after removing a pictogram",
+        "placeholders": {
+        "keyword": {}
+        }
+    },
+    "nameForSpeechLabel": "Name for speech *",
+    "@nameForSpeechLabel": {
+        "description": "Label for the name field for speech output"
+    },
+    "addedToGridText": "{keyword} has been added",
+    "@addedToGridText": {
+        "description": "Snackbar text after adding a pictogram",
+        "placeholders": {
+        "keyword": {}
+        }
+    },
+    "infoNoProfile": "Create a profile first. Then you can add grids and pictograms.",
+    "@infoNoProfile": {
+        "description": "Hint text when no profile exists"
+    },
+    "infoNoGrid": "Create a grid for this profile. Then activate the editing mode (✏️) to add pictograms.",
+    "@infoNoGrid": {
+        "description": "Hint text when no grid exists for the profile"
+    },
+    "infoEditHint": "Activate the editing mode (✏️) and click on a box to add pictograms.",
+    "@infoEditHint": {
+        "description": "Hint text for editing mode"
+    },
+    "welcomeText": "Welcome to the Pictogram App",
+    "@welcomeText": {
+        "description": "Title for the welcome dialog"
+    },
+    "createProfilePrompt": "Please create a profile to get started.",
+    "@createProfilePrompt": {
+        "description": "Prompt text for creating a profile"
+    },
+    "createProfileButton": "Create Profile",
+    "@createProfileButton": {
+        "description": "Button text to create a profile"
+    },
+    "profileCreated": "Profile \"{name}\" has been created",
+    "@profileCreated": {
+        "description": "Snackbar text after profile creation",
+        "placeholders": {
+        "name": {}
+        }
+    },
+    "profileCreateError": "Error creating profile: {error}",
+    "@profileCreateError": {
+        "description": "Error text when creating a profile",
+        "placeholders": {
+        "error": {}
+        }
+    },
+    "profileDeleteText": "Delete Profile",
+    "@profileDeleteText": {
+        "description": "Title for profile delete dialog"
+    },
+    "profileDeleteContent": "Do you really want to delete the profile \"{profile}\"?",
+    "@profileDeleteContent": {
+        "description": "Content for profile delete dialog",
+        "placeholders": {
+        "profile": {}
+        }
+    },
+    "profileDeleteCancel": "Cancel",
+    "@profileDeleteCancel": {
+        "description": "Button text to cancel the delete action"
+    },
+    "profileDeleteConfirm": "Delete",
+    "@profileDeleteConfirm": {
+        "description": "Button text to confirm the delete action"
+    },
+    "profileDeleted": "Profile has been deleted",
+    "@profileDeleted": {
+        "description": "Snackbar text after profile deletion"
+    },
+    "profileDeleteError": "Error deleting profile: {error}",
+    "@profileDeleteError": {
+        "description": "Error text when deleting a profile",
+        "placeholders": {
+        "error": {}
+        }
+    },
+    "noGrids": "No grids available",
+    "@noGrids": {
+        "description": "Text shown when no grids are available"
+    },
+    "createFirstGridButton": "Create First Grid",
+    "@createFirstGridButton": {
+        "description": "Button text to create the first grid"
+    },
+    "gridCreated": "Grid \"{name}\" has been created",
+    "@gridCreated": {
+        "description": "Snackbar text after grid creation",
+        "placeholders": {
+        "name": {}
+        }
+    },
+    "gridCreateError": "Error creating grid: {error}",
+    "@gridCreateError": {
+        "description": "Error text when creating a grid",
+        "placeholders": {
+        "error": {}
+        }
+    },
+    "gridDeleteText": "Delete Grid",
+    "@gridDeleteText": {
+        "description": "Title for grid delete dialog"
+    },
+    "gridDeleteContent": "Do you really want to delete the grid \"{grid}\"?",
+    "@gridDeleteContent": {
+        "description": "Content for grid delete dialog",
+        "placeholders": {
+        "grid": {}
+        }
+    },
+    "gridDeleteCancel": "Cancel",
+    "@gridDeleteCancel": {
+        "description": "Button-Text zum Abbrechen"
+    },
+    "gridDeleteConfirm": "Delete",
+    "@gridDeleteConfirm": {
+        "description": "Button-Text zum Löschen"
+    },
+    "gridDeleted": "Grid has been deleted",
+    "@gridDeleted": {
+        "description": "Snackbar-Text nach Grid-Löschung"
+    },
+    "gridDeleteError": "Error deleting grid: {error}",
+    "@gridDeleteError": {
+        "description": "Error text when deleting a grid",
+        "placeholders": {
+        "error": {}
+        }
+    },
+    "profile": "Profile",
+    "@profile": {
+        "description": "Label for the profile section"
+    },
+    "manageProfiles": "Manage Profiles",
+    "@manageProfiles": {
+        "description": "Butto-Text to manage profiles"
+    },
+    "newProfile": "New Profile",
+    "@newProfile": {
+        "description": "Button-Text to create a new profile"
+    },
+    "deleteProfile": "Delete Profile",
+    "@deleteProfile": {
+        "description": "Button-Text to delete a profile"
+    },
+    "createNewGrid": "Create New Grid",
+    "@createNewGrid": {
+        "description": "Button-Text to create a new grid"
+    },
+    "maxGridsReached": "Maximum {max} grids reached",
+    "@maxGridsReached": {
+        "description": "Text shown when the maximum number of grids is reached",
+        "placeholders": {
+            "max": {}
+        }
+    },
+    "createNewProfile": "Create New Profile",
+    "@createNewProfile": {
+        "description": "Button-Text to create a new profile"
+    },
+    "prfileName": "Profile Name",
+    "@prfileName": {
+        "description": "Label for the profile name input field"
+    },
+    "profileNamePlaceholder": "like 'My Profile', 'Family'...",
+    "@profileNamePlaceholder": {
+        "description": "Placeholder text for the profile name input field"
+    },
+    "createButtonText": "Create",
+    "@createButtonText": {
+        "description": "Button text to create a profile or grid"
+    },
+    "gridName": "Grid Name",
+    "@gridName": {
+        "description": "Label for the grid name input field"
+    },
+    "gridNamePlaceholder": "e.g. basic vocabulary, food, activities...",
+    "@gridNamePlaceholder": {
+        "description": "Placeholder text for the grid name input field"
+    },
+    "nameText": "Name *",
+    "@nameText": {
+        "description": "Label für das Namensfeld im Benennungsdialog"
+    },
+    "savePictogramText": "Piktogramm '{name}' wurde gespeichert",
+    "@savePictogramText": {
+        "description": "Snackbar-Text nach dem Speichern eines Piktogramms",
+        "placeholders": {
+            "name": {}
+        }
+    }
+}

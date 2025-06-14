@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:picto_grid/l10n/app_localizations.dart';
 
 class LoadingScreen extends StatefulWidget {
   const LoadingScreen({super.key});
@@ -213,8 +214,9 @@ class _LoadingScreenState extends State<LoadingScreen>
                     strokeWidth: 3,
                   ),
                   SizedBox(height: isPortrait ? 15 : 20),
+
                   Text(
-                    'Piktogramme werden geladen...',
+                    AppLocalizations.of(context)!.loadingText,
                     style: TextStyle(
                       color: Colors.white.withAlpha(90),
                       fontSize: isPortrait ? 14 : 16,
