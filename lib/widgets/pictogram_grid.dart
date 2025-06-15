@@ -10,7 +10,6 @@ import 'package:picto_grid/widgets/pictogram_selection_dialog.dart';
 import 'package:picto_grid/services/custom_pictogram_service.dart';
 
 class PictogramGrid extends StatefulWidget {
-
   const PictogramGrid({
     super.key,
     required this.pictograms,
@@ -28,7 +27,6 @@ class PictogramGrid extends StatefulWidget {
 }
 
 class GridDimensions {
-
   GridDimensions({
     required this.columns,
     required this.rows,
@@ -99,13 +97,16 @@ class PictogramGridState extends State<PictogramGrid>
       duration: const Duration(milliseconds: 200),
       vsync: this,
     );
-    _feedbackAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.05, // Weniger Skalierung
-    ).animate(CurvedAnimation(
-      parent: _feedbackController,
-      curve: Curves.easeOut, // Sanftere Kurve
-    ));
+    _feedbackAnimation =
+        Tween<double>(
+          begin: 1.0,
+          end: 1.05, // Weniger Skalierung
+        ).animate(
+          CurvedAnimation(
+            parent: _feedbackController,
+            curve: Curves.easeOut, // Sanftere Kurve
+          ),
+        );
   }
 
   @override
@@ -233,10 +234,9 @@ class PictogramGridState extends State<PictogramGrid>
       builder: (context, gridProvider, child) {
         return LayoutBuilder(
           builder: (context, constraints) {
-            final dimensions = calculateGridDimensions(Size(
-              constraints.maxWidth,
-              constraints.maxHeight,
-            ));
+            final dimensions = calculateGridDimensions(
+              Size(constraints.maxWidth, constraints.maxHeight),
+            );
 
             return Container(
               width: constraints.maxWidth,
@@ -291,11 +291,7 @@ class PictogramGridState extends State<PictogramGrid>
                               : Colors.transparent,
                         ),
                         child: const Center(
-                          child: Icon(
-                            Icons.add,
-                            color: Colors.grey,
-                            size: 32,
-                          ),
+                          child: Icon(Icons.add, color: Colors.grey, size: 32),
                         ),
                       ),
                     );
@@ -328,16 +324,15 @@ class PictogramGridState extends State<PictogramGrid>
         child: Draggable<PictogramPosition>(
           data: position,
           feedback: _buildPictogramCard(
-              position.pictogram, dimensions.itemWidth,
-              opacity: 0.7),
+            position.pictogram,
+            dimensions.itemWidth,
+            opacity: 0.7,
+          ),
           childWhenDragging: Container(
             width: dimensions.itemWidth,
             height: dimensions.itemHeight,
             decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.grey.withAlpha(30),
-                width: 1,
-              ),
+              border: Border.all(color: Colors.grey.withAlpha(30), width: 1),
               borderRadius: BorderRadius.circular(8),
             ),
           ),
@@ -380,10 +375,7 @@ class PictogramGridState extends State<PictogramGrid>
             top: row * dimensions.itemHeight,
             left: 0,
             right: 0,
-            child: Container(
-              height: 1,
-              color: Colors.grey[300],
-            ),
+            child: Container(height: 1, color: Colors.grey[300]),
           );
         }),
         ...List.generate(dimensions.columns + 1, (col) {
@@ -391,18 +383,18 @@ class PictogramGridState extends State<PictogramGrid>
             left: col * dimensions.itemWidth,
             top: 0,
             bottom: 0,
-            child: Container(
-              width: 1,
-              color: Colors.grey[300],
-            ),
+            child: Container(width: 1, color: Colors.grey[300]),
           );
         }),
       ],
     );
   }
 
-  Widget _buildPictogramCard(Pictogram pictogram, double size,
-      {double opacity = 1.0}) {
+  Widget _buildPictogramCard(
+    Pictogram pictogram,
+    double size, {
+    double opacity = 1.0,
+  }) {
     final isActive = _activePictogram?.id == pictogram.id;
 
     return AnimatedBuilder(
@@ -417,8 +409,9 @@ class PictogramGridState extends State<PictogramGrid>
             child: GestureDetector(
               onTap: () => _playPictogram(pictogram),
               child: Card(
-                elevation:
-                    _isEditMode ? 4 : (isActive ? 3 : 2), // Weniger Elevation
+                elevation: _isEditMode
+                    ? 4
+                    : (isActive ? 3 : 2), // Weniger Elevation
                 color: isActive
                     ? Colors.teal.withAlpha(5)
                     : null, // Weniger sichtbare Farbe
@@ -430,7 +423,9 @@ class PictogramGridState extends State<PictogramGrid>
                       ? BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Colors.teal.withAlpha(60), // Weniger intensive Randfarbe
+                            color: Colors.teal.withAlpha(
+                              60,
+                            ), // Weniger intensive Randfarbe
                             width: 1.5, // Dünnerer Rand
                           ),
                         )
@@ -525,26 +520,25 @@ class PictogramGridState extends State<PictogramGrid>
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text(
-                AppLocalizations.of(context)!.gridSettingsText,
-              ),
+              title: Text(AppLocalizations.of(context)!.gridSettingsText),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    AppLocalizations.of(context)!.gridSizeText,
-                  ),
+                  Text(AppLocalizations.of(context)!.gridSizeText),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       TextButton(
                         onPressed: () async {
                           final gridProvider = context.read<GridProvider>();
+                          final navigator = Navigator.of(context);
                           await gridProvider.updateGridSize(4);
-                          setState(() {
-                            _showGridLines = true;
-                          });
-                          Navigator.of(context).pop();
+                          if (mounted) {
+                            setState(() {
+                              _showGridLines = true;
+                            });
+                          }
+                          navigator.pop();
                         },
                         style: TextButton.styleFrom(
                           backgroundColor: _gridSize == 4
@@ -556,9 +550,12 @@ class PictogramGridState extends State<PictogramGrid>
                       TextButton(
                         onPressed: () async {
                           final gridProvider = context.read<GridProvider>();
+                          final navigator = Navigator.of(context);
                           await gridProvider.updateGridSize(8);
-                          setState(() {});
-                          Navigator.of(context).pop();
+                          if (mounted) {
+                            setState(() {});
+                          }
+                          navigator.pop();
                         },
                         style: TextButton.styleFrom(
                           backgroundColor: _gridSize == 8
@@ -583,15 +580,11 @@ class PictogramGridState extends State<PictogramGrid>
                     },
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    AppLocalizations.of(context)!.languageSettingsText,
-                  ),
+                  Text(AppLocalizations.of(context)!.languageSettingsText),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Text(
-                        AppLocalizations.of(context)!.volumeText
-                      ),
+                      Text(AppLocalizations.of(context)!.volumeText),
                       Expanded(
                         child: Slider(
                           value: _ttsVolume,
@@ -612,9 +605,7 @@ class PictogramGridState extends State<PictogramGrid>
                   ),
                   Row(
                     children: [
-                      Text(
-                        AppLocalizations.of(context)!.speechRateText
-                      ),
+                      Text(AppLocalizations.of(context)!.speechRateText),
                       Expanded(
                         child: Slider(
                           value: _ttsSpeechRate,
@@ -640,20 +631,17 @@ class PictogramGridState extends State<PictogramGrid>
                   onPressed: () async {
                     final gridProvider = context.read<GridProvider>();
                     await gridProvider.updateGridSize(4);
-                    setState(() {
-                      _showGridLines = true;
-                    });
-                    Navigator.of(context).pop();
+                    if (mounted) {
+                      setState(() {
+                        _showGridLines = true;
+                      });
+                    }
                   },
-                  child: Text(
-                    AppLocalizations.of(context)!.resetText,
-                  ),
+                  child: Text(AppLocalizations.of(context)!.resetText),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text(
-                    AppLocalizations.of(context)!.closeText,
-                  ),
+                  child: Text(AppLocalizations.of(context)!.closeText),
                 ),
               ],
             );
@@ -664,31 +652,27 @@ class PictogramGridState extends State<PictogramGrid>
   }
 
   Future<void> _showDeleteDialog(
-      BuildContext context, Pictogram pictogram) async {
+    BuildContext context,
+    Pictogram pictogram,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(
-          AppLocalizations.of(context)!.deletePictogramText,
-        ),
+        title: Text(AppLocalizations.of(context)!.deletePictogramText),
         content: Text(
-            AppLocalizations.of(context)!.deletePictogramContent(pictogram.keyword)
+          AppLocalizations.of(
+            context,
+          )!.deletePictogramContent(pictogram.keyword),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(
-              AppLocalizations.of(context)!.cancelText,
-            ),
+            child: Text(AppLocalizations.of(context)!.cancelText),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
-            ),
-            child: Text(
-              AppLocalizations.of(context)!.deleteText,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: Text(AppLocalizations.of(context)!.deleteText),
           ),
         ],
       ),
@@ -701,7 +685,9 @@ class PictogramGridState extends State<PictogramGrid>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              AppLocalizations.of(context)!.removedFromGridText(pictogram.keyword)
+              AppLocalizations.of(
+                context,
+              )!.removedFromGridText(pictogram.keyword),
             ),
             duration: const Duration(seconds: 2),
           ),
@@ -717,9 +703,11 @@ class PictogramGridState extends State<PictogramGrid>
     widget.onEditModeChanged?.call(_isEditMode);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(_isEditMode
-            ? AppLocalizations.of(context)!.editmodeactiveText
-            : AppLocalizations.of(context)!.editmodeinactiveText),
+        content: Text(
+          _isEditMode
+              ? AppLocalizations.of(context)!.editmodeactiveText
+              : AppLocalizations.of(context)!.editmodeinactiveText,
+        ),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -728,7 +716,9 @@ class PictogramGridState extends State<PictogramGrid>
   /// Zeigt den Piktogramm-Auswahl-Dialog für ein spezifisches Kästchen
   void _showPictogramSelectionDialog(BuildContext context, int row, int col) {
     if (kDebugMode) {
-      print('🔵 Grid: Zeige Piktogramm-Auswahl-Dialog für Kästchen ($row,$col)');
+      print(
+        '🔵 Grid: Zeige Piktogramm-Auswahl-Dialog für Kästchen ($row,$col)',
+      );
     }
     PictogramSelectionDialog.show(context, (selectedPictogram) async {
       if (kDebugMode) {
@@ -740,8 +730,10 @@ class PictogramGridState extends State<PictogramGrid>
         if (kDebugMode) {
           print('🔵 Grid: Zeige Naming-Dialog für temporäres Piktogramm');
         }
-        final renamedPictogram =
-            await _showNamingDialogForPictogram(context, selectedPictogram);
+        final renamedPictogram = await _showNamingDialogForPictogram(
+          context,
+          selectedPictogram,
+        );
         if (renamedPictogram != null && context.mounted) {
           _addPictogramToGrid(context, renamedPictogram);
         }
@@ -759,16 +751,16 @@ class PictogramGridState extends State<PictogramGrid>
 
   /// Zeigt den Naming-Dialog für ein Piktogramm an
   Future<Pictogram?> _showNamingDialogForPictogram(
-      BuildContext context, Pictogram pictogram) async {
+    BuildContext context,
+    Pictogram pictogram,
+  ) async {
     final nameController = TextEditingController();
     final descriptionController = TextEditingController();
 
     final result = await showDialog<Map<String, String>>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(
-          AppLocalizations.of(context)!.namePictogramText,
-        ),
+        title: Text(AppLocalizations.of(context)!.namePictogramText),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -793,7 +785,9 @@ class PictogramGridState extends State<PictogramGrid>
                 controller: nameController,
                 decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!.nameForSpeechLabel,
-                  hintText: AppLocalizations.of(context)!.namePictogramPlaceholder,
+                  hintText: AppLocalizations.of(
+                    context,
+                  )!.namePictogramPlaceholder,
                   border: const OutlineInputBorder(),
                 ),
                 autofocus: true,
@@ -802,7 +796,7 @@ class PictogramGridState extends State<PictogramGrid>
               TextField(
                 controller: descriptionController,
                 decoration: InputDecoration(
-                  labelText:  AppLocalizations.of(context)!.descriptionText,
+                  labelText: AppLocalizations.of(context)!.descriptionText,
                   border: const OutlineInputBorder(),
                 ),
                 maxLines: 2,
@@ -813,9 +807,7 @@ class PictogramGridState extends State<PictogramGrid>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(
-              AppLocalizations.of(context)!.cancelButtonText,
-            ),
+            child: Text(AppLocalizations.of(context)!.cancelButtonText),
           ),
           ElevatedButton(
             onPressed: () {
@@ -826,9 +818,7 @@ class PictogramGridState extends State<PictogramGrid>
                 });
               }
             },
-            child: Text(
-              AppLocalizations.of(context)!.saveText,
-            ),
+            child: Text(AppLocalizations.of(context)!.saveText),
           ),
         ],
       ),
@@ -837,7 +827,8 @@ class PictogramGridState extends State<PictogramGrid>
     if (result != null) {
       if (kDebugMode) {
         print(
-          '🔵 Grid: Benenne Piktogramm um: ${pictogram.keyword} → ${result['name']}');
+          '🔵 Grid: Benenne Piktogramm um: ${pictogram.keyword} → ${result['name']}',
+        );
       }
 
       // Erstelle neues Piktogramm mit dem gewählten Namen
@@ -850,8 +841,9 @@ class PictogramGridState extends State<PictogramGrid>
       );
 
       // Aktualisiere das Custom-Piktogramm im Service
-      await CustomPictogramService.instance
-          .updateCustomPictogram(renamedPictogram);
+      await CustomPictogramService.instance.updateCustomPictogram(
+        renamedPictogram,
+      );
 
       return renamedPictogram;
     }
@@ -874,7 +866,7 @@ class PictogramGridState extends State<PictogramGrid>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            AppLocalizations.of(context)!.addedToGridText(pictogram.keyword)
+            AppLocalizations.of(context)!.addedToGridText(pictogram.keyword),
           ),
           duration: const Duration(seconds: 1),
         ),
@@ -885,7 +877,6 @@ class PictogramGridState extends State<PictogramGrid>
 
 /// Wiederverwendbares Widget für Piktogramm-Bilder
 class _PictogramImageWidget extends StatelessWidget {
-
   const _PictogramImageWidget({
     required this.imageUrl,
     this.fit = BoxFit.contain,
@@ -904,9 +895,7 @@ class _PictogramImageWidget extends StatelessWidget {
           if (kDebugMode) {
             print('Fehler beim Laden des lokalen Bildes: $error');
           }
-          return const Center(
-            child: Icon(Icons.error, color: Colors.red),
-          );
+          return const Center(child: Icon(Icons.error, color: Colors.red));
         },
       );
     } else if (imageUrl.startsWith('/') ||
@@ -919,9 +908,7 @@ class _PictogramImageWidget extends StatelessWidget {
           if (kDebugMode) {
             print('Fehler beim Laden des benutzerdefinierten Bildes: $error');
           }
-          return const Center(
-            child: Icon(Icons.photo, color: Colors.grey),
-          );
+          return const Center(child: Icon(Icons.photo, color: Colors.grey));
         },
       );
     } else {
@@ -933,9 +920,7 @@ class _PictogramImageWidget extends StatelessWidget {
           if (kDebugMode) {
             print('Fehler beim Laden des Online-Bildes: $error');
           }
-          return const Center(
-            child: Icon(Icons.error, color: Colors.red),
-          );
+          return const Center(child: Icon(Icons.error, color: Colors.red));
         },
       );
     }
@@ -943,7 +928,6 @@ class _PictogramImageWidget extends StatelessWidget {
 }
 
 class PictogramPosition {
-
   PictogramPosition({
     required this.pictogram,
     required this.row,
@@ -955,7 +939,6 @@ class PictogramPosition {
 }
 
 class DraggablePictogramTile extends StatelessWidget {
-
   const DraggablePictogramTile({
     super.key,
     required this.position,
@@ -1001,10 +984,7 @@ class DraggablePictogramTile extends StatelessWidget {
       ),
       childWhenDragging: Container(
         decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.grey.withAlpha(30),
-            width: 1,
-          ),
+          border: Border.all(color: Colors.grey.withAlpha(30), width: 1),
           borderRadius: BorderRadius.circular(8),
         ),
       ),
