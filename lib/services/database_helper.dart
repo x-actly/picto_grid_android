@@ -414,7 +414,7 @@ class DatabaseHelper { // Version 6: Grid-Size pro Grid hinzugefügt
       where: 'id = ?',
       whereArgs: [gridId],
     );
-    
+
     if (result.isNotEmpty) {
       final gridSize = result.first['grid_size'] as int? ?? 4;
       if (kDebugMode) {
@@ -422,7 +422,7 @@ class DatabaseHelper { // Version 6: Grid-Size pro Grid hinzugefügt
       }
       return gridSize;
     }
-    
+
     if (kDebugMode) {
       print('DatabaseHelper: Grid $gridId nicht gefunden, verwende Standard-Size 4');
     }
