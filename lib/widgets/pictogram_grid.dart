@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:picto_grid/l10n/app_localizations.dart';
@@ -47,7 +46,6 @@ class GridDimensions {
 class PictogramGridState extends State<PictogramGrid>
     with TickerProviderStateMixin {
   late List<PictogramPosition> _pictogramPositions;
-  int _gridSize = 4; // Standardmäßig 4x2
   bool _showGridLines = true;
   bool _isEditMode = false;
   bool _isInitialized = false;
@@ -69,6 +67,17 @@ class PictogramGridState extends State<PictogramGrid>
     8: 3, // 8x3
   };
 
+  // Hilfsfunktion um die aktuelle Grid-Größe zu erhalten
+  int get _gridSize {
+    try {
+      final gridProvider = context.read<GridProvider>();
+      return gridProvider.currentGridSize;
+    } catch (e) {
+      // Fallback wenn Provider noch nicht verfügbar ist
+      return 4;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -77,8 +86,8 @@ class PictogramGridState extends State<PictogramGrid>
       widget.pictograms.length,
       (index) => PictogramPosition(
         pictogram: widget.pictograms[index],
-        row: index ~/ _gridSize,
-        column: index % _gridSize,
+        row: index ~/ 4, // Verwende erstmal Standard-Wert
+        column: index % 4,
       ),
     );
 
@@ -220,24 +229,28 @@ class PictogramGridState extends State<PictogramGrid>
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final dimensions = calculateGridDimensions(Size(
-          constraints.maxWidth,
-          constraints.maxHeight,
-        ));
+    return Consumer<GridProvider>(
+      builder: (context, gridProvider, child) {
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final dimensions = calculateGridDimensions(Size(
+              constraints.maxWidth,
+              constraints.maxHeight,
+            ));
 
-        return Container(
-          width: constraints.maxWidth,
-          height: constraints.maxHeight,
-          color: Colors.grey[100],
-          child: Stack(
-            children: [
-              if (_showGridLines) _buildGridLines(dimensions),
-              if (_isEditMode) _buildDropTargets(dimensions),
-              ..._buildPictogramTiles(dimensions),
-            ],
-          ),
+            return Container(
+              width: constraints.maxWidth,
+              height: constraints.maxHeight,
+              color: Colors.grey[100],
+              child: Stack(
+                children: [
+                  if (_showGridLines) _buildGridLines(dimensions),
+                  if (_isEditMode) _buildDropTargets(dimensions),
+                  ..._buildPictogramTiles(dimensions),
+                ],
+              ),
+            );
+          },
         );
       },
     );
@@ -525,11 +538,12 @@ class PictogramGridState extends State<PictogramGrid>
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       TextButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          final gridProvider = context.read<GridProvider>();
+                          await gridProvider.updateGridSize(4);
                           setState(() {
-                            _gridSize = 4;
+                            _showGridLines = true;
                           });
-                          this.setState(() {});
                           Navigator.of(context).pop();
                         },
                         style: TextButton.styleFrom(
@@ -540,11 +554,10 @@ class PictogramGridState extends State<PictogramGrid>
                         child: const Text('4x2'),
                       ),
                       TextButton(
-                        onPressed: () {
-                          setState(() {
-                            _gridSize = 8;
-                          });
-                          this.setState(() {});
+                        onPressed: () async {
+                          final gridProvider = context.read<GridProvider>();
+                          await gridProvider.updateGridSize(8);
+                          setState(() {});
                           Navigator.of(context).pop();
                         },
                         style: TextButton.styleFrom(
@@ -624,12 +637,12 @@ class PictogramGridState extends State<PictogramGrid>
               ),
               actions: [
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    final gridProvider = context.read<GridProvider>();
+                    await gridProvider.updateGridSize(4);
                     setState(() {
-                      _gridSize = 4;
                       _showGridLines = true;
                     });
-                    this.setState(() {});
                     Navigator.of(context).pop();
                   },
                   child: Text(

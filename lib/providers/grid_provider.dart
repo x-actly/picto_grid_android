@@ -13,11 +13,13 @@ class GridProvider with ChangeNotifier {
   int? _selectedGridId;
   List<Pictogram> _currentGridPictograms = [];
   int? _currentProfileId;
+  int _currentGridSize = 4; // Standard-Rastergröße
 
   List<Map<String, dynamic>> get grids => _grids;
   int? get selectedGridId => _selectedGridId;
   List<Pictogram> get currentGridPictograms =>
       List.from(_currentGridPictograms);
+  int get currentGridSize => _currentGridSize;
 
   void setCurrentProfile(int? profileId) {
     _currentProfileId = profileId;
@@ -50,6 +52,7 @@ class GridProvider with ChangeNotifier {
   Future<void> selectGrid(int gridId) async {
     _selectedGridId = gridId;
     await loadGridPictograms();
+    await loadGridSize();
     notifyListeners();
   }
 
@@ -131,8 +134,26 @@ class GridProvider with ChangeNotifier {
     if (_selectedGridId == gridId) {
       _selectedGridId = null;
       _currentGridPictograms = [];
+      _currentGridSize = 4; // Zurück auf Standard
     }
     await loadGridsForCurrentProfile();
+    notifyListeners();
+  }
+
+  Future<void> loadGridSize() async {
+    if (_selectedGridId == null) {
+      _currentGridSize = 4;
+      return;
+    }
+
+    _currentGridSize = await _db.getGridSize(_selectedGridId!);
+  }
+
+  Future<void> updateGridSize(int gridSize) async {
+    if (_selectedGridId == null) return;
+
+    await _db.updateGridSize(_selectedGridId!, gridSize);
+    _currentGridSize = gridSize;
     notifyListeners();
   }
 }

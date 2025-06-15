@@ -3,13 +3,13 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:picto_grid/models/pictogram.dart';
 
-class DatabaseHelper { // Version 5: Profile-System hinzugefügt
+class DatabaseHelper { // Version 6: Grid-Size pro Grid hinzugefügt
 
   // Singleton-Pattern
   DatabaseHelper._privateConstructor();
   static const String _databaseName = 'pictogrid.db';
   static const int _databaseVersion =
-      5;
+      6; // Erhöht für grid_size Feature
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
 
   static Database? _database;
@@ -55,12 +55,13 @@ class DatabaseHelper { // Version 5: Profile-System hinzugefügt
       )
     ''');
 
-    // Tabelle für gespeicherte Grids (mit Profil-Referenz)
+    // Tabelle für gespeicherte Grids (mit Profil-Referenz und grid_size)
     await db.execute('''
       CREATE TABLE grids (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         profile_id INTEGER NOT NULL,
         name TEXT NOT NULL,
+        grid_size INTEGER DEFAULT 4,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (profile_id) REFERENCES profiles (id) ON DELETE CASCADE
       )
@@ -216,6 +217,7 @@ class DatabaseHelper { // Version 5: Profile-System hinzugefügt
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             profile_id INTEGER NOT NULL,
             name TEXT NOT NULL,
+            grid_size INTEGER DEFAULT 4,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (profile_id) REFERENCES profiles (id) ON DELETE CASCADE
           )
@@ -231,6 +233,41 @@ class DatabaseHelper { // Version 5: Profile-System hinzugefügt
 
         if (kDebugMode) {
           print('✅ DatabaseHelper: ${existingGrids.length} Grids zum Standard-Profil migriert');
+        }
+      }
+    }
+
+    if (oldVersion < 6) {
+      // Version 6: Grid-Size pro Grid hinzufügen
+      if (kDebugMode) {
+        print('🏗️ DatabaseHelper: Erweitere Datenbank um Grid-Size (Version 6)');
+      }
+
+      // Prüfe, ob die Grids-Tabelle bereits die grid_size Spalte hat
+      bool gridSizeExists = false;
+      try {
+        await db.rawQuery('SELECT grid_size FROM grids LIMIT 1');
+        gridSizeExists = true;
+        if (kDebugMode) {
+          print('✅ grid_size Spalte existiert bereits');
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('🔄 grid_size Spalte muss hinzugefügt werden');
+        }
+      }
+
+      if (!gridSizeExists) {
+        // Füge grid_size Spalte zur bestehenden Tabelle hinzu
+        try {
+          await db.execute('ALTER TABLE grids ADD COLUMN grid_size INTEGER DEFAULT 4');
+          if (kDebugMode) {
+            print('✅ grid_size Spalte erfolgreich hinzugefügt');
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('❌ Fehler beim Hinzufügen der grid_size Spalte: $e');
+          }
         }
       }
     }
@@ -275,6 +312,7 @@ class DatabaseHelper { // Version 5: Profile-System hinzugefügt
     return await db.insert('grids', {
       'name': name,
       'profile_id': profileId,
+      'grid_size': 4, // Standard-Grid-Größe
     });
   }
 
@@ -352,5 +390,42 @@ class DatabaseHelper { // Version 5: Profile-System hinzugefügt
       where: 'id = ?',
       whereArgs: [gridId],
     );
+  }
+
+  // Grid-Size Operationen
+  Future<void> updateGridSize(int gridId, int gridSize) async {
+    final db = await database;
+    await db.update(
+      'grids',
+      {'grid_size': gridSize},
+      where: 'id = ?',
+      whereArgs: [gridId],
+    );
+    if (kDebugMode) {
+      print('DatabaseHelper: Grid-Size für Grid $gridId auf $gridSize gesetzt');
+    }
+  }
+
+  Future<int> getGridSize(int gridId) async {
+    final db = await database;
+    final result = await db.query(
+      'grids',
+      columns: ['grid_size'],
+      where: 'id = ?',
+      whereArgs: [gridId],
+    );
+    
+    if (result.isNotEmpty) {
+      final gridSize = result.first['grid_size'] as int? ?? 4;
+      if (kDebugMode) {
+        print('DatabaseHelper: Grid-Size für Grid $gridId ist $gridSize');
+      }
+      return gridSize;
+    }
+    
+    if (kDebugMode) {
+      print('DatabaseHelper: Grid $gridId nicht gefunden, verwende Standard-Size 4');
+    }
+    return 4; // Standard-Wert
   }
 }
