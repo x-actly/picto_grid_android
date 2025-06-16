@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:picto_grid/l10n/app_localizations.dart';
 import 'dart:io';
 import 'package:picto_grid/models/pictogram.dart';
@@ -47,9 +48,11 @@ class PictogramGridState extends State<PictogramGrid>
   bool _showGridLines = true;
   bool _isEditMode = false;
   bool _isInitialized = false;
+  bool _isEnglish = false; // Default to false (Deutsch)
 
   // TTS und visuelles Feedback
   final TtsService _ttsService = TtsService();
+  final FlutterTts _flutterTts = FlutterTts();
   late AnimationController _feedbackController;
   late Animation<double> _feedbackAnimation;
   Pictogram? _activePictogram;
@@ -737,6 +740,32 @@ class PictogramGridState extends State<PictogramGrid>
                           },
                         ),
                       ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: !_isEnglish,
+                        onChanged: (value) {
+                          setState(() {
+                            _isEnglish = false;
+                          });
+                          this.setState(() {});
+                          _flutterTts.setLanguage('de-DE');
+                        },
+                      ),
+                      const Text('Deutsch'),
+                      Checkbox(
+                        value: _isEnglish,
+                        onChanged: (value) {
+                          setState(() {
+                            _isEnglish = true;
+                          });
+                          this.setState(() {});
+                          _flutterTts.setLanguage('en-US');
+                        },
+                      ),
+                      const Text('English'),
                     ],
                   ),
                 ],
