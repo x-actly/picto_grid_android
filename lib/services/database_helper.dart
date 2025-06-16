@@ -3,13 +3,14 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:picto_grid/models/pictogram.dart';
 
-class DatabaseHelper { // Version 6: Grid-Size pro Grid hinzugefügt
+class DatabaseHelper {
+  // Version 6: Grid-Size pro Grid hinzugefügt
 
   // Singleton-Pattern
   DatabaseHelper._privateConstructor();
   static const String _databaseName = 'pictogrid.db';
   static const int _databaseVersion =
-      6; // Erhöht für grid_size Feature
+      7; // Erhöht für row_position/column_position Feature
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
 
   static Database? _database;
@@ -74,6 +75,8 @@ class DatabaseHelper { // Version 6: Grid-Size pro Grid hinzugefügt
         grid_id INTEGER,
         pictogram_id INTEGER,
         position INTEGER,
+        row_position INTEGER DEFAULT 0,
+        column_position INTEGER DEFAULT 0,
         keyword TEXT,
         description TEXT,
         category TEXT,
@@ -88,8 +91,9 @@ class DatabaseHelper { // Version 6: Grid-Size pro Grid hinzugefügt
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       // Backup der alten Daten
-      final List<Map<String, dynamic>> oldData =
-          await db.query('grid_pictograms');
+      final List<Map<String, dynamic>> oldData = await db.query(
+        'grid_pictograms',
+      );
 
       // Alte Tabelle löschen
       await db.execute('DROP TABLE grid_pictograms');
@@ -125,7 +129,8 @@ class DatabaseHelper { // Version 6: Grid-Size pro Grid hinzugefügt
       // Version 3: Lösche alle gespeicherten Piktogramme wegen Dateinamen-Änderung
       if (kDebugMode) {
         print(
-          'DatabaseHelper: Lösche alle Piktogramme wegen Dateinamen-Korrektur');
+          'DatabaseHelper: Lösche alle Piktogramme wegen Dateinamen-Korrektur',
+        );
       }
       await db.execute('DELETE FROM grid_pictograms');
     }
@@ -135,7 +140,8 @@ class DatabaseHelper { // Version 6: Grid-Size pro Grid hinzugefügt
       await db.execute('DELETE FROM grid_pictograms');
       if (kDebugMode) {
         print(
-          '🔄 DatabaseHelper: Kompletter Neuaufbau - alle alten Piktogramme entfernt (Version 4)');
+          '🔄 DatabaseHelper: Kompletter Neuaufbau - alle alten Piktogramme entfernt (Version 4)',
+        );
       }
       if (kDebugMode) {
         print('💡 Ab jetzt werden nur noch lokale Dateien verwendet');
@@ -163,20 +169,30 @@ class DatabaseHelper { // Version 6: Grid-Size pro Grid hinzugefügt
         ''');
 
         // Erstelle Standard-Profil
-        standardProfileId = await db.insert('profiles', {'name': 'Standard-Profil'});
+        standardProfileId = await db.insert('profiles', {
+          'name': 'Standard-Profil',
+        });
         if (kDebugMode) {
           print('✅ Profile-Tabelle erstellt und Standard-Profil angelegt');
         }
       } else {
         // Profile-Tabelle existiert bereits, finde Standard-Profil oder erstelle es
-        final existingProfiles = await db.query('profiles', where: 'name = ?', whereArgs: ['Standard-Profil']);
+        final existingProfiles = await db.query(
+          'profiles',
+          where: 'name = ?',
+          whereArgs: ['Standard-Profil'],
+        );
         if (existingProfiles.isNotEmpty) {
           standardProfileId = existingProfiles.first['id'] as int;
           if (kDebugMode) {
-            print('✅ Standard-Profil bereits vorhanden (ID: $standardProfileId)');
+            print(
+              '✅ Standard-Profil bereits vorhanden (ID: $standardProfileId)',
+            );
           }
         } else {
-          standardProfileId = await db.insert('profiles', {'name': 'Standard-Profil'});
+          standardProfileId = await db.insert('profiles', {
+            'name': 'Standard-Profil',
+          });
           if (kDebugMode) {
             print('✅ Standard-Profil erstellt (ID: $standardProfileId)');
           }
@@ -189,7 +205,9 @@ class DatabaseHelper { // Version 6: Grid-Size pro Grid hinzugefügt
         existingGrids = await db.query('grids');
       } catch (e) {
         if (kDebugMode) {
-          print('ℹ️ Keine bestehenden Grids gefunden oder Tabelle existiert nicht: $e');
+          print(
+            'ℹ️ Keine bestehenden Grids gefunden oder Tabelle existiert nicht: $e',
+          );
         }
       }
 
@@ -232,7 +250,9 @@ class DatabaseHelper { // Version 6: Grid-Size pro Grid hinzugefügt
         }
 
         if (kDebugMode) {
-          print('✅ DatabaseHelper: ${existingGrids.length} Grids zum Standard-Profil migriert');
+          print(
+            '✅ DatabaseHelper: ${existingGrids.length} Grids zum Standard-Profil migriert',
+          );
         }
       }
     }
@@ -240,7 +260,9 @@ class DatabaseHelper { // Version 6: Grid-Size pro Grid hinzugefügt
     if (oldVersion < 6) {
       // Version 6: Grid-Size pro Grid hinzufügen
       if (kDebugMode) {
-        print('🏗️ DatabaseHelper: Erweitere Datenbank um Grid-Size (Version 6)');
+        print(
+          '🏗️ DatabaseHelper: Erweitere Datenbank um Grid-Size (Version 6)',
+        );
       }
 
       // Prüfe, ob die Grids-Tabelle bereits die grid_size Spalte hat
@@ -260,7 +282,9 @@ class DatabaseHelper { // Version 6: Grid-Size pro Grid hinzugefügt
       if (!gridSizeExists) {
         // Füge grid_size Spalte zur bestehenden Tabelle hinzu
         try {
-          await db.execute('ALTER TABLE grids ADD COLUMN grid_size INTEGER DEFAULT 4');
+          await db.execute(
+            'ALTER TABLE grids ADD COLUMN grid_size INTEGER DEFAULT 4',
+          );
           if (kDebugMode) {
             print('✅ grid_size Spalte erfolgreich hinzugefügt');
           }
@@ -268,6 +292,87 @@ class DatabaseHelper { // Version 6: Grid-Size pro Grid hinzugefügt
           if (kDebugMode) {
             print('❌ Fehler beim Hinzufügen der grid_size Spalte: $e');
           }
+        }
+      }
+    }
+
+    // Version 7: Füge row_position und column_position Spalten hinzu
+    if (oldVersion < 7) {
+      if (kDebugMode) {
+        print(
+          '🏗️ DatabaseHelper: Erweitere Datenbank um row/column Positionen (Version 7)',
+        );
+      }
+
+      try {
+        await db.execute(
+          'ALTER TABLE grid_pictograms ADD COLUMN row_position INTEGER DEFAULT 0',
+        );
+        await db.execute(
+          'ALTER TABLE grid_pictograms ADD COLUMN column_position INTEGER DEFAULT 0',
+        );
+        if (kDebugMode) {
+          print(
+            '✅ row_position und column_position Spalten erfolgreich hinzugefügt',
+          );
+        }
+
+        // 🎯 MIGRIERE BESTEHENDE DATEN: Konvertiere lineare Positionen zu row/column
+        final existingData = await db.query('grid_pictograms');
+        if (existingData.isNotEmpty) {
+          if (kDebugMode) {
+            print(
+              '🔄 Migriere ${existingData.length} bestehende Piktogramm-Positionen...',
+            );
+          }
+
+          for (var row in existingData) {
+            final gridId = row['grid_id'] as int;
+            final pictogramId = row['pictogram_id'] as int;
+            final linearPosition = row['position'] as int? ?? 0;
+
+            // Hole die Grid-Größe für dieses Grid
+            final gridData = await db.query(
+              'grids',
+              where: 'id = ?',
+              whereArgs: [gridId],
+            );
+            int gridColumns = 4; // Default
+            if (gridData.isNotEmpty) {
+              gridColumns = gridData.first['grid_size'] as int? ?? 4;
+            }
+
+            // Berechne row/column aus linearer Position
+            final migrationRow = linearPosition ~/ gridColumns;
+            final migrationColumn = linearPosition % gridColumns;
+
+            // Update das Piktogramm mit den berechneten row/column Werten
+            await db.update(
+              'grid_pictograms',
+              {
+                'row_position': migrationRow,
+                'column_position': migrationColumn,
+              },
+              where: 'grid_id = ? AND pictogram_id = ?',
+              whereArgs: [gridId, pictogramId],
+            );
+
+            if (kDebugMode) {
+              print(
+                '📍 Migriert: Grid$gridId Piktogramm$pictogramId: Position$linearPosition → ($migrationRow,$migrationColumn) [${gridColumns}x]',
+              );
+            }
+          }
+
+          if (kDebugMode) {
+            print(
+              '✅ Migration abgeschlossen - alle Positionen als row/column gespeichert',
+            );
+          }
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('❌ Fehler bei Version 7 Migration: $e');
         }
       }
     }
@@ -333,11 +438,15 @@ class DatabaseHelper { // Version 6: Grid-Size pro Grid hinzugefügt
 
   // Piktogramm-Operationen
   Future<void> addPictogramToGrid(
-      int gridId, Pictogram pictogram, int position) async {
+    int gridId,
+    Pictogram pictogram,
+    int position,
+  ) async {
     final db = await database;
     if (kDebugMode) {
       print(
-        'DatabaseHelper: Füge Piktogramm ${pictogram.id} zu Grid $gridId hinzu');
+        'DatabaseHelper: Füge Piktogramm ${pictogram.id} zu Grid $gridId hinzu',
+      );
     }
 
     await db.insert('grid_pictograms', {
@@ -382,14 +491,64 @@ class DatabaseHelper { // Version 6: Grid-Size pro Grid hinzugefügt
     );
   }
 
+  // Aktualisiere die Position eines Piktogramms im Grid
+  Future<void> updatePictogramPosition(
+    int gridId,
+    int pictogramId,
+    int newPosition,
+  ) async {
+    final db = await database;
+    await db.update(
+      'grid_pictograms',
+      {'position': newPosition},
+      where: 'grid_id = ? AND pictogram_id = ?',
+      whereArgs: [gridId, pictogramId],
+    );
+    if (kDebugMode) {
+      print(
+        'DatabaseHelper: Position von Piktogramm $pictogramId in Grid $gridId auf $newPosition aktualisiert',
+      );
+    }
+  }
+
+  // Aktualisiere alle Positionen in einem Grid basierend auf einer Liste von Piktogrammen
+  Future<void> updateAllPictogramPositions(
+    int gridId,
+    List<Map<String, dynamic>> pictogramPositions,
+  ) async {
+    final db = await database;
+    final batch = db.batch();
+
+    for (var pictogramPos in pictogramPositions) {
+      final updateData = {'position': pictogramPos['position']};
+
+      // Speichere auch row/column direkt, falls vorhanden
+      if (pictogramPos.containsKey('row') &&
+          pictogramPos.containsKey('column')) {
+        updateData['row_position'] = pictogramPos['row'];
+        updateData['column_position'] = pictogramPos['column'];
+      }
+
+      batch.update(
+        'grid_pictograms',
+        updateData,
+        where: 'grid_id = ? AND pictogram_id = ?',
+        whereArgs: [gridId, pictogramPos['pictogram_id']],
+      );
+    }
+
+    await batch.commit();
+    if (kDebugMode) {
+      print(
+        'DatabaseHelper: ${pictogramPositions.length} Piktogramm-Positionen in Grid $gridId aktualisiert',
+      );
+    }
+  }
+
   // Grid löschen
   Future<void> deleteGrid(int gridId) async {
     final db = await database;
-    await db.delete(
-      'grids',
-      where: 'id = ?',
-      whereArgs: [gridId],
-    );
+    await db.delete('grids', where: 'id = ?', whereArgs: [gridId]);
   }
 
   // Grid-Size Operationen
@@ -424,7 +583,9 @@ class DatabaseHelper { // Version 6: Grid-Size pro Grid hinzugefügt
     }
 
     if (kDebugMode) {
-      print('DatabaseHelper: Grid $gridId nicht gefunden, verwende Standard-Size 4');
+      print(
+        'DatabaseHelper: Grid $gridId nicht gefunden, verwende Standard-Size 4',
+      );
     }
     return 4; // Standard-Wert
   }
