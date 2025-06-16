@@ -45,7 +45,6 @@ class GridDimensions {
 class PictogramGridState extends State<PictogramGrid>
     with TickerProviderStateMixin {
   late List<PictogramPosition> _pictogramPositions;
-  int _gridSize = 4; // Standardmäßig 4x2
   bool _showGridLines = true;
   bool _isEditMode = false;
   bool _isInitialized = false;
@@ -69,6 +68,17 @@ class PictogramGridState extends State<PictogramGrid>
     8: 3, // 8x3
   };
 
+  // Hilfsfunktion um die aktuelle Grid-Größe zu erhalten
+  int get _gridSize {
+    try {
+      final gridProvider = context.read<GridProvider>();
+      return gridProvider.currentGridSize;
+    } catch (e) {
+      // Fallback wenn Provider noch nicht verfügbar ist
+      return 4;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -77,8 +87,8 @@ class PictogramGridState extends State<PictogramGrid>
       widget.pictograms.length,
       (index) => PictogramPosition(
         pictogram: widget.pictograms[index],
-        row: index ~/ _gridSize,
-        column: index % _gridSize,
+        row: index ~/ 4, // Verwende erstmal Standard-Wert
+        column: index % 4,
       ),
     );
 
@@ -173,15 +183,89 @@ class PictogramGridState extends State<PictogramGrid>
     if (!mounted) return;
     final size = MediaQuery.of(context).size;
     final dimensions = calculateGridDimensions(size);
+
+    // Lade Positionsdaten vom Provider
+    final gridProvider = context.read<GridProvider>();
+    final pictogramData = gridProvider.currentGridPictogramData;
+
     setState(() {
-      _pictogramPositions = List.generate(
-        widget.pictograms.length,
-        (index) => PictogramPosition(
-          pictogram: widget.pictograms[index],
-          row: index ~/ dimensions.columns,
-          column: index % dimensions.columns,
-        ),
-      );
+      _pictogramPositions = [];
+
+      for (int i = 0; i < widget.pictograms.length; i++) {
+        final pictogram = widget.pictograms[i];
+        int targetRow = i ~/ dimensions.columns;
+        int targetColumn = i % dimensions.columns;
+
+        // Suche nach den gespeicherten Positionsdaten für dieses Piktogramm
+        try {
+          final data = pictogramData.firstWhere(
+            (data) => data['pictogram_id'] == pictogram.id,
+          );
+
+          // 🎯 VERWENDE DIREKT DIE GESPEICHERTEN ROW/COLUMN WERTE!
+          if (data.containsKey('row_position') &&
+              data.containsKey('column_position')) {
+            int savedRow = data['row_position'] ?? 0;
+            int savedColumn = data['column_position'] ?? 0;
+
+            // Wenn row_position und column_position beide 0 sind, könnten sie nicht migriert sein
+            if (savedRow == 0 &&
+                savedColumn == 0 &&
+                data.containsKey('position')) {
+              // Fallback: Berechne aus linearer Position mit der AKTUELLEN Grid-Größe
+              final linearPosition = data['position'] ?? i;
+              savedRow = linearPosition ~/ dimensions.columns;
+              savedColumn = linearPosition % dimensions.columns;
+
+              if (kDebugMode) {
+                print(
+                  'PictogramGrid: ${pictogram.keyword} → Fallback-Berechnung: Position$linearPosition → ($savedRow,$savedColumn)',
+                );
+              }
+            }
+
+            // Prüfe, ob die gespeicherte Position im aktuellen Grid gültig ist
+            if (savedRow < dimensions.rows &&
+                savedColumn < dimensions.columns) {
+              targetRow = savedRow;
+              targetColumn = savedColumn;
+
+              if (kDebugMode) {
+                print(
+                  'PictogramGrid: ${pictogram.keyword} → ($targetRow,$targetColumn) [row/col]',
+                );
+              }
+            } else {
+              if (kDebugMode) {
+                print(
+                  'PictogramGrid: ${pictogram.keyword} → ($savedRow,$savedColumn) außerhalb Grid, verwende Index-Fallback ($targetRow,$targetColumn)',
+                );
+              }
+            }
+          } else {
+            if (kDebugMode) {
+              print(
+                'PictogramGrid: ${pictogram.keyword} → ($targetRow,$targetColumn) [keine row/col Daten]',
+              );
+            }
+          }
+        } catch (e) {
+          // Fallback auf Index-basierte Position
+          if (kDebugMode) {
+            print(
+              'PictogramGrid: ${pictogram.keyword} → ($targetRow,$targetColumn) [fallback]',
+            );
+          }
+        }
+
+        _pictogramPositions.add(
+          PictogramPosition(
+            pictogram: pictogram,
+            row: targetRow,
+            column: targetColumn,
+          ),
+        );
+      }
     });
   }
 
@@ -223,23 +307,27 @@ class PictogramGridState extends State<PictogramGrid>
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final dimensions = calculateGridDimensions(
-          Size(constraints.maxWidth, constraints.maxHeight),
-        );
+    return Consumer<GridProvider>(
+      builder: (context, gridProvider, child) {
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final dimensions = calculateGridDimensions(
+              Size(constraints.maxWidth, constraints.maxHeight),
+            );
 
-        return Container(
-          width: constraints.maxWidth,
-          height: constraints.maxHeight,
-          color: Colors.grey[100],
-          child: Stack(
-            children: [
-              if (_showGridLines) _buildGridLines(dimensions),
-              if (_isEditMode) _buildDropTargets(dimensions),
-              ..._buildPictogramTiles(dimensions),
-            ],
-          ),
+            return Container(
+              width: constraints.maxWidth,
+              height: constraints.maxHeight,
+              color: Colors.grey[100],
+              child: Stack(
+                children: [
+                  if (_showGridLines) _buildGridLines(dimensions),
+                  if (_isEditMode) _buildDropTargets(dimensions),
+                  ..._buildPictogramTiles(dimensions),
+                ],
+              ),
+            );
+          },
         );
       },
     );
@@ -490,14 +578,53 @@ class PictogramGridState extends State<PictogramGrid>
       pictogram.row = newRow;
       pictogram.column = newCol;
     });
+
+    // Speichere die aktualisierten Positionen in der Datenbank
+    _savePictogramPositions();
+  }
+
+  /// Speichert alle aktuellen Piktogramm-Positionen in der Datenbank
+  void _savePictogramPositions() {
+    if (!mounted) return;
+
+    final gridProvider = context.read<GridProvider>();
+    final dimensions = calculateGridDimensions(MediaQuery.of(context).size);
+
+    final pictogramPositions = _pictogramPositions.map((pos) {
+      // Berechne lineare Position basierend auf row/column
+      final linearPosition = pos.row * dimensions.columns + pos.column;
+      return {
+        'pictogram_id': pos.pictogram.id,
+        'position': linearPosition,
+        'row': pos.row, // 🎯 Speichere row direkt!
+        'column': pos.column, // 🎯 Speichere column direkt!
+      };
+    }).toList();
+
+    gridProvider.savePictogramPositions(pictogramPositions);
+
+    if (kDebugMode) {
+      print(
+        'PictogramGrid: ${pictogramPositions.length} Positionen gespeichert (mit row/column)',
+      );
+    }
   }
 
   PictogramPosition? _getPictogramAtPosition(int row, int col) {
     try {
-      return _pictogramPositions.firstWhere(
+      final result = _pictogramPositions.firstWhere(
         (pos) => pos.row == row && pos.column == col,
       );
+      if (kDebugMode) {
+        print(
+          'PictogramGrid: Position ($row,$col) ist belegt mit: ${result.pictogram.keyword}',
+        );
+      }
+      return result;
     } catch (e) {
+      if (kDebugMode) {
+        print('PictogramGrid: Position ($row,$col) ist frei');
+      }
       return null;
     }
   }
@@ -518,12 +645,17 @@ class PictogramGridState extends State<PictogramGrid>
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       TextButton(
-                        onPressed: () {
-                          setState(() {
-                            _gridSize = 4;
-                          });
-                          this.setState(() {});
-                          Navigator.of(context).pop();
+                        onPressed: () async {
+                          if (!mounted) return;
+                          final gridProvider = context.read<GridProvider>();
+                          final navigator = Navigator.of(context);
+                          await gridProvider.updateGridSize(4);
+                          if (mounted) {
+                            setState(() {
+                              _showGridLines = true;
+                            });
+                          }
+                          navigator.pop();
                         },
                         style: TextButton.styleFrom(
                           backgroundColor: _gridSize == 4
@@ -533,12 +665,15 @@ class PictogramGridState extends State<PictogramGrid>
                         child: const Text('4x2'),
                       ),
                       TextButton(
-                        onPressed: () {
-                          setState(() {
-                            _gridSize = 8;
-                          });
-                          this.setState(() {});
-                          Navigator.of(context).pop();
+                        onPressed: () async {
+                          if (!mounted) return;
+                          final gridProvider = context.read<GridProvider>();
+                          final navigator = Navigator.of(context);
+                          await gridProvider.updateGridSize(8);
+                          if (mounted) {
+                            setState(() {});
+                          }
+                          navigator.pop();
                         },
                         style: TextButton.styleFrom(
                           backgroundColor: _gridSize == 8
@@ -637,13 +772,15 @@ class PictogramGridState extends State<PictogramGrid>
               ),
               actions: [
                 TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _gridSize = 4;
-                      _showGridLines = true;
-                    });
-                    this.setState(() {});
-                    Navigator.of(context).pop();
+                  onPressed: () async {
+                    if (!mounted) return;
+                    final gridProvider = context.read<GridProvider>();
+                    await gridProvider.updateGridSize(4);
+                    if (mounted) {
+                      setState(() {
+                        _showGridLines = true;
+                      });
+                    }
                   },
                   child: Text(AppLocalizations.of(context)!.resetText),
                 ),
@@ -743,10 +880,20 @@ class PictogramGridState extends State<PictogramGrid>
           selectedPictogram,
         );
         if (renamedPictogram != null && context.mounted) {
-          _addPictogramToGrid(context, renamedPictogram);
+          _addPictogramToGrid(
+            context,
+            renamedPictogram,
+            targetRow: row,
+            targetCol: col,
+          );
         }
       } else {
-        _addPictogramToGrid(context, selectedPictogram);
+        _addPictogramToGrid(
+          context,
+          selectedPictogram,
+          targetRow: row,
+          targetCol: col,
+        );
       }
     });
   }
@@ -860,15 +1007,38 @@ class PictogramGridState extends State<PictogramGrid>
   }
 
   /// Fügt ein Piktogramm zum Grid hinzu
-  void _addPictogramToGrid(BuildContext context, Pictogram pictogram) {
+  void _addPictogramToGrid(
+    BuildContext context,
+    Pictogram pictogram, {
+    required int targetRow,
+    required int targetCol,
+  }) async {
+    if (kDebugMode) {
+      print(
+        'PictogramGrid: Versuche Piktogramm "${pictogram.keyword}" zu Position ($targetRow,$targetCol) hinzuzufügen',
+      );
+      print(
+        'PictogramGrid: Aktuelle _pictogramPositions Anzahl: ${_pictogramPositions.length}',
+      );
+      print(
+        'PictogramGrid: widget.pictograms Anzahl: ${widget.pictograms.length}',
+      );
+    }
+
     // Füge das Piktogramm zum Grid hinzu
     final gridProvider = context.read<GridProvider>();
-    gridProvider.addPictogramToGrid(pictogram);
+    await gridProvider.addPictogramToGrid(
+      pictogram,
+      targetRow: targetRow,
+      targetCol: targetCol,
+    );
 
-    // Aktualisiere die Position im Grid
-    setState(() {
-      _updatePositionsWithCurrentDimensions();
-    });
+    // Aktualisiere die Position im Grid nach dem Hinzufügen
+    if (mounted) {
+      setState(() {
+        _updatePositionsWithCurrentDimensions();
+      });
+    }
 
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
