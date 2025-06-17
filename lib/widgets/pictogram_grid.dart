@@ -175,8 +175,10 @@ class PictogramGridState extends State<PictogramGrid>
     super.didChangeDependencies();
     if (!_isInitialized) {
       _isInitialized = true;
-      _updatePositionsWithCurrentDimensions();
     }
+    // IMMER die Positionen aktualisieren wenn sich Dependencies ändern
+    // (z.B. wenn ein neues Grid geladen wird)
+    _updatePositionsWithCurrentDimensions();
   }
 
   void _updatePositionsWithCurrentDimensions() {
@@ -193,38 +195,41 @@ class PictogramGridState extends State<PictogramGrid>
 
       for (int i = 0; i < widget.pictograms.length; i++) {
         final pictogram = widget.pictograms[i];
-        int targetRow = i ~/ dimensions.columns;
-        int targetColumn = i % dimensions.columns;
+        int targetRow = 0;
+        int targetColumn = 0;
 
         // Suche nach den gespeicherten Positionsdaten für dieses Piktogramm
         try {
+          if (kDebugMode) {
+            print(
+              '🔍 PictogramGrid: Suche Daten für Piktogramm ${pictogram.keyword} (ID: ${pictogram.id})',
+            );
+            print(
+              '🔍 Verfügbare Daten: ${pictogramData.map((d) => 'ID: ${d['pictogram_id']}, Keyword: ${d['keyword']}')}',
+            );
+          }
+
           final data = pictogramData.firstWhere(
             (data) => data['pictogram_id'] == pictogram.id,
+            orElse: () => <String, dynamic>{},
           );
 
           // 🎯 VERWENDE DIREKT DIE GESPEICHERTEN ROW/COLUMN WERTE!
           if (data.containsKey('row_position') &&
               data.containsKey('column_position')) {
-            int savedRow = data['row_position'] ?? 0;
-            int savedColumn = data['column_position'] ?? 0;
+            final savedRow = data['row_position'] ?? 0;
+            final savedColumn = data['column_position'] ?? 0;
 
-            // Wenn row_position und column_position beide 0 sind, könnten sie nicht migriert sein
-            if (savedRow == 0 &&
-                savedColumn == 0 &&
-                data.containsKey('position')) {
-              // Fallback: Berechne aus linearer Position mit der AKTUELLEN Grid-Größe
-              final linearPosition = data['position'] ?? i;
-              savedRow = linearPosition ~/ dimensions.columns;
-              savedColumn = linearPosition % dimensions.columns;
-
-              if (kDebugMode) {
-                print(
-                  'PictogramGrid: ${pictogram.keyword} → Fallback-Berechnung: Position$linearPosition → ($savedRow,$savedColumn)',
-                );
-              }
-            }
+            // ✅ VERTRAUE DEN GESPEICHERTEN WERTEN - KEINE FALLBACK-BERECHNUNG!
+            // Die Datenbank-Reparatur sorgt bereits für korrekte Werte
 
             // Prüfe, ob die gespeicherte Position im aktuellen Grid gültig ist
+            if (kDebugMode) {
+              print(
+                'PictogramGrid: ${pictogram.keyword} → Prüfe Position ($savedRow,$savedColumn) gegen Grid ${dimensions.columns}x${dimensions.rows}',
+              );
+            }
+
             if (savedRow < dimensions.rows &&
                 savedColumn < dimensions.columns) {
               targetRow = savedRow;
@@ -232,13 +237,13 @@ class PictogramGridState extends State<PictogramGrid>
 
               if (kDebugMode) {
                 print(
-                  'PictogramGrid: ${pictogram.keyword} → ($targetRow,$targetColumn) [row/col]',
+                  'PictogramGrid: ${pictogram.keyword} → ($targetRow,$targetColumn) [row/col gültig]',
                 );
               }
             } else {
               if (kDebugMode) {
                 print(
-                  'PictogramGrid: ${pictogram.keyword} → ($savedRow,$savedColumn) außerhalb Grid, verwende Index-Fallback ($targetRow,$targetColumn)',
+                  'PictogramGrid: ${pictogram.keyword} → ($savedRow,$savedColumn) außerhalb Grid ${dimensions.columns}x${dimensions.rows}, verwende Index-Fallback ($targetRow,$targetColumn)',
                 );
               }
             }
@@ -250,11 +255,37 @@ class PictogramGridState extends State<PictogramGrid>
             }
           }
         } catch (e) {
-          // Fallback auf Index-basierte Position
           if (kDebugMode) {
             print(
-              'PictogramGrid: ${pictogram.keyword} → ($targetRow,$targetColumn) [fallback]',
+              '❌ PictogramGrid: FEHLER beim Suchen der Daten für ${pictogram.keyword}: $e',
             );
+          }
+
+          // ✅ ALTERNATIVE SUCHE: Verwende Index basierte Suche als Fallback
+          try {
+            if (i < pictogramData.length) {
+              final data = pictogramData[i];
+              if (data.containsKey('row_position') &&
+                  data.containsKey('column_position')) {
+                targetRow = data['row_position'] ?? 0;
+                targetColumn = data['column_position'] ?? 0;
+
+                if (kDebugMode) {
+                  print(
+                    'PictogramGrid: ${pictogram.keyword} → ($targetRow,$targetColumn) [Index-basierte Fallback-Suche]',
+                  );
+                }
+              }
+            }
+          } catch (e2) {
+            if (kDebugMode) {
+              print(
+                '❌ PictogramGrid: Auch Index-basierte Suche fehlgeschlagen für ${pictogram.keyword}: $e2',
+              );
+              print(
+                'PictogramGrid: ${pictogram.keyword} → BLEIBT BEI DEFAULT (0,0)',
+              );
+            }
           }
         }
 
@@ -291,6 +322,12 @@ class PictogramGridState extends State<PictogramGrid>
     // Bestimme die Spalten basierend auf der gewählten Gridgröße
     final columns = _gridSize;
     final rows = availableGridSizes[columns] ?? 2;
+
+    if (kDebugMode) {
+      print(
+        'PictogramGrid: calculateGridDimensions → ${columns}x$rows (_gridSize: $_gridSize)',
+      );
+    }
 
     // Berechne die Kästchengröße so, dass der gesamte verfügbare Platz genutzt wird
     final itemWidth = availableWidth / columns;
@@ -588,16 +625,14 @@ class PictogramGridState extends State<PictogramGrid>
     if (!mounted) return;
 
     final gridProvider = context.read<GridProvider>();
-    final dimensions = calculateGridDimensions(MediaQuery.of(context).size);
 
     final pictogramPositions = _pictogramPositions.map((pos) {
-      // Berechne lineare Position basierend auf row/column
-      final linearPosition = pos.row * dimensions.columns + pos.column;
+      // ✅ SPEICHERE NUR ROW/COLUMN - NICHT DIE LINEARE POSITION!
+      // Die lineare Position soll unverändert bleiben für die Sortierung
       return {
         'pictogram_id': pos.pictogram.id,
-        'position': linearPosition,
-        'row': pos.row, // 🎯 Speichere row direkt!
-        'column': pos.column, // 🎯 Speichere column direkt!
+        'row': pos.row,
+        'column': pos.column,
       };
     }).toList();
 
@@ -605,7 +640,7 @@ class PictogramGridState extends State<PictogramGrid>
 
     if (kDebugMode) {
       print(
-        'PictogramGrid: ${pictogramPositions.length} Positionen gespeichert (mit row/column)',
+        'PictogramGrid: ${pictogramPositions.length} Positionen gespeichert (nur row/column)',
       );
     }
   }

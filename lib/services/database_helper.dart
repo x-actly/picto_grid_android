@@ -10,7 +10,7 @@ class DatabaseHelper {
   DatabaseHelper._privateConstructor();
   static const String _databaseName = 'pictogrid.db';
   static const int _databaseVersion =
-      7; // Erhöht für row_position/column_position Feature
+      10; // Erhöht für lineare Positionsduplikat-Reparatur
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
 
   static Database? _database;
@@ -318,7 +318,11 @@ class DatabaseHelper {
         }
 
         // 🎯 MIGRIERE BESTEHENDE DATEN: Konvertiere lineare Positionen zu row/column
-        final existingData = await db.query('grid_pictograms');
+        // ABER: Handhabe Duplikate intelligent!
+        final existingData = await db.query(
+          'grid_pictograms',
+          orderBy: 'grid_id, position',
+        );
         if (existingData.isNotEmpty) {
           if (kDebugMode) {
             print(
@@ -326,10 +330,19 @@ class DatabaseHelper {
             );
           }
 
+          // Gruppiere nach Grid-ID um pro Grid separat zu migrieren
+          final Map<int, List<Map<String, dynamic>>> gridsData = {};
           for (var row in existingData) {
             final gridId = row['grid_id'] as int;
-            final pictogramId = row['pictogram_id'] as int;
-            final linearPosition = row['position'] as int? ?? 0;
+            if (!gridsData.containsKey(gridId)) {
+              gridsData[gridId] = [];
+            }
+            gridsData[gridId]!.add(row);
+          }
+
+          // Migriere jedes Grid separat
+          for (var gridId in gridsData.keys) {
+            final gridPictograms = gridsData[gridId]!;
 
             // Hole die Grid-Größe für dieses Grid
             final gridData = await db.query(
@@ -338,35 +351,83 @@ class DatabaseHelper {
               whereArgs: [gridId],
             );
             int gridColumns = 4; // Default
+            int gridRows = 2; // Default
             if (gridData.isNotEmpty) {
               gridColumns = gridData.first['grid_size'] as int? ?? 4;
+              // Berechne Zeilen basierend auf verfügbaren Größen
+              if (gridColumns == 8) {
+                gridRows = 3;
+              } else if (gridColumns == 4) {
+                gridRows = 2;
+              }
             }
-
-            // Berechne row/column aus linearer Position
-            final migrationRow = linearPosition ~/ gridColumns;
-            final migrationColumn = linearPosition % gridColumns;
-
-            // Update das Piktogramm mit den berechneten row/column Werten
-            await db.update(
-              'grid_pictograms',
-              {
-                'row_position': migrationRow,
-                'column_position': migrationColumn,
-              },
-              where: 'grid_id = ? AND pictogram_id = ?',
-              whereArgs: [gridId, pictogramId],
-            );
 
             if (kDebugMode) {
               print(
-                '📍 Migriert: Grid$gridId Piktogramm$pictogramId: Position$linearPosition → ($migrationRow,$migrationColumn) [${gridColumns}x]',
+                '🏗️ Migriere Grid $gridId ($gridColumns x $gridRows) mit ${gridPictograms.length} Piktogrammen',
               );
+            }
+
+            // Tracke bereits belegte Positionen
+            final Set<String> usedPositions = {};
+
+            for (int i = 0; i < gridPictograms.length; i++) {
+              final row = gridPictograms[i];
+              final pictogramId = row['pictogram_id'] as int;
+              final linearPosition = row['position'] as int? ?? 0;
+
+              // Berechne row/column aus linearer Position
+              int migrationRow = linearPosition ~/ gridColumns;
+              int migrationColumn = linearPosition % gridColumns;
+
+              // WICHTIG: Prüfe ob Position bereits belegt ist
+              String posKey = '${migrationRow}_$migrationColumn';
+              if (usedPositions.contains(posKey)) {
+                // Suche freie Position
+                bool foundFree = false;
+                for (int r = 0; r < gridRows && !foundFree; r++) {
+                  for (int c = 0; c < gridColumns && !foundFree; c++) {
+                    final String checkKey = '${r}_$c';
+                    if (!usedPositions.contains(checkKey)) {
+                      migrationRow = r;
+                      migrationColumn = c;
+                      posKey = checkKey;
+                      foundFree = true;
+                      if (kDebugMode) {
+                        print(
+                          '⚠️ Position ($posKey) war belegt, verwende freie Position ($r,$c)',
+                        );
+                      }
+                    }
+                  }
+                }
+              }
+
+              // Markiere Position als belegt
+              usedPositions.add(posKey);
+
+              // Update das Piktogramm mit den berechneten row/column Werten
+              await db.update(
+                'grid_pictograms',
+                {
+                  'row_position': migrationRow,
+                  'column_position': migrationColumn,
+                },
+                where: 'grid_id = ? AND pictogram_id = ?',
+                whereArgs: [gridId, pictogramId],
+              );
+
+              if (kDebugMode) {
+                print(
+                  '📍 Migriert: Grid$gridId Piktogramm$pictogramId: Position$linearPosition → ($migrationRow,$migrationColumn) [$gridColumns x $gridRows]',
+                );
+              }
             }
           }
 
           if (kDebugMode) {
             print(
-              '✅ Migration abgeschlossen - alle Positionen als row/column gespeichert',
+              '✅ Migration abgeschlossen - alle Positionen als row/column gespeichert (Duplikate behoben)',
             );
           }
         }
@@ -375,6 +436,203 @@ class DatabaseHelper {
           print('❌ Fehler bei Version 7 Migration: $e');
         }
       }
+
+      // 🛠️ REPARATUR: Behebe bereits migrierte Duplikate
+      if (kDebugMode) {
+        print('🔧 Überprüfe und repariere Positionsduplikate...');
+      }
+      try {
+        await _repairDuplicatePositions(db);
+      } catch (e) {
+        if (kDebugMode) {
+          print('❌ Fehler bei Duplikat-Reparatur: $e');
+        }
+      }
+    }
+
+    // Version 8: Repariere bestehende Positionsduplikate
+    if (oldVersion < 8) {
+      if (kDebugMode) {
+        print('🔧 DatabaseHelper: Repariere Positionsduplikate (Version 8)');
+      }
+      try {
+        await _repairDuplicatePositions(db);
+      } catch (e) {
+        if (kDebugMode) {
+          print('❌ Fehler bei Version 8 Duplikat-Reparatur: $e');
+        }
+      }
+    }
+
+    // Version 9: Aggressive Positionsreparatur
+    if (oldVersion < 9) {
+      if (kDebugMode) {
+        print('🔧 DatabaseHelper: Aggressive Positionsreparatur (Version 9)');
+      }
+      try {
+        await _repairDuplicatePositions(db);
+      } catch (e) {
+        if (kDebugMode) {
+          print('❌ Fehler bei Version 9 Aggressive Reparatur: $e');
+        }
+      }
+    }
+
+    // Version 10: Lineare Positionsduplikat-Reparatur
+    if (oldVersion < 10) {
+      if (kDebugMode) {
+        print(
+          '🔧 DatabaseHelper: Lineare Positionsduplikat-Reparatur (Version 10)',
+        );
+      }
+      try {
+        await _repairDuplicatePositions(db);
+      } catch (e) {
+        if (kDebugMode) {
+          print('❌ Fehler bei Version 10 Lineare Duplikat-Reparatur: $e');
+        }
+      }
+    }
+  }
+
+  /// Repariert Positionsduplikate in der Datenbank
+  Future<void> _repairDuplicatePositions(Database db) async {
+    if (kDebugMode) {
+      print('🔍 Suche nach Positionsduplikaten...');
+    }
+
+    // Hole alle Piktogramme gruppiert nach Grid
+    final allData = await db.query(
+      'grid_pictograms',
+      orderBy: 'grid_id, row_position, column_position',
+    );
+
+    if (kDebugMode) {
+      print('📊 Debug: Alle Piktogramme in der Datenbank:');
+      for (var row in allData) {
+        print(
+          '  Grid ${row['grid_id']}: Piktogramm ${row['pictogram_id']} (${row['keyword']}) → Position ${row['position']}, Row: ${row['row_position']}, Col: ${row['column_position']}',
+        );
+      }
+    }
+
+    // Gruppiere nach Grid-ID
+    final Map<int, List<Map<String, dynamic>>> gridsData = {};
+    for (var row in allData) {
+      final gridId = row['grid_id'] as int;
+      if (!gridsData.containsKey(gridId)) {
+        gridsData[gridId] = [];
+      }
+      gridsData[gridId]!.add(row);
+    }
+
+    int totalFixed = 0;
+
+    // Repariere jedes Grid einzeln
+    for (var gridEntry in gridsData.entries) {
+      final gridId = gridEntry.key;
+      final pictograms = gridEntry.value;
+
+      if (pictograms.isEmpty) continue;
+
+      // Hole Grid-Größe
+      final gridData = await db.query(
+        'grids',
+        where: 'id = ?',
+        whereArgs: [gridId],
+      );
+      int gridColumns = 4;
+      int gridRows = 2;
+      if (gridData.isNotEmpty) {
+        gridColumns = gridData.first['grid_size'] as int? ?? 4;
+        if (gridColumns == 8) {
+          gridRows = 3;
+        } else if (gridColumns == 4) {
+          gridRows = 2;
+        }
+      }
+
+      if (kDebugMode) {
+        print(
+          '🔍 Prüfe Grid $gridId ($gridColumns x $gridRows) mit ${pictograms.length} Piktogrammen',
+        );
+      }
+
+      // Suche Positionsduplikate
+      final Map<String, List<Map<String, dynamic>>> positionGroups = {};
+      for (var pictogram in pictograms) {
+        final row = pictogram['row_position'] as int? ?? 0;
+        final col = pictogram['column_position'] as int? ?? 0;
+        final posKey = '${row}_$col';
+
+        if (!positionGroups.containsKey(posKey)) {
+          positionGroups[posKey] = [];
+        }
+        positionGroups[posKey]!.add(pictogram);
+      }
+
+      // Repariere Duplikate
+      final Set<String> usedPositions = {};
+      int gridFixed = 0;
+
+      for (var entry in positionGroups.entries) {
+        final posKey = entry.key;
+        final group = entry.value;
+
+        if (group.length > 1) {
+          if (kDebugMode) {
+            print(
+              '🔧 Grid $gridId: ${group.length} Duplikate bei Position $posKey gefunden',
+            );
+          }
+
+          // Erste behalten, Rest reparieren
+          for (int i = 1; i < group.length; i++) {
+            final pictogram = group[i];
+            final pictogramId = pictogram['pictogram_id'] as int;
+
+            // Finde freie Position
+            bool foundFree = false;
+            for (int r = 0; r < gridRows && !foundFree; r++) {
+              for (int c = 0; c < gridColumns && !foundFree; c++) {
+                final String newPosKey = '${r}_$c';
+                if (!usedPositions.contains(newPosKey) &&
+                    !positionGroups.containsKey(newPosKey)) {
+                  // Update Position
+                  await db.update(
+                    'grid_pictograms',
+                    {'row_position': r, 'column_position': c},
+                    where: 'grid_id = ? AND pictogram_id = ?',
+                    whereArgs: [gridId, pictogramId],
+                  );
+
+                  usedPositions.add(newPosKey);
+                  foundFree = true;
+                  gridFixed++;
+
+                  if (kDebugMode) {
+                    print(
+                      '🔧 Grid$gridId Piktogramm$pictogramId → repariert zu ($r,$c)',
+                    );
+                  }
+                }
+              }
+            }
+          }
+        } else {
+          // Keine Duplikate - als belegt markieren
+          usedPositions.add(posKey);
+        }
+      }
+
+      totalFixed += gridFixed;
+      if (gridFixed > 0 && kDebugMode) {
+        // print('✅ Grid $gridId: $gridFixed Positionen repariert');
+      }
+    }
+
+    if (totalFixed > 0 && kDebugMode) {
+      // print('✅ Insgesamt $totalFixed doppelte Positionen repariert');
     }
   }
 
@@ -440,13 +698,41 @@ class DatabaseHelper {
   Future<void> addPictogramToGrid(
     int gridId,
     Pictogram pictogram,
-    int position,
-  ) async {
+    int position, {
+    int? targetRow,
+    int? targetColumn,
+  }) async {
     final db = await database;
     if (kDebugMode) {
       print(
         'DatabaseHelper: Füge Piktogramm ${pictogram.id} zu Grid $gridId hinzu',
       );
+      // print('DatabaseHelper: Piktogramm-Name: "${pictogram.keyword}"');
+      if (targetRow != null && targetColumn != null) {
+        print('DatabaseHelper: Ziel-Position: ($targetRow, $targetColumn)');
+      }
+    }
+
+    // Prüfe ob bereits ein Eintrag mit diesem Piktogramm existiert
+    final existing = await db.query(
+      'grid_pictograms',
+      where: 'grid_id = ? AND pictogram_id = ?',
+      whereArgs: [gridId, pictogram.id],
+    );
+
+    if (existing.isNotEmpty && kDebugMode) {
+      // print(
+      //   '⚠️ DatabaseHelper: Piktogramm ${pictogram.id} ist bereits in Grid $gridId!',
+      // );
+      // print('Bestehender Eintrag: ${existing.first}');
+    }
+
+    // Berechne row/column falls angegeben
+    int? rowPosition;
+    int? columnPosition;
+    if (targetRow != null && targetColumn != null) {
+      rowPosition = targetRow;
+      columnPosition = targetColumn;
     }
 
     await db.insert('grid_pictograms', {
@@ -456,10 +742,17 @@ class DatabaseHelper {
       'keyword': pictogram.keyword,
       'description': pictogram.description,
       'category': pictogram.category,
+      'row_position': rowPosition ?? 0,
+      'column_position': columnPosition ?? 0,
     });
 
     if (kDebugMode) {
       print('DatabaseHelper: Piktogramm erfolgreich in Datenbank eingefügt');
+      if (rowPosition != null && columnPosition != null) {
+        print(
+          'DatabaseHelper: Mit row/column Position: ($rowPosition, $columnPosition)',
+        );
+      }
     }
   }
 
@@ -469,11 +762,14 @@ class DatabaseHelper {
       print('DatabaseHelper: Lade Piktogramme für Grid $gridId');
     }
 
+    // ✅ KEINE automatische Reparatur mehr - nur beim DB-Upgrade
+    // Die Reparatur hat das Problem verursacht, nicht gelöst!
+
     final results = await db.query(
       'grid_pictograms',
       where: 'grid_id = ?',
       whereArgs: [gridId],
-      orderBy: 'position',
+      orderBy: 'row_position, column_position',
     );
 
     if (kDebugMode) {
@@ -484,11 +780,37 @@ class DatabaseHelper {
 
   Future<void> removePictogramFromGrid(int gridId, int pictogramId) async {
     final db = await database;
-    await db.delete(
+
+    if (kDebugMode) {
+      print('DatabaseHelper: Lösche Piktogramm $pictogramId aus Grid $gridId');
+    }
+
+    final deletedCount = await db.delete(
       'grid_pictograms',
       where: 'grid_id = ? AND pictogram_id = ?',
       whereArgs: [gridId, pictogramId],
     );
+
+    if (kDebugMode) {
+      print('DatabaseHelper: $deletedCount Einträge gelöscht');
+      if (deletedCount == 0) {
+        print('⚠️ DatabaseHelper: KEIN Eintrag gefunden zum Löschen!');
+        // Debug: Zeige was in der Datenbank vorhanden ist
+        final existing = await db.query(
+          'grid_pictograms',
+          where: 'grid_id = ?',
+          whereArgs: [gridId],
+        );
+        print(
+          'DatabaseHelper: Aktuelle Einträge in Grid $gridId: ${existing.length}',
+        );
+        for (var entry in existing) {
+          print('  - Piktogramm ${entry['pictogram_id']}: ${entry['keyword']}');
+        }
+      } else {
+        print('✅ DatabaseHelper: Piktogramm erfolgreich gelöscht');
+      }
+    }
   }
 
   // Aktualisiere die Position eines Piktogramms im Grid
@@ -520,21 +842,25 @@ class DatabaseHelper {
     final batch = db.batch();
 
     for (var pictogramPos in pictogramPositions) {
-      final updateData = {'position': pictogramPos['position']};
+      // ✅ NUR row/column updaten - NICHT die lineare Position!
+      final updateData = <String, dynamic>{};
 
-      // Speichere auch row/column direkt, falls vorhanden
+      // Speichere row/column falls vorhanden
       if (pictogramPos.containsKey('row') &&
           pictogramPos.containsKey('column')) {
         updateData['row_position'] = pictogramPos['row'];
         updateData['column_position'] = pictogramPos['column'];
       }
 
-      batch.update(
-        'grid_pictograms',
-        updateData,
-        where: 'grid_id = ? AND pictogram_id = ?',
-        whereArgs: [gridId, pictogramPos['pictogram_id']],
-      );
+      // Nur updaten wenn es etwas zu updaten gibt
+      if (updateData.isNotEmpty) {
+        batch.update(
+          'grid_pictograms',
+          updateData,
+          where: 'grid_id = ? AND pictogram_id = ?',
+          whereArgs: [gridId, pictogramPos['pictogram_id']],
+        );
+      }
     }
 
     await batch.commit();
@@ -588,5 +914,31 @@ class DatabaseHelper {
       );
     }
     return 4; // Standard-Wert
+  }
+
+  // Neue Methode für erweiterte Positionssuche
+  Future<List<Map<String, dynamic>>> getPictogramsForGridWithPositions(
+    int gridId,
+  ) async {
+    final db = await database;
+
+    final result = await db.rawQuery(
+      '''
+      SELECT gp.*, p.keyword, p.description, p.filename
+      FROM grid_pictograms gp
+      LEFT JOIN pictograms p ON gp.pictogram_id = p.id
+      WHERE gp.grid_id = ?
+      ORDER BY gp.row_position, gp.column_position
+    ''',
+      [gridId],
+    );
+
+    if (kDebugMode) {
+      print(
+        'DatabaseHelper: Lade ${result.length} Piktogramme für Grid $gridId mit Positionen',
+      );
+    }
+
+    return result;
   }
 }
