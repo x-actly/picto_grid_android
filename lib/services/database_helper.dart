@@ -627,12 +627,12 @@ class DatabaseHelper {
 
       totalFixed += gridFixed;
       if (gridFixed > 0 && kDebugMode) {
-        print('✅ Grid $gridId: $gridFixed Positionen repariert');
+        // print('✅ Grid $gridId: $gridFixed Positionen repariert');
       }
     }
 
     if (totalFixed > 0 && kDebugMode) {
-      print('✅ Insgesamt $totalFixed doppelte Positionen repariert');
+      // print('✅ Insgesamt $totalFixed doppelte Positionen repariert');
     }
   }
 
@@ -707,7 +707,7 @@ class DatabaseHelper {
       print(
         'DatabaseHelper: Füge Piktogramm ${pictogram.id} zu Grid $gridId hinzu',
       );
-      print('DatabaseHelper: Piktogramm-Name: "${pictogram.keyword}"');
+      // print('DatabaseHelper: Piktogramm-Name: "${pictogram.keyword}"');
       if (targetRow != null && targetColumn != null) {
         print('DatabaseHelper: Ziel-Position: ($targetRow, $targetColumn)');
       }
@@ -721,10 +721,10 @@ class DatabaseHelper {
     );
 
     if (existing.isNotEmpty && kDebugMode) {
-      print(
-        '⚠️ DatabaseHelper: Piktogramm ${pictogram.id} ist bereits in Grid $gridId!',
-      );
-      print('Bestehender Eintrag: ${existing.first}');
+      // print(
+      //   '⚠️ DatabaseHelper: Piktogramm ${pictogram.id} ist bereits in Grid $gridId!',
+      // );
+      // print('Bestehender Eintrag: ${existing.first}');
     }
 
     // Berechne row/column falls angegeben
