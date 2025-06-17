@@ -924,7 +924,7 @@ class DatabaseHelper {
 
     final result = await db.rawQuery(
       '''
-      SELECT gp.*, p.keyword, p.description, p.filename 
+      SELECT gp.*, p.keyword, p.description, p.filename
       FROM grid_pictograms gp
       LEFT JOIN pictograms p ON gp.pictogram_id = p.id
       WHERE gp.grid_id = ?
