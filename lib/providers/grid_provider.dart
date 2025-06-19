@@ -56,8 +56,9 @@ class GridProvider with ChangeNotifier {
 
   Future<void> selectGrid(int gridId) async {
     _selectedGridId = gridId;
-    await loadGridPictograms();
+    // WICHTIG: Lade zuerst die Grid-Größe, bevor die Piktogramme geladen werden!
     await loadGridSize();
+    await loadGridPictograms();
     notifyListeners();
   }
 
@@ -75,6 +76,12 @@ class GridProvider with ChangeNotifier {
       final pictogramId = p['pictogram_id'] as int;
       final keyword = p['keyword'] as String? ?? 'Piktogramm $pictogramId';
       final position = p['position'] as int? ?? 0;
+
+      if (kDebugMode) {
+        print(
+          'GridProvider: Lade Piktogramm $pictogramId ($keyword) - Position: $position, Row: ${p['row_position']}, Column: ${p['column_position']}',
+        );
+      }
 
       // 🔧 BUGFIX: Suche nach ID statt nach Name für exakte Übereinstimmung
       final localPictogramById = await _localPictogramService.getPictogramById(
@@ -127,10 +134,30 @@ class GridProvider with ChangeNotifier {
       }
     }
 
-    // Sortiere nach Position
-    pictogramDataWithObjects.sort(
-      (a, b) => (a['position'] as int).compareTo(b['position'] as int),
-    );
+    // Sortiere nach row/column falls verfügbar, ansonsten nach linearer Position
+    pictogramDataWithObjects.sort((a, b) {
+      final aData = a['original_data'] as Map<String, dynamic>;
+      final bData = b['original_data'] as Map<String, dynamic>;
+
+      // Wenn beide row/column haben, sortiere nach diesen
+      if (aData.containsKey('row_position') &&
+          aData.containsKey('column_position') &&
+          bData.containsKey('row_position') &&
+          bData.containsKey('column_position')) {
+        final aRow = aData['row_position'] as int? ?? 0;
+        final bRow = bData['row_position'] as int? ?? 0;
+        final aCol = aData['column_position'] as int? ?? 0;
+        final bCol = bData['column_position'] as int? ?? 0;
+
+        // Sortiere erst nach Row, dann nach Column
+        final rowComparison = aRow.compareTo(bRow);
+        if (rowComparison != 0) return rowComparison;
+        return aCol.compareTo(bCol);
+      }
+
+      // Fallback: Sortiere nach linearer Position
+      return (a['position'] as int).compareTo(b['position'] as int);
+    });
 
     // Extrahiere die sortierten Piktogramme und Daten
     for (var item in pictogramDataWithObjects) {
@@ -197,11 +224,57 @@ class GridProvider with ChangeNotifier {
   Future<void> removePictogramFromGrid(Pictogram pictogram) async {
     if (_selectedGridId == null) return;
 
-    await _db.removePictogramFromGrid(_selectedGridId!, pictogram.id);
-    _currentGridPictograms.removeWhere((p) => p.id == pictogram.id);
-    _currentGridPictogramData.removeWhere(
-      (data) => data['pictogram_id'] == pictogram.id,
+    // Finde die korrekte DB-ID für dieses Piktogramm
+    final pictogramIndex = _currentGridPictograms.indexWhere(
+      (p) => p.id == pictogram.id,
     );
+    if (pictogramIndex == -1) {
+      if (kDebugMode) {
+        print(
+          '⚠️ GridProvider: Piktogramm ${pictogram.keyword} nicht im Grid gefunden',
+        );
+      }
+      return;
+    }
+
+    final pictogramData = _currentGridPictogramData[pictogramIndex];
+    final dbPictogramId = pictogramData['pictogram_id'] as int;
+
+    if (kDebugMode) {
+      print(
+        'GridProvider: Lösche Piktogramm ${pictogram.keyword} (Piktogramm-ID: ${pictogram.id}, DB-ID: $dbPictogramId) aus Grid $_selectedGridId',
+      );
+
+      // Debug: Zeige alle Piktogramme in diesem Grid vor dem Löschen
+      print('GridProvider: Vor Löschung - Piktogramme in Grid:');
+      for (int i = 0; i < _currentGridPictograms.length; i++) {
+        final p = _currentGridPictograms[i];
+        final data = _currentGridPictogramData[i];
+        print('  - ${p.keyword} (ID: ${p.id}, DB-ID: ${data['pictogram_id']})');
+      }
+    }
+
+    // 🎯 VERWENDE DIE DB-ID, NICHT DIE PIKTOGRAMM-ID!
+    await _db.removePictogramFromGrid(_selectedGridId!, dbPictogramId);
+
+    // Entferne aus dem lokalen State
+    _currentGridPictograms.removeAt(pictogramIndex);
+    _currentGridPictogramData.removeAt(pictogramIndex);
+
+    if (kDebugMode) {
+      print(
+        'GridProvider: Nach Löschung verbleiben ${_currentGridPictograms.length} Piktogramme',
+      );
+
+      // Debug: Zeige verbleibende Piktogramme
+      print('GridProvider: Nach Löschung - Verbleibende Piktogramme:');
+      for (int i = 0; i < _currentGridPictograms.length; i++) {
+        final p = _currentGridPictograms[i];
+        final data = _currentGridPictogramData[i];
+        print('  - ${p.keyword} (ID: ${p.id}, DB-ID: ${data['pictogram_id']})');
+      }
+    }
+
     notifyListeners();
   }
 
@@ -220,10 +293,16 @@ class GridProvider with ChangeNotifier {
   Future<void> loadGridSize() async {
     if (_selectedGridId == null) {
       _currentGridSize = 4;
+      if (kDebugMode) {
+        print('GridProvider: Keine Grid-ID, verwende Standard-Größe 4');
+      }
       return;
     }
 
     _currentGridSize = await _db.getGridSize(_selectedGridId!);
+    if (kDebugMode) {
+      print('GridProvider: Grid $_selectedGridId hat Größe $_currentGridSize');
+    }
   }
 
   Future<void> updateGridSize(int gridSize) async {
