@@ -76,26 +76,53 @@ class GridProvider with ChangeNotifier {
       final keyword = p['keyword'] as String? ?? 'Piktogramm $pictogramId';
       final position = p['position'] as int? ?? 0;
 
-      // NUR NAMENSBASIERTE SUCHE (komplett offline)
-      final localPictogramByName = await _localPictogramService
-          .getPictogramByName(keyword);
+      // 🔧 BUGFIX: Suche nach ID statt nach Name für exakte Übereinstimmung
+      final localPictogramById = await _localPictogramService.getPictogramById(
+        pictogramId,
+      );
 
-      if (localPictogramByName != null) {
+      if (localPictogramById != null) {
         if (kDebugMode) {
           print(
-            '✅ Piktogramm gefunden: "$keyword" → ${localPictogramByName.imageUrl} (Position: $position)',
+            '✅ Piktogramm per ID gefunden: "$keyword" (ID: $pictogramId) → ${localPictogramById.imageUrl} (Position: $position)',
           );
         }
 
         pictogramDataWithObjects.add({
-          'pictogram': localPictogramByName,
+          'pictogram': localPictogramById,
           'position': position,
           'original_data': p,
         });
       } else {
-        // PIKTOGRAMM NICHT GEFUNDEN: Überspringe es (Offline-Modus)
+        // FALLBACK: Wenn ID nicht gefunden, versuche Name-basierte Suche
         if (kDebugMode) {
-          print('❌ Piktogramm nicht gefunden (offline): "$keyword"');
+          print(
+            '⚠️ Piktogramm mit ID $pictogramId nicht gefunden, versuche Name-basierte Suche für "$keyword"',
+          );
+        }
+
+        final localPictogramByName = await _localPictogramService
+            .getPictogramByName(keyword);
+
+        if (localPictogramByName != null) {
+          if (kDebugMode) {
+            print(
+              '✅ Piktogramm per Name gefunden: "$keyword" → ${localPictogramByName.imageUrl} (Position: $position)',
+            );
+          }
+
+          pictogramDataWithObjects.add({
+            'pictogram': localPictogramByName,
+            'position': position,
+            'original_data': p,
+          });
+        } else {
+          // PIKTOGRAMM NICHT GEFUNDEN: Überspringe es (Offline-Modus)
+          if (kDebugMode) {
+            print(
+              '❌ Piktogramm weder per ID noch per Name gefunden: "$keyword" (ID: $pictogramId)',
+            );
+          }
         }
       }
     }
@@ -147,7 +174,13 @@ class GridProvider with ChangeNotifier {
       targetPosition = _currentGridPictograms.length;
     }
 
-    await _db.addPictogramToGrid(_selectedGridId!, pictogram, targetPosition);
+    await _db.addPictogramToGrid(
+      _selectedGridId!,
+      pictogram,
+      targetPosition,
+      rowPosition: targetRow,
+      columnPosition: targetCol,
+    );
 
     // Lade alle Piktogramme neu, um korrekte Sortierung zu gewährleisten
     await loadGridPictograms();
@@ -196,8 +229,74 @@ class GridProvider with ChangeNotifier {
   Future<void> updateGridSize(int gridSize) async {
     if (_selectedGridId == null) return;
 
+    final oldGridSize = _currentGridSize;
+
+    // 🔧 BUGFIX: Konvertiere bestehende Positionen bei Grid-Größen-Änderung
+    if (oldGridSize != gridSize && _currentGridPictogramData.isNotEmpty) {
+      if (kDebugMode) {
+        print(
+          'GridProvider: Konvertiere Positionen von ${oldGridSize}x? zu ${gridSize}x?',
+        );
+      }
+
+      final updatedPositions = <Map<String, dynamic>>[];
+
+      for (int i = 0; i < _currentGridPictogramData.length; i++) {
+        final data = _currentGridPictogramData[i];
+        final pictogramId = data['pictogram_id'] as int;
+        final oldPosition = data['position'] as int? ?? i;
+
+        // Berechne alte row/column basierend auf alter Grid-Größe
+        final oldRow = oldPosition ~/ oldGridSize;
+        final oldColumn = oldPosition % oldGridSize;
+
+        // Bestimme neue Position basierend auf neuer Grid-Größe
+        int newRow = oldRow;
+        int newColumn = oldColumn;
+
+        // Prüfe, ob Position im neuen Grid gültig ist
+        final newGridRows = gridSize == 4 ? 2 : 3;
+        if (newColumn >= gridSize || newRow >= newGridRows) {
+          // Position ist ungültig, verwende Index-basierte Fallback-Position
+          newRow = i ~/ gridSize;
+          newColumn = i % gridSize;
+
+          if (kDebugMode) {
+            print(
+              'GridProvider: Position ($oldRow,$oldColumn) ungültig für ${gridSize}x$newGridRows, verwende Fallback ($newRow,$newColumn)',
+            );
+          }
+        }
+
+        final newPosition = newRow * gridSize + newColumn;
+
+        updatedPositions.add({
+          'pictogram_id': pictogramId,
+          'position': newPosition,
+          'row': newRow,
+          'column': newColumn,
+        });
+
+        if (kDebugMode) {
+          final keyword = (_currentGridPictograms.length > i)
+              ? _currentGridPictograms[i].keyword
+              : 'Piktogramm $pictogramId';
+          print(
+            'GridProvider: $keyword: Position$oldPosition ($oldRow,$oldColumn) → Position$newPosition ($newRow,$newColumn)',
+          );
+        }
+      }
+
+      // Speichere die konvertierten Positionen
+      await _db.updateAllPictogramPositions(_selectedGridId!, updatedPositions);
+    }
+
     await _db.updateGridSize(_selectedGridId!, gridSize);
     _currentGridSize = gridSize;
+
+    // Lade Piktogramme neu mit korrigierten Positionen
+    await loadGridPictograms();
+
     notifyListeners();
   }
 
@@ -209,6 +308,17 @@ class GridProvider with ChangeNotifier {
     await _db.updateAllPictogramPositions(_selectedGridId!, pictogramPositions);
     if (kDebugMode) {
       print('GridProvider: Positionen für Grid $_selectedGridId gespeichert');
+    }
+  }
+
+  /// 🔧 DEBUG: Lösche alle Piktogramme aus der Datenbank
+  Future<void> clearAllPictograms() async {
+    await _db.clearAllPictograms();
+    _currentGridPictograms = [];
+    _currentGridPictogramData = [];
+    notifyListeners();
+    if (kDebugMode) {
+      print('GridProvider: 🧹 Alle Piktogramme gelöscht');
     }
   }
 }

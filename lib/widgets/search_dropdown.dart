@@ -3,7 +3,6 @@ import 'package:picto_grid/l10n/app_localizations.dart';
 import 'package:picto_grid/models/pictogram.dart';
 
 class SearchDropdown extends StatefulWidget {
-
   const SearchDropdown({
     super.key,
     required this.onSearch,
@@ -71,10 +70,7 @@ class _SearchDropdownState extends State<SearchDropdown> {
           child: Material(
             elevation: 4.0,
             child: Container(
-              constraints: BoxConstraints(
-                maxHeight: 300,
-                minWidth: size.width,
-              ),
+              constraints: BoxConstraints(maxHeight: 300, minWidth: size.width),
               decoration: BoxDecoration(
                 color: Colors.white,
                 border: Border.all(color: Colors.grey[300]!),
@@ -87,11 +83,17 @@ class _SearchDropdownState extends State<SearchDropdown> {
                 itemBuilder: (context, index) {
                   final pictogram = widget.searchResults[index];
                   return ListTile(
-                    leading: Image.network(
+                    leading: Image.asset(
                       pictogram.imageUrl,
                       width: 40,
                       height: 40,
                       fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(
+                          Icons.error_outline,
+                          color: Colors.red,
+                        );
+                      },
                     ),
                     title: Text(pictogram.keyword),
                     onTap: () {
@@ -128,9 +130,7 @@ class _SearchDropdownState extends State<SearchDropdown> {
                   },
                 )
               : null,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(4),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(4)),
         ),
         onChanged: (value) {
           widget.onSearch(value);

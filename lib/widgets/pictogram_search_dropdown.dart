@@ -4,11 +4,7 @@ import 'package:picto_grid/models/pictogram.dart';
 import 'package:picto_grid/services/local_pictogram_service.dart';
 
 class PictogramSearchDropdown extends StatefulWidget {
-
-  const PictogramSearchDropdown({
-    super.key,
-    required this.onPictogramSelected,
-  });
+  const PictogramSearchDropdown({super.key, required this.onPictogramSelected});
   final Function(Pictogram) onPictogramSelected;
 
   @override
@@ -94,9 +90,7 @@ class _PictogramSearchDropdownState extends State<PictogramSearchDropdown> {
                     },
                   )
                 : null,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
           ),
           onChanged: (value) {
             _searchPictograms(value);
@@ -125,54 +119,56 @@ class _PictogramSearchDropdownState extends State<PictogramSearchDropdown> {
                     ),
                   )
                 : _searchResults.isEmpty
-                    ? Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Text(
-                          AppLocalizations.of(context)!.searchFieldNoResults,
+                ? Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      AppLocalizations.of(context)!.searchFieldNoResults,
+                    ),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _searchResults.length,
+                    itemBuilder: (context, index) {
+                      final pictogram = _searchResults[index];
+                      return ListTile(
+                        leading: SizedBox(
+                          width: 40,
+                          height: 40,
+                          child: pictogram.imageUrl.startsWith('assets/')
+                              ? Image.asset(
+                                  pictogram.imageUrl,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Icon(
+                                      Icons.error_outline,
+                                      color: Colors.red,
+                                    );
+                                  },
+                                )
+                              : Image.asset(
+                                  pictogram.imageUrl,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Icon(
+                                      Icons.error_outline,
+                                      color: Colors.red,
+                                    );
+                                  },
+                                ),
                         ),
-                      )
-                    : ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: _searchResults.length,
-                        itemBuilder: (context, index) {
-                          final pictogram = _searchResults[index];
-                          return ListTile(
-                            leading: SizedBox(
-                              width: 40,
-                              height: 40,
-                              child: pictogram.imageUrl.startsWith('assets/')
-                                  ? Image.asset(
-                                      pictogram.imageUrl,
-                                      fit: BoxFit.contain,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                        return const Icon(Icons.error_outline,
-                                            color: Colors.red);
-                                      },
-                                    )
-                                  : Image.network(
-                                      pictogram.imageUrl,
-                                      fit: BoxFit.contain,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                        return const Icon(Icons.error_outline,
-                                            color: Colors.red);
-                                      },
-                                    ),
-                            ),
-                            title: Text(pictogram.keyword),
-                            onTap: () {
-                              widget.onPictogramSelected(pictogram);
-                              _searchController.clear();
-                              setState(() {
-                                _searchResults = [];
-                                _showDropdown = false;
-                              });
-                              _focusNode.unfocus();
-                            },
-                          );
+                        title: Text(pictogram.keyword),
+                        onTap: () {
+                          widget.onPictogramSelected(pictogram);
+                          _searchController.clear();
+                          setState(() {
+                            _searchResults = [];
+                            _showDropdown = false;
+                          });
+                          _focusNode.unfocus();
                         },
-                      ),
+                      );
+                    },
+                  ),
           ),
       ],
     );

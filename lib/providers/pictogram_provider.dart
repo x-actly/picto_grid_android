@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:picto_grid/models/pictogram.dart';
 import 'package:picto_grid/services/arasaac_service.dart';
 
+/// Provider für Piktogramm-Suche
+/// Nutzt nur noch lokale Piktogramme (Online-API entfernt)
 class PictogramProvider with ChangeNotifier {
   final ArasaacService _arasaacService = ArasaacService();
   List<Pictogram> _searchResults = [];
@@ -12,6 +14,7 @@ class PictogramProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String get error => _error;
 
+  /// Sucht Piktogramme nur in lokalen Dateien
   Future<void> searchPictograms(String keyword) async {
     if (keyword.isEmpty) {
       _searchResults = [];
