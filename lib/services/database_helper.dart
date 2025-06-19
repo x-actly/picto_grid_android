@@ -699,60 +699,43 @@ class DatabaseHelper {
     int gridId,
     Pictogram pictogram,
     int position, {
-    int? targetRow,
-    int? targetColumn,
+    int? rowPosition,
+    int? columnPosition,
   }) async {
     final db = await database;
     if (kDebugMode) {
       print(
-        'DatabaseHelper: Füge Piktogramm ${pictogram.id} zu Grid $gridId hinzu',
+        'DatabaseHelper: Füge Piktogramm ${pictogram.id} zu Grid $gridId an Position $position hinzu',
       );
-      // print('DatabaseHelper: Piktogramm-Name: "${pictogram.keyword}"');
-      if (targetRow != null && targetColumn != null) {
-        print('DatabaseHelper: Ziel-Position: ($targetRow, $targetColumn)');
+      if (rowPosition != null && columnPosition != null) {
+        print('DatabaseHelper: Mit Row/Column: ($rowPosition,$columnPosition)');
       }
     }
 
-    // Prüfe ob bereits ein Eintrag mit diesem Piktogramm existiert
-    final existing = await db.query(
-      'grid_pictograms',
-      where: 'grid_id = ? AND pictogram_id = ?',
-      whereArgs: [gridId, pictogram.id],
-    );
-
-    if (existing.isNotEmpty && kDebugMode) {
-      // print(
-      //   '⚠️ DatabaseHelper: Piktogramm ${pictogram.id} ist bereits in Grid $gridId!',
-      // );
-      // print('Bestehender Eintrag: ${existing.first}');
-    }
-
-    // Berechne row/column falls angegeben
-    int? rowPosition;
-    int? columnPosition;
-    if (targetRow != null && targetColumn != null) {
-      rowPosition = targetRow;
-      columnPosition = targetColumn;
-    }
-
-    await db.insert('grid_pictograms', {
+    final insertData = {
       'grid_id': gridId,
       'pictogram_id': pictogram.id,
       'position': position,
       'keyword': pictogram.keyword,
       'description': pictogram.description,
       'category': pictogram.category,
-      'row_position': rowPosition ?? 0,
-      'column_position': columnPosition ?? 0,
-    });
+    };
+
+    // 🔧 Füge row/column Positionen hinzu, falls angegeben
+    if (rowPosition != null && columnPosition != null) {
+      insertData['row_position'] = rowPosition;
+      insertData['column_position'] = columnPosition;
+    }
+
+    await db.insert('grid_pictograms', insertData);
 
     if (kDebugMode) {
-      print('DatabaseHelper: Piktogramm erfolgreich in Datenbank eingefügt');
-      if (rowPosition != null && columnPosition != null) {
-        print(
-          'DatabaseHelper: Mit row/column Position: ($rowPosition, $columnPosition)',
-        );
-      }
+      final rowColInfo = (rowPosition != null && columnPosition != null)
+          ? ' → ($rowPosition,$columnPosition)'
+          : '';
+      print(
+        'DatabaseHelper: Piktogramm erfolgreich eingefügt an Position $position$rowColInfo',
+      );
     }
   }
 
@@ -813,22 +796,46 @@ class DatabaseHelper {
     }
   }
 
+  /// 🔧 RESET: Lösche alle Piktogramme aus allen Grids
+  Future<void> clearAllPictograms() async {
+    final db = await database;
+    await db.delete('grid_pictograms');
+    if (kDebugMode) {
+      print('DatabaseHelper: 🧹 Alle Piktogramme aus der Datenbank gelöscht');
+    }
+  }
+
   // Aktualisiere die Position eines Piktogramms im Grid
   Future<void> updatePictogramPosition(
     int gridId,
     int pictogramId,
-    int newPosition,
-  ) async {
+    int newPosition, {
+    int? rowPosition,
+    int? columnPosition,
+  }) async {
     final db = await database;
+
+    final updateData = {'position': newPosition};
+
+    // 🔧 Füge row/column Positionen hinzu, falls angegeben
+    if (rowPosition != null && columnPosition != null) {
+      updateData['row_position'] = rowPosition;
+      updateData['column_position'] = columnPosition;
+    }
+
     await db.update(
       'grid_pictograms',
-      {'position': newPosition},
+      updateData,
       where: 'grid_id = ? AND pictogram_id = ?',
       whereArgs: [gridId, pictogramId],
     );
+
     if (kDebugMode) {
+      final rowColInfo = (rowPosition != null && columnPosition != null)
+          ? ' → ($rowPosition,$columnPosition)'
+          : '';
       print(
-        'DatabaseHelper: Position von Piktogramm $pictogramId in Grid $gridId auf $newPosition aktualisiert',
+        'DatabaseHelper: Position von Piktogramm $pictogramId in Grid $gridId auf $newPosition$rowColInfo aktualisiert',
       );
     }
   }

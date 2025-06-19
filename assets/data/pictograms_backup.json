@@ -1,0 +1,158 @@
+[
+  {
+    "id": 2272,
+    "keywords": ["Badewanne", "baden", "Bad", "waschen"],
+    "category": "Körperpflege",
+    "filename": "Badewanne_2272.png"
+  },
+  {
+    "id": 3280,
+    "keywords": ["Wurst", "Fleisch", "essen", "Nahrung"],
+    "category": "Essen",
+    "filename": "Wurst_3280.png"
+  },
+  {
+    "id": 39481,
+    "keywords": ["1 Kilo", "Kilogramm", "Gewicht", "wiegen"],
+    "category": "Mengen",
+    "filename": "1 Kilo_39481.png"
+  },
+  {
+    "id": 4775,
+    "keywords": ["1 Cent", "Geld", "Münze", "bezahlen"],
+    "category": "Geld",
+    "filename": "1 Cent_4775.png"
+  },
+  {
+    "id": 4776,
+    "keywords": ["1 Euro", "Geld", "Münze", "bezahlen"],
+    "category": "Geld",
+    "filename": "1 Euro_4776.png"
+  },
+  {
+    "id": 2626,
+    "keywords": ["0", "null", "nichts", "Zahl"],
+    "category": "Zahlen",
+    "filename": "0_2626.png"
+  },
+  {
+    "id": 2627,
+    "keywords": ["1", "eins", "ein", "Zahl"],
+    "category": "Zahlen",
+    "filename": "1_2627.png"
+  },
+  {
+    "id": 2628,
+    "keywords": ["2", "zwei", "Zahl"],
+    "category": "Zahlen",
+    "filename": "2_2628.png"
+  },
+  {
+    "id": 2629,
+    "keywords": ["3", "drei", "Zahl"],
+    "category": "Zahlen",
+    "filename": "3_2629.png"
+  },
+  {
+    "id": 2630,
+    "keywords": ["4", "vier", "Zahl"],
+    "category": "Zahlen",
+    "filename": "4_2630.png"
+  },
+  {
+    "id": 2631,
+    "keywords": ["5", "fünf", "Zahl"],
+    "category": "Zahlen",
+    "filename": "5_2631.png"
+  },
+  {
+    "id": 4779,
+    "keywords": ["5 Cent", "Geld", "Münze", "bezahlen"],
+    "category": "Geld",
+    "filename": "5 Cent_4779.png"
+  },
+  {
+    "id": 4780,
+    "keywords": ["5 Euro", "Geld", "Schein", "bezahlen"],
+    "category": "Geld",
+    "filename": "5 Euro_4780.png"
+  },
+  {
+    "id": 4781,
+    "keywords": ["10 Cent", "Geld", "Münze", "bezahlen"],
+    "category": "Geld",
+    "filename": "10 Cent_4781.png"
+  },
+  {
+    "id": 4782,
+    "keywords": ["10 Euro", "Geld", "Schein", "bezahlen"],
+    "category": "Geld",
+    "filename": "10 Euro_4782.png"
+  },
+  {
+    "id": 4783,
+    "keywords": ["20 Cent", "Geld", "Münze", "bezahlen"],
+    "category": "Geld",
+    "filename": "20 Cent_4783.png"
+  },
+  {
+    "id": 4784,
+    "keywords": ["20 Euro", "Geld", "Schein", "bezahlen"],
+    "category": "Geld",
+    "filename": "20 Euro_4784.png"
+  },
+  {
+    "id": 4785,
+    "keywords": ["50 Cent", "Geld", "Münze", "bezahlen"],
+    "category": "Geld",
+    "filename": "50 Cent_4785.png"
+  },
+  {
+    "id": 4786,
+    "keywords": ["50 Euro", "Geld", "Schein", "bezahlen"],
+    "category": "Geld",
+    "filename": "50 Euro_4786.png"
+  },
+  {
+    "id": 4787,
+    "keywords": ["100 Euro", "Geld", "Schein", "bezahlen"],
+    "category": "Geld",
+    "filename": "100 Euro_4787.png"
+  },
+  {
+    "id": 4788,
+    "keywords": ["200 Euro", "Geld", "Schein", "bezahlen"],
+    "category": "Geld",
+    "filename": "200 Euro_4788.png"
+  },
+  {
+    "id": 4789,
+    "keywords": ["500 Euro", "Geld", "Schein", "bezahlen"],
+    "category": "Geld",
+    "filename": "500 Euro_4789.png"
+  },
+  {
+    "id": 29167,
+    "keywords": ["112 wählen", "Notruf", "Hilfe", "Notfall"],
+    "category": "Notfall",
+    "filename": "112 wählen_29167.png"
+  },
+  {
+    "id": 35757,
+    "keywords": ["061 wählen", "Telefon", "wählen", "anrufen"],
+    "category": "Kommunikation",
+    "filename": "061 wählen_35757.png"
+  },
+  {
+    "id": 3092,
+    "keywords": ["1. Weihnachtstag", "Weihnachten", "Feiertag", "Fest"],
+    "category": "Feiertage",
+    "filename": "1. Weihnachtstag_3092.png"
+  },
+  {
+    "id": 39518,
+    "keywords": ["Spielautomat", "Spielzeugauto", "Auto", "spielen"],
+    "category": "Spielzeug",
+    "filename": "Spielautomat_39518.png"
+  }
+]

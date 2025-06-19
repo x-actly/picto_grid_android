@@ -1,0 +1,3 @@
+[info] Unnecessary braces in a string interpolation (C:\github_repo\picto_grid_android\lib\providers\grid_provider.dart:230:89)
+[info] Local variables should be final (C:\github_repo\picto_grid_android\lib\widgets\pictogram_grid.dart:208:13)
+[info] Local variables should be final (C:\github_repo\picto_grid_android\lib\widgets\pictogram_grid.dart:209:13)

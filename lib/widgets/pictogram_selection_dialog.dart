@@ -8,16 +8,14 @@ import 'package:picto_grid/services/custom_pictogram_service.dart';
 
 class PictogramSelectionDialog {
   static Future<void> show(
-      BuildContext context, Function(Pictogram) onSelected) async {
+    BuildContext context,
+    Function(Pictogram) onSelected,
+  ) async {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(
-          AppLocalizations.of(context)!.addPictogramText
-        ),
-        content: Text(
-          AppLocalizations.of(context)!.addPictogramContentText
-        ),
+        title: Text(AppLocalizations.of(context)!.addPictogramText),
+        content: Text(AppLocalizations.of(context)!.addPictogramContentText),
         actions: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -46,9 +44,7 @@ class PictogramSelectionDialog {
               const SizedBox(height: 8),
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text(
-                  AppLocalizations.of(context)!.cancelButtonText,
-                ),
+                child: Text(AppLocalizations.of(context)!.cancelButtonText),
               ),
             ],
           ),
@@ -58,7 +54,9 @@ class PictogramSelectionDialog {
   }
 
   static void _showLocalPictogramSearch(
-      BuildContext context, Function(Pictogram) onSelected) {
+    BuildContext context,
+    Function(Pictogram) onSelected,
+  ) {
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -78,7 +76,9 @@ class PictogramSelectionDialog {
   }
 
   static void _showDeviceImageOptions(
-      BuildContext context, Function(Pictogram) onSelected) {
+    BuildContext context,
+    Function(Pictogram) onSelected,
+  ) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -96,9 +96,7 @@ class PictogramSelectionDialog {
             const SizedBox(height: 16),
             ListTile(
               leading: const Icon(Icons.camera_alt, color: Colors.blue),
-              title: Text(
-                AppLocalizations.of(context)!.takePhotoText,
-              ),
+              title: Text(AppLocalizations.of(context)!.takePhotoText),
               subtitle: Text(
                 AppLocalizations.of(context)!.takePhotoSubtitleText,
               ),
@@ -112,9 +110,7 @@ class PictogramSelectionDialog {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library, color: Colors.green),
-              title: Text(
-                AppLocalizations.of(context)!.selectFromGalleryText,
-              ),
+              title: Text(AppLocalizations.of(context)!.selectFromGalleryText),
               subtitle: Text(
                 AppLocalizations.of(context)!.selectFromGallerySubtitleText,
               ),
@@ -134,7 +130,9 @@ class PictogramSelectionDialog {
   }
 
   static Future<void> _captureFromCamera(
-      BuildContext context, Function(Pictogram) onSelected) async {
+    BuildContext context,
+    Function(Pictogram) onSelected,
+  ) async {
     try {
       if (kDebugMode) {
         print('🔵 Starte Kamera-Aufnahme...');
@@ -148,8 +146,8 @@ class PictogramSelectionDialog {
         return;
       }
 
-      final pictogram =
-          await CustomPictogramService.instance.captureFromCamera();
+      final pictogram = await CustomPictogramService.instance
+          .captureFromCamera();
       if (kDebugMode) {
         print('🔵 Kamera-Aufnahme abgeschlossen: ${pictogram?.imageUrl}');
       }
@@ -157,8 +155,10 @@ class PictogramSelectionDialog {
       if (pictogram != null) {
         // Verwende den Root-Context für den Dialog
         if (context.mounted) {
-          final rootContext =
-              Navigator.of(context, rootNavigator: true).context;
+          final rootContext = Navigator.of(
+            context,
+            rootNavigator: true,
+          ).context;
           if (kDebugMode) {
             print('🔵 Zeige Benennungs-Dialog mit Root-Context...');
           }
@@ -176,8 +176,9 @@ class PictogramSelectionDialog {
             description: 'Automatisch benanntes Foto',
             category: 'Benutzerdefiniert',
           );
-          await CustomPictogramService.instance
-              .addCustomPictogram(namedPictogram);
+          await CustomPictogramService.instance.addCustomPictogram(
+            namedPictogram,
+          );
           onSelected(namedPictogram);
           if (kDebugMode) {
             print('🔵 Temporäres Piktogramm erstellt: $tempName');
@@ -201,7 +202,9 @@ class PictogramSelectionDialog {
   }
 
   static Future<void> _pickFromGallery(
-      BuildContext context, Function(Pictogram) onSelected) async {
+    BuildContext context,
+    Function(Pictogram) onSelected,
+  ) async {
     try {
       if (kDebugMode) {
         print('🔵 Starte Galerie-Auswahl...');
@@ -221,8 +224,10 @@ class PictogramSelectionDialog {
 
       if (pictogram != null) {
         if (context.mounted) {
-          final rootContext =
-              Navigator.of(context, rootNavigator: true).context;
+          final rootContext = Navigator.of(
+            context,
+            rootNavigator: true,
+          ).context;
           if (kDebugMode) {
             print('🔵 Zeige Benennungs-Dialog mit Root-Context...');
           }
@@ -240,8 +245,9 @@ class PictogramSelectionDialog {
             description: 'Automatisch benanntes Bild',
             category: 'Benutzerdefiniert',
           );
-          await CustomPictogramService.instance
-              .addCustomPictogram(namedPictogram);
+          await CustomPictogramService.instance.addCustomPictogram(
+            namedPictogram,
+          );
           onSelected(namedPictogram);
           if (kDebugMode) {
             print('🔵 Temporäres Piktogramm erstellt: $tempName');
@@ -264,8 +270,11 @@ class PictogramSelectionDialog {
     }
   }
 
-  static Future<void> _showNamingDialog(BuildContext context,
-      Pictogram pictogram, Function(Pictogram) onSelected) async {
+  static Future<void> _showNamingDialog(
+    BuildContext context,
+    Pictogram pictogram,
+    Function(Pictogram) onSelected,
+  ) async {
     if (kDebugMode) {
       print('🔵 Benennungs-Dialog gestartet für: ${pictogram.imageUrl}');
     }
@@ -275,9 +284,7 @@ class PictogramSelectionDialog {
     final result = await showDialog<Map<String, String>>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(
-          AppLocalizations.of(context)!.namePictogramText,
-        ),
+        title: Text(AppLocalizations.of(context)!.namePictogramText),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -291,14 +298,38 @@ class PictogramSelectionDialog {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.file(
-                    File(pictogram.imageUrl),
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(Icons.image,
-                          size: 50, color: Colors.grey);
-                    },
-                  ),
+                  child: pictogram.imageUrl.startsWith('assets/')
+                      ? Image.asset(
+                          pictogram.imageUrl,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.error_outline,
+                              color: Colors.red,
+                            );
+                          },
+                        )
+                      : pictogram.category == 'Benutzerdefiniert'
+                      ? Image.file(
+                          File(pictogram.imageUrl),
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.error_outline,
+                              color: Colors.red,
+                            );
+                          },
+                        )
+                      : Image.asset(
+                          pictogram.imageUrl,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.error_outline,
+                              color: Colors.red,
+                            );
+                          },
+                        ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -306,7 +337,9 @@ class PictogramSelectionDialog {
                 controller: nameController,
                 decoration: InputDecoration(
                   labelText: 'Name *',
-                  hintText: AppLocalizations.of(context)!.namePictogramPlaceholder,
+                  hintText: AppLocalizations.of(
+                    context,
+                  )!.namePictogramPlaceholder,
                   border: const OutlineInputBorder(),
                 ),
                 autofocus: true,
@@ -326,9 +359,7 @@ class PictogramSelectionDialog {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(
-              AppLocalizations.of(context)!.cancelButtonText,
-            ),
+            child: Text(AppLocalizations.of(context)!.cancelButtonText),
           ),
           ElevatedButton(
             onPressed: () {
@@ -339,9 +370,7 @@ class PictogramSelectionDialog {
                 });
               }
             },
-            child: Text(
-              AppLocalizations.of(context)!.saveText,
-            ),
+            child: Text(AppLocalizations.of(context)!.saveText),
           ),
         ],
       ),
@@ -372,8 +401,8 @@ class PictogramSelectionDialog {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content:
-                  Text('Piktogramm "${result['name']}" wurde hinzugefügt')),
+            content: Text('Piktogramm "${result['name']}" wurde hinzugefügt'),
+          ),
         );
       }
     } else {
@@ -385,9 +414,10 @@ class PictogramSelectionDialog {
 }
 
 class LocalPictogramSearchWidget extends StatefulWidget {
-
-  const LocalPictogramSearchWidget(
-      {super.key, required this.onPictogramSelected});
+  const LocalPictogramSearchWidget({
+    super.key,
+    required this.onPictogramSelected,
+  });
   final Function(Pictogram) onPictogramSelected;
 
   @override
@@ -443,11 +473,13 @@ class _LocalPictogramSearchWidgetState
             Expanded(
               child: Text(
                 AppLocalizations.of(context)!.localPictogramSearchTitle,
-                style: Theme.of(context).textTheme.headlineSmall),
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
             ),
             IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close)),
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.close),
+            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -465,7 +497,8 @@ class _LocalPictogramSearchWidgetState
                       setState(() {
                         _searchResults = [];
                       });
-                    })
+                    },
+                  )
                 : null,
           ),
           onChanged: _searchPictograms,
@@ -476,71 +509,97 @@ class _LocalPictogramSearchWidgetState
           child: _isLoading
               ? const Center(child: CircularProgressIndicator())
               : _searchResults.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.search, size: 64, color: Colors.grey[400]),
-                          const SizedBox(height: 16),
-                          Text(
-                            _searchController.text.isEmpty
-                                ? AppLocalizations.of(context)!.searchFieldPlaceholder
-                                : AppLocalizations.of(context)!.searchFieldNoResults,
-                            style: TextStyle(color: Colors.grey[600]),
-                          ),
-                        ],
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.search, size: 64, color: Colors.grey[400]),
+                      const SizedBox(height: 16),
+                      Text(
+                        _searchController.text.isEmpty
+                            ? AppLocalizations.of(
+                                context,
+                              )!.searchFieldPlaceholder
+                            : AppLocalizations.of(
+                                context,
+                              )!.searchFieldNoResults,
+                        style: TextStyle(color: Colors.grey[600]),
                       ),
-                    )
-                  : GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: 1.0,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                      ),
-                      itemCount: _searchResults.length,
-                      itemBuilder: (context, index) {
-                        final pictogram = _searchResults[index];
-                        return Card(
-                          clipBehavior: Clip.antiAlias,
-                          child: InkWell(
-                            onTap: () => widget.onPictogramSelected(pictogram),
-                            child: Column(
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: pictogram.imageUrl
-                                            .startsWith('assets/')
-                                        ? Image.asset(pictogram.imageUrl,
-                                            fit: BoxFit.contain,
-                                            errorBuilder: (context, error,
-                                                    stackTrace) =>
-                                                const Icon(Icons.error_outline,
-                                                    color: Colors.red))
-                                        : Image.network(pictogram.imageUrl,
-                                            fit: BoxFit.contain,
-                                            errorBuilder: (context, error,
-                                                    stackTrace) =>
-                                                const Icon(Icons.error_outline,
-                                                    color: Colors.red)),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(4.0),
-                                  child: Text(pictogram.keyword,
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(fontSize: 12),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis),
-                                ),
-                              ],
+                    ],
+                  ),
+                )
+              : GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    childAspectRatio: 1.0,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                  ),
+                  itemCount: _searchResults.length,
+                  itemBuilder: (context, index) {
+                    final pictogram = _searchResults[index];
+                    return Card(
+                      clipBehavior: Clip.antiAlias,
+                      child: InkWell(
+                        onTap: () => widget.onPictogramSelected(pictogram),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: pictogram.imageUrl.startsWith('assets/')
+                                    ? Image.asset(
+                                        pictogram.imageUrl,
+                                        fit: BoxFit.contain,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                              return const Icon(
+                                                Icons.error_outline,
+                                                color: Colors.red,
+                                              );
+                                            },
+                                      )
+                                    : pictogram.category == 'Benutzerdefiniert'
+                                    ? Image.file(
+                                        File(pictogram.imageUrl),
+                                        fit: BoxFit.contain,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                              return const Icon(
+                                                Icons.error_outline,
+                                                color: Colors.red,
+                                              );
+                                            },
+                                      )
+                                    : Image.asset(
+                                        pictogram.imageUrl,
+                                        fit: BoxFit.contain,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                              return const Icon(
+                                                Icons.error_outline,
+                                                color: Colors.red,
+                                              );
+                                            },
+                                      ),
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
+                            Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Text(
+                                pictogram.keyword,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(fontSize: 12),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
         ),
       ],
     );

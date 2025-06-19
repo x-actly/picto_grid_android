@@ -9,6 +9,7 @@ import 'package:picto_grid/providers/grid_provider.dart';
 import 'package:picto_grid/services/tts_service.dart';
 import 'package:picto_grid/widgets/pictogram_selection_dialog.dart';
 import 'package:picto_grid/services/custom_pictogram_service.dart';
+import 'package:picto_grid/services/database_helper.dart';
 
 class PictogramGrid extends StatefulWidget {
   const PictogramGrid({
@@ -49,6 +50,7 @@ class PictogramGridState extends State<PictogramGrid>
   bool _isEditMode = false;
   bool _isInitialized = false;
   bool _isEnglish = false; // Default to false (Deutsch)
+  int? _lastKnownGridSize; // 🔧 Für Grid-Größen-Änderungs-Detection
 
   // TTS und visuelles Feedback
   final TtsService _ttsService = TtsService();
@@ -119,8 +121,11 @@ class PictogramGridState extends State<PictogramGrid>
   }
 
   /// Hilfsfunktion zum Laden von Bildern (lokal oder online)
-  Widget _buildPictogramImage(String imageUrl, {BoxFit fit = BoxFit.contain}) {
-    return _PictogramImageWidget(imageUrl: imageUrl, fit: fit);
+  Widget _buildPictogramImage(
+    Pictogram pictogram, {
+    BoxFit fit = BoxFit.contain,
+  }) {
+    return _PictogramImageWidget(imageUrl: pictogram.imageUrl, fit: fit);
   }
 
   // Piktogramm sprechen und visuelles Feedback anzeigen
@@ -175,13 +180,12 @@ class PictogramGridState extends State<PictogramGrid>
     super.didChangeDependencies();
     if (!_isInitialized) {
       _isInitialized = true;
+      _lastKnownGridSize = _gridSize; // 🔧 Initialisiere Grid-Größe
+      _updatePositionsWithCurrentDimensions();
     }
-    // IMMER die Positionen aktualisieren wenn sich Dependencies ändern
-    // (z.B. wenn ein neues Grid geladen wird)
-    _updatePositionsWithCurrentDimensions();
   }
 
-  void _updatePositionsWithCurrentDimensions() {
+  void _updatePositionsWithCurrentDimensions() async {
     if (!mounted) return;
     final size = MediaQuery.of(context).size;
     final dimensions = calculateGridDimensions(size);
@@ -190,119 +194,114 @@ class PictogramGridState extends State<PictogramGrid>
     final gridProvider = context.read<GridProvider>();
     final pictogramData = gridProvider.currentGridPictogramData;
 
-    setState(() {
-      _pictogramPositions = [];
+    // 🔧 Erst DB-Operationen außerhalb von setState
+    final tempPositions = <PictogramPosition>[];
 
-      for (int i = 0; i < widget.pictograms.length; i++) {
-        final pictogram = widget.pictograms[i];
-        int targetRow = 0;
-        int targetColumn = 0;
+    for (int i = 0; i < widget.pictograms.length; i++) {
+      final pictogram = widget.pictograms[i];
+      int targetRow = i ~/ dimensions.columns;
+      int targetColumn = i % dimensions.columns;
 
-        // Suche nach den gespeicherten Positionsdaten für dieses Piktogramm
-        try {
+      // Suche nach den gespeicherten Positionsdaten für dieses Piktogramm
+      final dataList = pictogramData
+          .where((data) => data['pictogram_id'] == pictogram.id)
+          .toList();
+
+      if (kDebugMode) {
+        print(
+          'PictogramGrid: 🔍 Suche ${pictogram.keyword} (ID: ${pictogram.id}) in ${pictogramData.length} DB-Einträgen',
+        );
+        if (pictogramData.isNotEmpty) {
+          print(
+            'PictogramGrid: 📋 Verfügbare DB-IDs: ${pictogramData.map((d) => d['pictogram_id']).toList()}',
+          );
+        }
+      }
+
+      if (dataList.isNotEmpty) {
+        final data = dataList.first;
+
+        // 🎯 VERWENDE NUR DIE GESPEICHERTEN ROW/COLUMN WERTE (KEIN FALLBACK)!
+        if (data.containsKey('row_position') &&
+            data.containsKey('column_position')) {
+          final int savedRow = data['row_position'] ?? 0;
+          final int savedColumn = data['column_position'] ?? 0;
+
+          // Prüfe, ob die gespeicherte Position im aktuellen Grid gültig ist
           if (kDebugMode) {
             print(
-              '🔍 PictogramGrid: Suche Daten für Piktogramm ${pictogram.keyword} (ID: ${pictogram.id})',
+              'PictogramGrid: ${pictogram.keyword} - Validierung: ($savedRow,$savedColumn) gegen Grid ${dimensions.columns}x${dimensions.rows}',
             );
             print(
-              '🔍 Verfügbare Daten: ${pictogramData.map((d) => 'ID: ${d['pictogram_id']}, Keyword: ${d['keyword']}')}',
+              'PictogramGrid: Prüfung: $savedRow < ${dimensions.rows} = ${savedRow < dimensions.rows}, $savedColumn < ${dimensions.columns} = ${savedColumn < dimensions.columns}',
             );
           }
 
-          final data = pictogramData.firstWhere(
-            (data) => data['pictogram_id'] == pictogram.id,
-            orElse: () => <String, dynamic>{},
-          );
+          if (savedRow < dimensions.rows && savedColumn < dimensions.columns) {
+            targetRow = savedRow;
+            targetColumn = savedColumn;
 
-          // 🎯 VERWENDE DIREKT DIE GESPEICHERTEN ROW/COLUMN WERTE!
-          if (data.containsKey('row_position') &&
-              data.containsKey('column_position')) {
-            final savedRow = data['row_position'] ?? 0;
-            final savedColumn = data['column_position'] ?? 0;
-
-            // ✅ VERTRAUE DEN GESPEICHERTEN WERTEN - KEINE FALLBACK-BERECHNUNG!
-            // Die Datenbank-Reparatur sorgt bereits für korrekte Werte
-
-            // Prüfe, ob die gespeicherte Position im aktuellen Grid gültig ist
             if (kDebugMode) {
               print(
-                'PictogramGrid: ${pictogram.keyword} → Prüfe Position ($savedRow,$savedColumn) gegen Grid ${dimensions.columns}x${dimensions.rows}',
+                'PictogramGrid: ${pictogram.keyword} → ($targetRow,$targetColumn) [gespeicherte row/col - GÜLTIG]',
               );
-            }
-
-            if (savedRow < dimensions.rows &&
-                savedColumn < dimensions.columns) {
-              targetRow = savedRow;
-              targetColumn = savedColumn;
-
-              if (kDebugMode) {
-                print(
-                  'PictogramGrid: ${pictogram.keyword} → ($targetRow,$targetColumn) [row/col gültig]',
-                );
-              }
-            } else {
-              if (kDebugMode) {
-                print(
-                  'PictogramGrid: ${pictogram.keyword} → ($savedRow,$savedColumn) außerhalb Grid ${dimensions.columns}x${dimensions.rows}, verwende Index-Fallback ($targetRow,$targetColumn)',
-                );
-              }
             }
           } else {
             if (kDebugMode) {
               print(
-                'PictogramGrid: ${pictogram.keyword} → ($targetRow,$targetColumn) [keine row/col Daten]',
+                'PictogramGrid: ${pictogram.keyword} → ($savedRow,$savedColumn) außerhalb Grid ${dimensions.columns}x${dimensions.rows}, verwende Index-Position ($targetRow,$targetColumn)',
               );
             }
           }
-        } catch (e) {
+        } else {
           if (kDebugMode) {
             print(
-              '❌ PictogramGrid: FEHLER beim Suchen der Daten für ${pictogram.keyword}: $e',
+              'PictogramGrid: ${pictogram.keyword} → ($targetRow,$targetColumn) [keine row/col Daten in DB - Index-Position]',
             );
           }
-
-          // ✅ ALTERNATIVE SUCHE: Verwende Index basierte Suche als Fallback
-          try {
-            if (i < pictogramData.length) {
-              final data = pictogramData[i];
-              if (data.containsKey('row_position') &&
-                  data.containsKey('column_position')) {
-                targetRow = data['row_position'] ?? 0;
-                targetColumn = data['column_position'] ?? 0;
-
-                if (kDebugMode) {
-                  print(
-                    'PictogramGrid: ${pictogram.keyword} → ($targetRow,$targetColumn) [Index-basierte Fallback-Suche]',
-                  );
-                }
-              }
-            }
-          } catch (e2) {
-            if (kDebugMode) {
-              print(
-                '❌ PictogramGrid: Auch Index-basierte Suche fehlgeschlagen für ${pictogram.keyword}: $e2',
-              );
-              print(
-                'PictogramGrid: ${pictogram.keyword} → BLEIBT BEI DEFAULT (0,0)',
-              );
-            }
-          }
         }
+      } else {
+        // Keine Daten für dieses Piktogramm gefunden - SOFORT REPARIEREN
+        final gridProvider = context.read<GridProvider>();
 
-        _pictogramPositions.add(
-          PictogramPosition(
-            pictogram: pictogram,
-            row: targetRow,
-            column: targetColumn,
-          ),
+        // 🔧 SELBST-REPARIEREND: Speichere Index-Position sofort in DB
+        final db = DatabaseHelper.instance;
+        final linearPosition = targetRow * dimensions.columns + targetColumn;
+        await db.updatePictogramPosition(
+          gridProvider.selectedGridId!,
+          pictogram.id,
+          linearPosition,
+          rowPosition: targetRow,
+          columnPosition: targetColumn,
         );
+
+        if (kDebugMode) {
+          print(
+            'PictogramGrid: ${pictogram.keyword} → ($targetRow,$targetColumn) [keine DB-Daten - Index-Position gespeichert]',
+          );
+        }
       }
+
+      tempPositions.add(
+        PictogramPosition(
+          pictogram: pictogram,
+          row: targetRow,
+          column: targetColumn,
+        ),
+      );
+    }
+
+    // Jetzt setState mit den vorbereiteten Daten
+    setState(() {
+      _pictogramPositions = tempPositions;
     });
   }
 
   @override
   void didUpdateWidget(PictogramGrid oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    // Prüfe auf Änderungen der Piktogramme
     if (widget.pictograms.length != oldWidget.pictograms.length ||
         !listEquals(widget.pictograms, oldWidget.pictograms)) {
       if (kDebugMode) {
@@ -310,6 +309,19 @@ class PictogramGridState extends State<PictogramGrid>
         print('Alte Anzahl: ${oldWidget.pictograms.length}');
         print('Neue Anzahl: ${widget.pictograms.length}');
       }
+      _updatePositionsWithCurrentDimensions();
+      return;
+    }
+
+    // 🔧 BUGFIX: Prüfe auch auf Grid-Größen-Änderungen
+    final currentGridSize = _gridSize;
+    if (_lastKnownGridSize != currentGridSize) {
+      if (kDebugMode) {
+        print(
+          'PictogramGrid: Grid-Größe hat sich geändert: $_lastKnownGridSize → $currentGridSize',
+        );
+      }
+      _lastKnownGridSize = currentGridSize;
       _updatePositionsWithCurrentDimensions();
     }
   }
@@ -322,12 +334,6 @@ class PictogramGridState extends State<PictogramGrid>
     // Bestimme die Spalten basierend auf der gewählten Gridgröße
     final columns = _gridSize;
     final rows = availableGridSizes[columns] ?? 2;
-
-    if (kDebugMode) {
-      print(
-        'PictogramGrid: calculateGridDimensions → ${columns}x$rows (_gridSize: $_gridSize)',
-      );
-    }
 
     // Berechne die Kästchengröße so, dass der gesamte verfügbare Platz genutzt wird
     final itemWidth = availableWidth / columns;
@@ -550,10 +556,7 @@ class PictogramGridState extends State<PictogramGrid>
                       Expanded(
                         child: Stack(
                           children: [
-                            _buildPictogramImage(
-                              pictogram.imageUrl,
-                              fit: BoxFit.contain,
-                            ),
+                            _buildPictogramImage(pictogram),
                             if (isActive)
                               Positioned(
                                 bottom: 4,
@@ -603,7 +606,11 @@ class PictogramGridState extends State<PictogramGrid>
     );
   }
 
-  void _movePictogram(PictogramPosition pictogram, int newRow, int newCol) {
+  void _movePictogram(
+    PictogramPosition pictogram,
+    int newRow,
+    int newCol,
+  ) async {
     setState(() {
       final existingPictogram = _getPictogramAtPosition(newRow, newCol);
       if (existingPictogram != null) {
@@ -616,8 +623,68 @@ class PictogramGridState extends State<PictogramGrid>
       pictogram.column = newCol;
     });
 
-    // Speichere die aktualisierten Positionen in der Datenbank
+    // 🔧 SOFORT Position für das verschobene Piktogramm in DB aktualisieren
+    final gridProvider = context.read<GridProvider>();
+    final db = DatabaseHelper.instance;
+    final dimensions = calculateGridDimensions(MediaQuery.of(context).size);
+    final linearPosition = newRow * dimensions.columns + newCol;
+    await db.updatePictogramPosition(
+      gridProvider.selectedGridId!,
+      pictogram.pictogram.id,
+      linearPosition,
+      rowPosition: newRow,
+      columnPosition: newCol,
+    );
+
+    if (kDebugMode) {
+      print(
+        'PictogramGrid: "${pictogram.pictogram.keyword}" sofort verschoben zu ($newRow,$newCol)',
+      );
+    }
+
+    // Speichere alle aktualisierten Positionen in der Datenbank (für Austausch-Logik)
     _savePictogramPositions();
+  }
+
+  /// Löscht ein Piktogramm komplett aus dem Grid und der Datenbank
+  void _deletePictogram(PictogramPosition pictogramPosition) async {
+    final gridProvider = context.read<GridProvider>();
+    final db = DatabaseHelper.instance;
+
+    // 🔧 KOMPLETTES Löschen aus der Datenbank
+    await db.removePictogramFromGrid(
+      gridProvider.selectedGridId!,
+      pictogramPosition.pictogram.id,
+    );
+
+    if (kDebugMode) {
+      print(
+        'PictogramGrid: "${pictogramPosition.pictogram.keyword}" komplett aus Grid und DB gelöscht',
+      );
+    }
+
+    // UI aktualisieren - Position wird automatisch frei
+    setState(() {
+      _pictogramPositions.removeWhere(
+        (pos) => pos.pictogram.id == pictogramPosition.pictogram.id,
+      );
+    });
+
+    // Grid-Provider benachrichtigen
+    await gridProvider.loadGridPictograms();
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(
+              context,
+            )!.removedFromGridText(pictogramPosition.pictogram.keyword),
+          ),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+    }
   }
 
   /// Speichert alle aktuellen Piktogramm-Positionen in der Datenbank
@@ -625,14 +692,16 @@ class PictogramGridState extends State<PictogramGrid>
     if (!mounted) return;
 
     final gridProvider = context.read<GridProvider>();
+    final dimensions = calculateGridDimensions(MediaQuery.of(context).size);
 
     final pictogramPositions = _pictogramPositions.map((pos) {
-      // ✅ SPEICHERE NUR ROW/COLUMN - NICHT DIE LINEARE POSITION!
-      // Die lineare Position soll unverändert bleiben für die Sortierung
+      // Berechne lineare Position basierend auf row/column
+      final linearPosition = pos.row * dimensions.columns + pos.column;
       return {
         'pictogram_id': pos.pictogram.id,
-        'row': pos.row,
-        'column': pos.column,
+        'position': linearPosition,
+        'row': pos.row, // 🎯 Speichere row direkt!
+        'column': pos.column, // 🎯 Speichere column direkt!
       };
     }).toList();
 
@@ -640,7 +709,7 @@ class PictogramGridState extends State<PictogramGrid>
 
     if (kDebugMode) {
       print(
-        'PictogramGrid: ${pictogramPositions.length} Positionen gespeichert (nur row/column)',
+        'PictogramGrid: ${pictogramPositions.length} Positionen gespeichert (mit row/column)',
       );
     }
   }
@@ -859,20 +928,15 @@ class PictogramGridState extends State<PictogramGrid>
     );
 
     if (confirmed == true && context.mounted) {
-      final gridProvider = context.read<GridProvider>();
-      await gridProvider.removePictogramFromGrid(pictogram);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(
-                context,
-              )!.removedFromGridText(pictogram.keyword),
-            ),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
+      // 🔧 Finde die PictogramPosition für das zu löschende Piktogramm
+      final pictogramPosition = _pictogramPositions.firstWhere(
+        (pos) => pos.pictogram.id == pictogram.id,
+        orElse: () =>
+            PictogramPosition(pictogram: pictogram, row: 0, column: 0),
+      );
+
+      // Verwende die neue _deletePictogram Methode
+      _deletePictogram(pictogramPosition);
     }
   }
 
@@ -1068,6 +1132,12 @@ class PictogramGridState extends State<PictogramGrid>
       targetCol: targetCol,
     );
 
+    if (kDebugMode) {
+      print(
+        'PictogramGrid: Piktogramm "${pictogram.keyword}" zu Position ($targetRow,$targetCol) hinzugefügt',
+      );
+    }
+
     // Aktualisiere die Position im Grid nach dem Hinzufügen
     if (mounted) {
       setState(() {
@@ -1125,13 +1195,13 @@ class _PictogramImageWidget extends StatelessWidget {
         },
       );
     } else {
-      // Online-Bild (Fallback)
-      return Image.network(
+      // Fallback für unbekannte Bildtypen - versuche als Asset
+      return Image.asset(
         imageUrl,
         fit: fit,
         errorBuilder: (context, error, stackTrace) {
           if (kDebugMode) {
-            print('Fehler beim Laden des Online-Bildes: $error');
+            print('Fehler beim Laden des Bildes: $error');
           }
           return const Center(child: Icon(Icons.error, color: Colors.red));
         },

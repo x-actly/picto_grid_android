@@ -6,18 +6,10 @@ import 'package:picto_grid/models/pictogram.dart';
 import 'package:picto_grid/services/local_pictogram_service.dart';
 import 'package:picto_grid/services/custom_pictogram_service.dart';
 
-enum PictogramSource {
-  local,
-  custom,
-  all,
-}
+enum PictogramSource { local, custom, all }
 
 class EnhancedPictogramSearch extends StatefulWidget {
-
-  const EnhancedPictogramSearch({
-    super.key,
-    required this.onPictogramSelected,
-  });
+  const EnhancedPictogramSearch({super.key, required this.onPictogramSelected});
   final Function(Pictogram) onPictogramSelected;
 
   @override
@@ -86,10 +78,11 @@ class _EnhancedPictogramSearchState extends State<EnhancedPictogramSearch> {
           results = await _customPictogramService.searchCustomPictograms(query);
           break;
         case PictogramSource.all:
-          final localResults =
-              await _localPictogramService.searchPictograms(query);
-          final customResults =
-              await _customPictogramService.searchCustomPictograms(query);
+          final localResults = await _localPictogramService.searchPictograms(
+            query,
+          );
+          final customResults = await _customPictogramService
+              .searchCustomPictograms(query);
           results = [...customResults, ...localResults]; // Custom zuerst
           break;
       }
@@ -143,7 +136,9 @@ class _EnhancedPictogramSearchState extends State<EnhancedPictogramSearch> {
                 controller: nameController,
                 decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!.nameText,
-                  hintText: AppLocalizations.of(context)!.namePictogramPlaceholder,
+                  hintText: AppLocalizations.of(
+                    context,
+                  )!.namePictogramPlaceholder,
                   border: const OutlineInputBorder(),
                 ),
                 autofocus: true,
@@ -153,7 +148,9 @@ class _EnhancedPictogramSearchState extends State<EnhancedPictogramSearch> {
                 controller: descriptionController,
                 decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!.descriptionText,
-                  hintText:  AppLocalizations.of(context)!.descriptionPictogramPlaceholder,
+                  hintText: AppLocalizations.of(
+                    context,
+                  )!.descriptionPictogramPlaceholder,
                   border: const OutlineInputBorder(),
                 ),
                 maxLines: 2,
@@ -164,7 +161,7 @@ class _EnhancedPictogramSearchState extends State<EnhancedPictogramSearch> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(AppLocalizations.of(context)!.cancelText)
+            child: Text(AppLocalizations.of(context)!.cancelText),
           ),
           ElevatedButton(
             onPressed: () {
@@ -175,7 +172,7 @@ class _EnhancedPictogramSearchState extends State<EnhancedPictogramSearch> {
                 });
               }
             },
-            child: Text(AppLocalizations.of(context)!.saveText)
+            child: Text(AppLocalizations.of(context)!.saveText),
           ),
         ],
       ),
@@ -214,8 +211,8 @@ class _EnhancedPictogramSearchState extends State<EnhancedPictogramSearch> {
   /// Startet den Kamera-Workflow
   Future<void> _captureFromCamera() async {
     try {
-      final Pictogram? pictogram =
-          await _customPictogramService.captureFromCamera();
+      final Pictogram? pictogram = await _customPictogramService
+          .captureFromCamera();
       if (pictogram != null) {
         await _showNamingDialog(pictogram);
       }
@@ -235,8 +232,8 @@ class _EnhancedPictogramSearchState extends State<EnhancedPictogramSearch> {
   /// Startet den Galerie-Workflow
   Future<void> _pickFromGallery() async {
     try {
-      final Pictogram? pictogram =
-          await _customPictogramService.pickFromGallery();
+      final Pictogram? pictogram = await _customPictogramService
+          .pickFromGallery();
       if (pictogram != null) {
         await _showNamingDialog(pictogram);
       }
@@ -309,8 +306,10 @@ class _EnhancedPictogramSearchState extends State<EnhancedPictogramSearch> {
                 decoration: const InputDecoration(
                   labelText: 'Quelle',
                   border: OutlineInputBorder(),
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                 ),
                 items: const [
                   DropdownMenuItem(
@@ -364,8 +363,10 @@ class _EnhancedPictogramSearchState extends State<EnhancedPictogramSearch> {
               icon: const Icon(Icons.add_a_photo),
               label: const Text('Neu'),
               style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
               ),
             ),
           ],
@@ -380,8 +381,8 @@ class _EnhancedPictogramSearchState extends State<EnhancedPictogramSearch> {
             hintText: _selectedSource == PictogramSource.local
                 ? 'In lokalen Piktogrammen suchen...'
                 : _selectedSource == PictogramSource.custom
-                    ? 'In eigenen Bildern suchen...'
-                    : 'Piktogramm suchen...',
+                ? 'In eigenen Bildern suchen...'
+                : 'Piktogramm suchen...',
             prefixIcon: const Icon(Icons.search),
             suffixIcon: _searchController.text.isNotEmpty
                 ? IconButton(
@@ -395,9 +396,7 @@ class _EnhancedPictogramSearchState extends State<EnhancedPictogramSearch> {
                     },
                   )
                 : null,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
           ),
           onChanged: (value) {
             _searchPictograms(value);
@@ -428,136 +427,135 @@ class _EnhancedPictogramSearchState extends State<EnhancedPictogramSearch> {
                     ),
                   )
                 : _searchResults.isEmpty
-                    ? Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            const Text('Keine Ergebnisse gefunden'),
-                            const SizedBox(height: 8),
-                            if (_selectedSource != PictogramSource.custom)
-                              TextButton.icon(
-                                onPressed: _showImageSourceOptions,
-                                icon: const Icon(Icons.add_a_photo),
-                                label: const Text('Eigenes Bild hinzufügen'),
-                              ),
-                          ],
+                ? Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        const Text('Keine Ergebnisse gefunden'),
+                        const SizedBox(height: 8),
+                        if (_selectedSource != PictogramSource.custom)
+                          TextButton.icon(
+                            onPressed: _showImageSourceOptions,
+                            icon: const Icon(Icons.add_a_photo),
+                            label: const Text('Eigenes Bild hinzufügen'),
+                          ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _searchResults.length,
+                    itemBuilder: (context, index) {
+                      final pictogram = _searchResults[index];
+                      final isCustom =
+                          pictogram.category == 'Benutzerdefiniert';
+
+                      return ListTile(
+                        leading: SizedBox(
+                          width: 40,
+                          height: 40,
+                          child: isCustom
+                              ? Image.file(
+                                  File(pictogram.imageUrl),
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Icon(
+                                      Icons.error_outline,
+                                      color: Colors.red,
+                                    );
+                                  },
+                                )
+                              : pictogram.imageUrl.startsWith('assets/')
+                              ? Image.asset(
+                                  pictogram.imageUrl,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Icon(
+                                      Icons.error_outline,
+                                      color: Colors.red,
+                                    );
+                                  },
+                                )
+                              : Image.asset(
+                                  pictogram.imageUrl,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Icon(
+                                      Icons.error_outline,
+                                      color: Colors.red,
+                                    );
+                                  },
+                                ),
                         ),
-                      )
-                    : ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: _searchResults.length,
-                        itemBuilder: (context, index) {
-                          final pictogram = _searchResults[index];
-                          final isCustom =
-                              pictogram.category == 'Benutzerdefiniert';
-
-                          return ListTile(
-                            leading: SizedBox(
-                              width: 40,
-                              height: 40,
-                              child: isCustom
-                                  ? Image.file(
-                                      File(pictogram.imageUrl),
-                                      fit: BoxFit.contain,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                        return const Icon(Icons.error_outline,
-                                            color: Colors.red);
-                                      },
-                                    )
-                                  : pictogram.imageUrl.startsWith('assets/')
-                                      ? Image.asset(
-                                          pictogram.imageUrl,
-                                          fit: BoxFit.contain,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                            return const Icon(
-                                                Icons.error_outline,
-                                                color: Colors.red);
-                                          },
-                                        )
-                                      : Image.network(
-                                          pictogram.imageUrl,
-                                          fit: BoxFit.contain,
-                                          errorBuilder:
-                                              (context, error, stackTrace) {
-                                            return const Icon(
-                                                Icons.error_outline,
-                                                color: Colors.red);
-                                          },
+                        title: Text(pictogram.keyword),
+                        subtitle: Text(
+                          isCustom ? 'Eigenes Bild' : 'Lokales Asset',
+                          style: TextStyle(
+                            color: isCustom ? Colors.blue : Colors.grey,
+                            fontSize: 12,
+                          ),
+                        ),
+                        trailing: isCustom
+                            ? PopupMenuButton(
+                                itemBuilder: (context) => [
+                                  const PopupMenuItem(
+                                    value: 'delete',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.delete, color: Colors.red),
+                                        SizedBox(width: 8),
+                                        Text('Löschen'),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                                onSelected: (value) async {
+                                  if (value == 'delete') {
+                                    final confirmed = await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: const Text('Piktogramm löschen'),
+                                        content: Text(
+                                          'Möchten Sie "${pictogram.keyword}" wirklich löschen?',
                                         ),
-                            ),
-                            title: Text(pictogram.keyword),
-                            subtitle: Text(
-                              isCustom ? 'Eigenes Bild' : 'Lokales Asset',
-                              style: TextStyle(
-                                color: isCustom ? Colors.blue : Colors.grey,
-                                fontSize: 12,
-                              ),
-                            ),
-                            trailing: isCustom
-                                ? PopupMenuButton(
-                                    itemBuilder: (context) => [
-                                      const PopupMenuItem(
-                                        value: 'delete',
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.delete,
-                                                color: Colors.red),
-                                            SizedBox(width: 8),
-                                            Text('Löschen'),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                    onSelected: (value) async {
-                                      if (value == 'delete') {
-                                        final confirmed =
-                                            await showDialog<bool>(
-                                          context: context,
-                                          builder: (context) => AlertDialog(
-                                            title: const Text(
-                                                'Piktogramm löschen'),
-                                            content: Text(
-                                                'Möchten Sie "${pictogram.keyword}" wirklich löschen?'),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () => Navigator.pop(
-                                                    context, false),
-                                                child: const Text('Abbrechen'),
-                                              ),
-                                              TextButton(
-                                                onPressed: () => Navigator.pop(
-                                                    context, true),
-                                                child: const Text('Löschen'),
-                                              ),
-                                            ],
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context, false),
+                                            child: const Text('Abbrechen'),
                                           ),
-                                        );
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context, true),
+                                            child: const Text('Löschen'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
 
-                                        if (confirmed == true) {
-                                          await _customPictogramService
-                                              .deleteCustomPictogram(
-                                                  pictogram.id);
-                                          _searchPictograms(_searchController
-                                              .text); // Aktualisiere Suche
-                                        }
-                                      }
-                                    },
-                                  )
-                                : null,
-                            onTap: () {
-                              widget.onPictogramSelected(pictogram);
-                              _searchController.clear();
-                              setState(() {
-                                _searchResults = [];
-                                _showDropdown = false;
-                              });
-                              _focusNode.unfocus();
-                            },
-                          );
+                                    if (confirmed == true) {
+                                      await _customPictogramService
+                                          .deleteCustomPictogram(pictogram.id);
+                                      _searchPictograms(
+                                        _searchController.text,
+                                      ); // Aktualisiere Suche
+                                    }
+                                  }
+                                },
+                              )
+                            : null,
+                        onTap: () {
+                          widget.onPictogramSelected(pictogram);
+                          _searchController.clear();
+                          setState(() {
+                            _searchResults = [];
+                            _showDropdown = false;
+                          });
+                          _focusNode.unfocus();
                         },
-                      ),
+                      );
+                    },
+                  ),
           ),
       ],
     );
