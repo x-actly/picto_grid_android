@@ -72,6 +72,38 @@ ______________________________________________________________________
 - **Settings persistence** across app sessions
 - **Intuitive controls** designed for accessibility
 
+#### 🔄 **Advanced Drag & Swap System**
+
+- **Intelligent positioning** with automatic grid snapping
+- **Swap functionality** - drag pictograms onto occupied positions to exchange places
+- **Visual feedback** with color-coded drop zones (orange for move, blue for swap)
+- **Position persistence** across app sessions and grid size changes
+- **Real-time updates** with immediate database synchronization
+
+#### 🗂️ **Multi-Profile Management**
+
+- **Profile system** for different users or contexts
+- **Individual grid collections** per profile (up to 3 grids each)
+- **Automatic profile switching** with seamless grid loading
+- **Profile-specific customizations** and settings
+- **Easy profile management** with create/delete functionality
+
+#### 🧭 **Enhanced Navigation**
+
+- **Bottom navigation bar** for quick grid switching
+- **Automatic grid selection** when switching profiles or starting app
+- **Streamlined interface** with reduced visual clutter
+- **One-tap grid access** without dropdown menus
+- **Responsive design** adapting to number of available grids
+
+#### 🎯 **Smart Grid Management**
+
+- **Automatic first grid selection** on profile switch
+- **Position healing system** that repairs corrupted pictogram positions
+- **Grid size conversion** with intelligent position mapping (4x2 ↔ 8x3)
+- **Conflict resolution** for overlapping pictogram positions
+- **Database migration** ensuring data integrity across app updates
+
 #### 💾 **Data Management**
 
 - **SQLite database** for reliable data storage
@@ -192,6 +224,27 @@ ______________________________________________________________________
    - Adjust speech settings for optimal clarity
    - Use search to quickly find specific pictograms
 
+1. **Multi-Profile Setup:**
+
+   - Create profiles for different users or contexts
+   - Each profile maintains separate grid collections
+   - Switch profiles using the dropdown in the top-left
+   - First grid automatically loads when switching profiles
+
+1. **Advanced Grid Navigation:**
+
+   - Use bottom navigation bar for quick grid switching
+   - Drag pictograms between positions to rearrange
+   - Drag onto occupied positions to swap pictograms
+   - Visual indicators show move (orange) vs swap (blue) actions
+
+1. **Position Management:**
+
+   - Pictogram positions persist across sessions
+   - Grid size changes automatically convert positions
+   - System repairs any position conflicts automatically
+   - All changes sync immediately to database
+
 ______________________________________________________________________
 
 ### 🤝 **Contributing**
@@ -286,6 +339,38 @@ ______________________________________________________________________
 - **Raster-Benennung und -Organisation** für verschiedene Aktivitäten
 - **Einstellungs-Persistenz** über App-Sitzungen hinweg
 - **Intuitive Bedienelemente** für Barrierefreiheit entwickelt
+
+#### 🔄 **Fortschrittliches Drag & Swap System**
+
+- **Intelligente Positionierung** mit automatischem Raster-Snapping
+- **Tausch-Funktionalität** - Piktogramme auf belegte Positionen ziehen zum Platz tauschen
+- **Visuelles Feedback** mit farbkodierten Drop-Zonen (Orange für Verschieben, Blau für Tauschen)
+- **Positions-Persistenz** über App-Sitzungen und Rastergrößen-Änderungen hinweg
+- **Echtzeit-Updates** mit sofortiger Datenbank-Synchronisation
+
+#### 🗂️ **Multi-Profil-Verwaltung**
+
+- **Profil-System** für verschiedene Benutzer oder Kontexte
+- **Individuelle Raster-Sammlungen** pro Profil (bis zu 3 Raster jeweils)
+- **Automatischer Profil-Wechsel** mit nahtlosem Raster-Laden
+- **Profilspezifische Anpassungen** und Einstellungen
+- **Einfache Profil-Verwaltung** mit Erstellen/Löschen-Funktionalität
+
+#### 🧭 **Verbesserte Navigation**
+
+- **Bottom-Navigation-Bar** für schnellen Raster-Wechsel
+- **Automatische Raster-Auswahl** beim Profil-Wechsel oder App-Start
+- **Optimierte Oberfläche** mit reduzierter visueller Unordnung
+- **Ein-Tipp-Raster-Zugriff** ohne Dropdown-Menüs
+- **Responsive Design** angepasst an Anzahl verfügbarer Raster
+
+#### 🎯 **Intelligente Raster-Verwaltung**
+
+- **Automatische Erste-Raster-Auswahl** bei Profil-Wechsel
+- **Positions-Reparatur-System** das beschädigte Piktogramm-Positionen repariert
+- **Rastergrößen-Konvertierung** mit intelligenter Positions-Zuordnung (4x2 ↔ 8x3)
+- **Konflikt-Lösung** für überlappende Piktogramm-Positionen
+- **Datenbank-Migration** gewährleistet Datenintegrität über App-Updates hinweg
 
 #### 💾 **Datenmanagement**
 
@@ -406,6 +491,27 @@ ______________________________________________________________________
    - Raster nach Aktivität oder Ort organisieren
    - Sprach-Einstellungen für optimale Klarheit anpassen
    - Suche verwenden, um spezifische Piktogramme schnell zu finden
+
+1. **Multi-Profil-Einrichtung:**
+
+   - Profile für verschiedene Benutzer oder Kontexte erstellen
+   - Jedes Profil verwaltet separate Raster-Sammlungen
+   - Profile über Dropdown oben links wechseln
+   - Erstes Raster lädt automatisch beim Profil-Wechsel
+
+1. **Erweiterte Raster-Navigation:**
+
+   - Bottom-Navigation-Bar für schnellen Raster-Wechsel verwenden
+   - Piktogramme zwischen Positionen ziehen zum Umordnen
+   - Auf belegte Positionen ziehen zum Piktogramm-Tausch
+   - Visuelle Indikatoren zeigen Verschieben (Orange) vs Tauschen (Blau)
+
+1. **Positions-Verwaltung:**
+
+   - Piktogramm-Positionen bleiben über Sitzungen bestehen
+   - Rastergrößen-Änderungen konvertieren Positionen automatisch
+   - System repariert Positions-Konflikte automatisch
+   - Alle Änderungen synchronisieren sofort mit Datenbank
 
 ______________________________________________________________________
 
