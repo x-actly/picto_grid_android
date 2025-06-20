@@ -152,9 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Positioned.fill(
             child: GestureDetector(
               onTap: () => _hideInfoOverlay(),
-              child: Container(
-                color: Colors.black.withAlpha(20),
-              ),
+              child: Container(color: Colors.black.withAlpha(20)),
             ),
           ),
           // Info-Overlay
@@ -185,7 +183,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: Colors.blue.shade300, width: 2),
+                          border: Border.all(
+                            color: Colors.blue.shade300,
+                            width: 2,
+                          ),
                         ),
                         child: Row(
                           children: [
@@ -195,18 +196,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: Colors.blue.shade100,
                                 borderRadius: BorderRadius.circular(50),
                               ),
-                              child: Icon(Icons.info_outline,
-                                         color: Colors.blue.shade700,
-                                         size: 24),
+                              child: Icon(
+                                Icons.info_outline,
+                                color: Colors.blue.shade700,
+                                size: 24,
+                              ),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
                               child: Text(
                                 profileProvider.selectedProfileId == null
-                                    ? AppLocalizations.of(context)!.infoNoProfile
+                                    ? AppLocalizations.of(
+                                        context,
+                                      )!.infoNoProfile
                                     : gridProvider.selectedGridId == null
-                                        ?  AppLocalizations.of(context)!.infoNoGrid
-                                        :  AppLocalizations.of(context)!.infoEditHint,
+                                    ? AppLocalizations.of(context)!.infoNoGrid
+                                    : AppLocalizations.of(
+                                        context,
+                                      )!.infoEditHint,
                                 style: TextStyle(
                                   color: Colors.blue.shade900,
                                   fontSize: 14,
@@ -221,12 +228,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                 borderRadius: BorderRadius.circular(50),
                               ),
                               child: IconButton(
-                                icon: Icon(Icons.close,
-                                          color: Colors.blue.shade700,
-                                          size: 20),
+                                icon: Icon(
+                                  Icons.close,
+                                  color: Colors.blue.shade700,
+                                  size: 20,
+                                ),
                                 onPressed: () => _hideInfoOverlay(),
                                 padding: const EdgeInsets.all(8),
-                                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                                constraints: const BoxConstraints(
+                                  minWidth: 36,
+                                  minHeight: 36,
+                                ),
                               ),
                             ),
                           ],
@@ -274,7 +286,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(
                     AppLocalizations.of(context)!.profile,
-                  style: const TextStyle(fontSize: 12)),
+                    style: const TextStyle(fontSize: 12),
+                  ),
                   DropdownButton<int>(
                     value: profileProvider.selectedProfileId,
                     items: profileProvider.profiles.map((profile) {
@@ -282,7 +295,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         value: profile['id'] as int,
                         child: Text(
                           profile['name'] as String,
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       );
                     }).toList(),
@@ -296,54 +312,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            const SizedBox(width: 16),
-            // Grid-Auswahl (falls Grids vorhanden)
-            if (gridProvider.grids.isNotEmpty) ...[
-              Expanded(
-                flex: 2,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        const Text('Grid', style: TextStyle(fontSize: 12)),
-                        Text(' (${gridProvider.grids.length}/3)',
-                             style: TextStyle(fontSize: 10, color: Colors.grey[600])),
-                      ],
-                    ),
-                    DropdownButton<int>(
-                      value: gridProvider.selectedGridId,
-                      items: gridProvider.grids.map((grid) {
-                        return DropdownMenuItem(
-                          value: grid['id'] as int,
-                          child: Text(
-                            grid['name'] as String,
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        );
-                      }).toList(),
-                      onChanged: (id) {
-                        if (id != null) gridProvider.selectGrid(id);
-                      },
-                      underline: Container(),
-                      dropdownColor: Theme.of(context).colorScheme.inversePrimary,
-                      icon: const Icon(Icons.arrow_drop_down),
-                    ),
-                  ],
-                ),
-              ),
-              if (gridProvider.selectedGridId != null)
-                IconButton(
-                  icon: const Icon(Icons.delete_outline, size: 20),
-                  tooltip: AppLocalizations.of(context)!.gridDeleteText,
-                  onPressed: () => _showDeleteGridDialog(context, gridProvider),
-                ),
-            ] else ...[
-              Expanded(
-                flex: 2,
-                child: Text(AppLocalizations.of(context)!.noGrids,
-                style: const TextStyle(fontSize: 16, color: Colors.grey)),
+            // Delete-Button für aktuelles Grid (nur wenn Grid ausgewählt)
+            if (gridProvider.selectedGridId != null) ...[
+              IconButton(
+                icon: const Icon(Icons.delete_outline, size: 20),
+                tooltip: AppLocalizations.of(context)!.gridDeleteText,
+                onPressed: () => _showDeleteGridDialog(context, gridProvider),
               ),
             ],
           ],
@@ -370,9 +344,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     const Icon(Icons.person_add),
                     const SizedBox(width: 8),
-                    Text(
-                      AppLocalizations.of(context)!.newProfile,
-                    ),
+                    Text(AppLocalizations.of(context)!.newProfile),
                   ],
                 ),
               ),
@@ -385,7 +357,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(width: 8),
                       Text(
                         AppLocalizations.of(context)!.deleteProfile,
-                        style: const TextStyle(color: Colors.red)
+                        style: const TextStyle(color: Colors.red),
                       ),
                     ],
                   ),
@@ -398,7 +370,9 @@ class _HomeScreenState extends State<HomeScreen> {
             if (gridProvider.selectedGridId != null) ...[
               IconButton(
                 icon: Icon(_isEditMode ? Icons.edit_off : Icons.edit),
-                tooltip: _isEditMode ? AppLocalizations.of(context)!.editmodeinactiveText : AppLocalizations.of(context)!.activateEditModeText,
+                tooltip: _isEditMode
+                    ? AppLocalizations.of(context)!.editmodeinactiveText
+                    : AppLocalizations.of(context)!.activateEditModeText,
                 onPressed: () {
                   if (_gridKey.currentState != null) {
                     _gridKey.currentState!.toggleEditMode();
@@ -415,17 +389,25 @@ class _HomeScreenState extends State<HomeScreen> {
                 final canCreate = snapshot.data ?? false;
                 final int maxGrid = 3;
                 return IconButton(
-                  icon: Icon(Icons.add_circle,
-                            color: canCreate ? null : Colors.grey),
-                  tooltip: canCreate ? AppLocalizations.of(context)!.createNewGrid : AppLocalizations.of(context)!.maxGridsReached(maxGrid),
-                  onPressed: canCreate ? () => _showNewGridDialog(context, gridProvider) : null,
+                  icon: Icon(
+                    Icons.add_circle,
+                    color: canCreate ? null : Colors.grey,
+                  ),
+                  tooltip: canCreate
+                      ? AppLocalizations.of(context)!.createNewGrid
+                      : AppLocalizations.of(context)!.maxGridsReached(maxGrid),
+                  onPressed: canCreate
+                      ? () => _showNewGridDialog(context, gridProvider)
+                      : null,
                 );
               },
             ),
           ],
 
           IconButton(
-            icon: Icon(_overlayEntry != null ? Icons.info : Icons.info_outlined),
+            icon: Icon(
+              _overlayEntry != null ? Icons.info : Icons.info_outlined,
+            ),
             tooltip: 'Hinweise anzeigen',
             onPressed: () {
               if (_overlayEntry != null) {
@@ -453,10 +435,130 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: _buildMainContent(context, profileProvider, gridProvider),
+      bottomNavigationBar: _buildBottomNavigationBar(context, gridProvider),
     );
   }
 
-  Widget _buildMainContent(BuildContext context, ProfileProvider profileProvider, GridProvider gridProvider) {
+  Widget _buildBottomNavigationBar(
+    BuildContext context,
+    GridProvider gridProvider,
+  ) {
+    // Zeige Bottom Navigation nur wenn Grids vorhanden sind
+    if (gridProvider.grids.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 4,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Container(
+          height: 80,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: gridProvider.grids.asMap().entries.map((entry) {
+                final index = entry.key;
+                final grid = entry.value;
+                final gridId = grid['id'] as int;
+                final gridName = grid['name'] as String;
+                final isSelected = gridProvider.selectedGridId == gridId;
+
+                return Container(
+                  width: 120, // Feste Breite für jeden Button
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  child: GestureDetector(
+                    onTap: () {
+                      if (!isSelected) {
+                        gridProvider.selectGrid(gridId);
+                      }
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? Theme.of(context).primaryColor
+                            : Colors.grey.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected
+                              ? Theme.of(context).primaryColor
+                              : Colors.grey.withValues(alpha: 0.3),
+                          width: 2,
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            _getGridIcon(index),
+                            color: isSelected
+                                ? Colors.white
+                                : Theme.of(context).primaryColor,
+                            size: 20, // Etwas kleiner
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            gridName,
+                            style: TextStyle(
+                              color: isSelected
+                                  ? Colors.white
+                                  : Theme.of(context).primaryColor,
+                              fontSize: 10, // Kleinere Schrift
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  IconData _getGridIcon(int index) {
+    switch (index) {
+      case 0:
+        return Icons.grid_view;
+      case 1:
+        return Icons.dashboard;
+      case 2:
+        return Icons.apps;
+      default:
+        return Icons.grid_4x4;
+    }
+  }
+
+  Widget _buildMainContent(
+    BuildContext context,
+    ProfileProvider profileProvider,
+    GridProvider gridProvider,
+  ) {
     // Kein Profil ausgewählt
     if (profileProvider.selectedProfileId == null) {
       return Center(
@@ -480,7 +582,10 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: const Icon(Icons.person_add),
               label: Text(AppLocalizations.of(context)!.createProfileButton),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
               ),
             ),
           ],
@@ -511,11 +616,18 @@ class _HomeScreenState extends State<HomeScreen> {
               builder: (context, snapshot) {
                 final canCreate = snapshot.data ?? false;
                 return ElevatedButton.icon(
-                  onPressed: canCreate ? () => _showNewGridDialog(context, gridProvider) : null,
+                  onPressed: canCreate
+                      ? () => _showNewGridDialog(context, gridProvider)
+                      : null,
                   icon: const Icon(Icons.add),
-                  label: Text(AppLocalizations.of(context)!.createFirstGridButton),
+                  label: Text(
+                    AppLocalizations.of(context)!.createFirstGridButton,
+                  ),
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 16,
+                    ),
                   ),
                 );
               },
@@ -533,27 +645,24 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    // Grids vorhanden, aber noch keins ausgewählt
-    return Center(
+    // Grids vorhanden, aber noch keins ausgewählt - automatisch erstes Grid auswählen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (gridProvider.grids.isNotEmpty) {
+        final firstGridId = gridProvider.grids.first['id'] as int;
+        gridProvider.selectGrid(firstGridId);
+      }
+    });
+
+    // Zeige Loading-Indikator während automatischer Auswahl
+    return const Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.touch_app, size: 64, color: Colors.grey[400]),
-          const SizedBox(height: 16),
+          CircularProgressIndicator(),
+          SizedBox(height: 16),
           Text(
-            AppLocalizations.of(context)!.profileText(profileProvider.selectedProfileName),
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            AppLocalizations.of(context)!.gridsAvailableText(gridProvider.grids.length),
-            style: const TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            AppLocalizations.of(context)!.chooseGridText,
-            style: const TextStyle(fontSize: 16),
-            textAlign: TextAlign.center,
+            'Grid wird geladen...',
+            style: TextStyle(fontSize: 16, color: Colors.grey),
           ),
         ],
       ),
@@ -561,7 +670,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Dialog-Funktionen
-  Future<void> _showNewProfileDialog(BuildContext context, ProfileProvider profileProvider) async {
+  Future<void> _showNewProfileDialog(
+    BuildContext context,
+    ProfileProvider profileProvider,
+  ) async {
     final name = await showDialog<String>(
       context: context,
       builder: (context) => const NewProfileDialog(),
@@ -572,9 +684,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                AppLocalizations.of(context)!.profileCreated(name),
-              ),
+              content: Text(AppLocalizations.of(context)!.profileCreated(name)),
               duration: const Duration(seconds: 2),
             ),
           );
@@ -594,29 +704,28 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _showDeleteProfileDialog(BuildContext context, ProfileProvider profileProvider) async {
+  Future<void> _showDeleteProfileDialog(
+    BuildContext context,
+    ProfileProvider profileProvider,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(AppLocalizations.of(context)!.profileDeleteText),
         content: Text(
-          AppLocalizations.of(context)!.profileDeleteContent(
-            profileProvider.selectedProfileName,
-          )
+          AppLocalizations.of(
+            context,
+          )!.profileDeleteContent(profileProvider.selectedProfileName),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(
-              AppLocalizations.of(context)!.cancelButtonText,
-            ),
+            child: Text(AppLocalizations.of(context)!.cancelButtonText),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(
-              AppLocalizations.of(context)!.profileDeleteConfirm,
-            )
+            child: Text(AppLocalizations.of(context)!.profileDeleteConfirm),
           ),
         ],
       ),
@@ -628,9 +737,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                AppLocalizations.of(context)!.profileDeleted,
-              ),
+              content: Text(AppLocalizations.of(context)!.profileDeleted),
               duration: const Duration(seconds: 2),
             ),
           );
@@ -650,7 +757,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _showNewGridDialog(BuildContext context, GridProvider gridProvider) async {
+  Future<void> _showNewGridDialog(
+    BuildContext context,
+    GridProvider gridProvider,
+  ) async {
     final name = await showDialog<String>(
       context: context,
       builder: (context) => const NewGridDialog(),
@@ -661,9 +771,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                AppLocalizations.of(context)!.gridCreated(name),
-              ),
+              content: Text(AppLocalizations.of(context)!.gridCreated(name)),
               duration: const Duration(seconds: 2),
             ),
           );
@@ -672,9 +780,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                AppLocalizations.of(context)!.gridCreateError(e),
-              ),
+              content: Text(AppLocalizations.of(context)!.gridCreateError(e)),
               backgroundColor: Colors.red,
             ),
           );
@@ -683,7 +789,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _showDeleteGridDialog(BuildContext context, GridProvider gridProvider) async {
+  Future<void> _showDeleteGridDialog(
+    BuildContext context,
+    GridProvider gridProvider,
+  ) async {
     final currentGrid = gridProvider.grids.firstWhere(
       (grid) => grid['id'] == gridProvider.selectedGridId,
       orElse: () => {'name': 'Unbekannt'},
@@ -694,17 +803,19 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context) => AlertDialog(
         title: Text(AppLocalizations.of(context)!.gridDeleteText),
         content: Text(
-          AppLocalizations.of(context)!.gridDeleteContent(currentGrid['name'] as String),
+          AppLocalizations.of(
+            context,
+          )!.gridDeleteContent(currentGrid['name'] as String),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text(AppLocalizations.of(context)!.cancelButtonText)
+            child: Text(AppLocalizations.of(context)!.cancelButtonText),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(AppLocalizations.of(context)!.gridDeleteConfirm)
+            child: Text(AppLocalizations.of(context)!.gridDeleteConfirm),
           ),
         ],
       ),
@@ -790,14 +901,14 @@ class _NewGridDialogState extends State<NewGridDialog> {
         controller: _controller,
         decoration: InputDecoration(
           labelText: AppLocalizations.of(context)!.gridName,
-          hintText:  AppLocalizations.of(context)!.gridNamePlaceholder,
+          hintText: AppLocalizations.of(context)!.gridNamePlaceholder,
         ),
         autofocus: true,
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text(AppLocalizations.of(context)!.cancelButtonText)
+          child: Text(AppLocalizations.of(context)!.cancelButtonText),
         ),
         TextButton(
           onPressed: () => Navigator.pop(context, _controller.text),

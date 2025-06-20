@@ -25,18 +25,61 @@ class GridProvider with ChangeNotifier {
   int get currentGridSize => _currentGridSize;
 
   void setCurrentProfile(int? profileId) {
+    if (kDebugMode) {
+      print(
+        'GridProvider: Setze Profil auf $profileId (vorher: $_currentProfileId)',
+      );
+    }
+
     _currentProfileId = profileId;
-    _selectedGridId = null;
+    _selectedGridId = null; // Wichtig: Grid-Auswahl zurücksetzen
     _currentGridPictograms = [];
     _currentGridPictogramData = [];
+
+    // Lade Grids für neues Profil und wähle automatisch das erste aus
     loadGridsForCurrentProfile();
   }
 
   Future<void> loadGridsForCurrentProfile() async {
+    if (kDebugMode) {
+      print('GridProvider: Lade Grids für Profil $_currentProfileId');
+    }
+
     if (_currentProfileId == null) {
       _grids = [];
+      if (kDebugMode) {
+        print('GridProvider: Kein Profil ausgewählt, leere Grid-Liste');
+      }
     } else {
       _grids = await _db.getGridsForProfile(_currentProfileId!);
+
+      if (kDebugMode) {
+        print(
+          'GridProvider: ${_grids.length} Grids für Profil $_currentProfileId gefunden',
+        );
+        for (var grid in _grids) {
+          print('  - Grid ${grid['id']}: ${grid['name']}');
+        }
+      }
+
+      // 🎯 Automatische Grid-Auswahl: Wähle das erste Grid automatisch aus
+      // Immer ausführen wenn Grids vorhanden sind (nicht nur wenn _selectedGridId == null)
+      if (_grids.isNotEmpty) {
+        final firstGridId = _grids.first['id'] as int;
+        if (kDebugMode) {
+          print(
+            'GridProvider: Automatische Auswahl des ersten Grids: $firstGridId (aktuell: $_selectedGridId)',
+          );
+        }
+        await selectGrid(firstGridId);
+        return; // selectGrid() ruft bereits notifyListeners() auf
+      } else {
+        if (kDebugMode) {
+          print(
+            'GridProvider: Keine Grids für Profil $_currentProfileId vorhanden',
+          );
+        }
+      }
     }
     notifyListeners();
   }

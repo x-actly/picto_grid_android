@@ -394,6 +394,9 @@ class PictogramGridState extends State<PictogramGrid>
                   },
                   builder: (context, candidateData, rejectedData) {
                     final isTargeted = candidateData.isNotEmpty;
+                    final existingPictogram = _getPictogramAtPosition(row, col);
+                    final willSwap = isTargeted && existingPictogram != null;
+
                     return GestureDetector(
                       onTap: () =>
                           _showPictogramSelectionDialog(context, row, col),
@@ -401,17 +404,29 @@ class PictogramGridState extends State<PictogramGrid>
                         decoration: BoxDecoration(
                           border: Border.all(
                             color: isTargeted
-                                ? Colors.orange
+                                ? (willSwap ? Colors.blue : Colors.orange)
                                 : Colors.grey.withAlpha(30),
                             width: isTargeted ? 2 : 1,
                           ),
                           borderRadius: BorderRadius.circular(8),
                           color: isTargeted
-                              ? Colors.orange.withAlpha(10)
+                              ? (willSwap
+                                    ? Colors.blue.withAlpha(15)
+                                    : Colors.orange.withAlpha(10))
                               : Colors.transparent,
                         ),
-                        child: const Center(
-                          child: Icon(Icons.add, color: Colors.grey, size: 32),
+                        child: Center(
+                          child: willSwap
+                              ? const Icon(
+                                  Icons.swap_horiz,
+                                  color: Colors.blue,
+                                  size: 32,
+                                )
+                              : const Icon(
+                                  Icons.add,
+                                  color: Colors.grey,
+                                  size: 32,
+                                ),
                         ),
                       ),
                     );
@@ -441,47 +456,102 @@ class PictogramGridState extends State<PictogramGrid>
       return Positioned(
         left: position.column * dimensions.itemWidth,
         top: position.row * dimensions.itemHeight,
-        child: Draggable<PictogramPosition>(
-          data: position,
-          feedback: _buildPictogramCard(
-            position.pictogram,
-            dimensions.itemWidth,
-            opacity: 0.7,
-          ),
-          childWhenDragging: Container(
-            width: dimensions.itemWidth,
-            height: dimensions.itemHeight,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.withAlpha(30), width: 1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: GestureDetector(
-            onTap: () => _playPictogram(position.pictogram),
-            onLongPress: () => _showDeleteDialog(context, position.pictogram),
-            child: Stack(
-              children: [
-                tile,
-                if (_isEditMode)
-                  Positioned(
-                    right: 4,
-                    top: 4,
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        color: Colors.orange.withAlpha(80),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Icon(
-                        Icons.drag_indicator,
-                        size: 16,
-                        color: Colors.white,
-                      ),
-                    ),
+        child: DragTarget<PictogramPosition>(
+          onWillAcceptWithDetails: (data) =>
+              data.data != position, // Nicht auf sich selbst droppen
+          onAcceptWithDetails: (details) {
+            _movePictogram(details.data, position.row, position.column);
+          },
+          builder: (context, candidateData, rejectedData) {
+            final isTargeted = candidateData.isNotEmpty;
+            final willSwap = isTargeted && candidateData.first != position;
+
+            return Draggable<PictogramPosition>(
+              data: position,
+              feedback: _buildPictogramCard(
+                position.pictogram,
+                dimensions.itemWidth,
+                opacity: 0.7,
+              ),
+              childWhenDragging: Container(
+                width: dimensions.itemWidth,
+                height: dimensions.itemHeight,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.grey.withAlpha(30),
+                    width: 1,
                   ),
-              ],
-            ),
-          ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: willSwap
+                    ? const Center(
+                        child: Icon(
+                          Icons.swap_horiz,
+                          color: Colors.blue,
+                          size: 32,
+                        ),
+                      )
+                    : null,
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: willSwap
+                      ? Border.all(color: Colors.blue, width: 2)
+                      : null,
+                  borderRadius: BorderRadius.circular(8),
+                  color: willSwap ? Colors.blue.withAlpha(15) : null,
+                ),
+                child: GestureDetector(
+                  onTap: () => _playPictogram(position.pictogram),
+                  onLongPress: () =>
+                      _showDeleteDialog(context, position.pictogram),
+                  child: Stack(
+                    children: [
+                      tile,
+                      if (_isEditMode)
+                        Positioned(
+                          right: 4,
+                          top: 4,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: willSwap
+                                  ? Colors.blue.withAlpha(80)
+                                  : Colors.orange.withAlpha(80),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Icon(
+                              willSwap
+                                  ? Icons.swap_horiz
+                                  : Icons.drag_indicator,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      if (willSwap)
+                        Positioned(
+                          left: 4,
+                          top: 4,
+                          child: Container(
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withAlpha(80),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Icon(
+                              Icons.swap_horiz,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       );
     }).toList();
@@ -611,22 +681,46 @@ class PictogramGridState extends State<PictogramGrid>
     int newRow,
     int newCol,
   ) async {
+    final existingPictogram = _getPictogramAtPosition(newRow, newCol);
+    final bool isSwap = existingPictogram != null;
+
     setState(() {
-      final existingPictogram = _getPictogramAtPosition(newRow, newCol);
       if (existingPictogram != null) {
+        // 🔄 SWAP: Tausche die Positionen der beiden Piktogramme
         final oldRow = pictogram.row;
         final oldCol = pictogram.column;
         existingPictogram.row = oldRow;
         existingPictogram.column = oldCol;
+
+        if (kDebugMode) {
+          print(
+            'PictogramGrid: 🔄 SWAP - "${pictogram.pictogram.keyword}" ↔ "${existingPictogram.pictogram.keyword}"',
+          );
+          print(
+            '  "${pictogram.pictogram.keyword}": ($oldRow,$oldCol) → ($newRow,$newCol)',
+          );
+          print(
+            '  "${existingPictogram.pictogram.keyword}": ($newRow,$newCol) → ($oldRow,$oldCol)',
+          );
+        }
+      } else {
+        if (kDebugMode) {
+          print(
+            'PictogramGrid: ➡️ MOVE - "${pictogram.pictogram.keyword}" zu freier Position ($newRow,$newCol)',
+          );
+        }
       }
+
       pictogram.row = newRow;
       pictogram.column = newCol;
     });
 
-    // 🔧 SOFORT Position für das verschobene Piktogramm in DB aktualisieren
+    // 🔧 SOFORT Positionen in DB aktualisieren
     final gridProvider = context.read<GridProvider>();
     final db = DatabaseHelper.instance;
     final dimensions = calculateGridDimensions(MediaQuery.of(context).size);
+
+    // Hauptpiktogramm aktualisieren
     final linearPosition = newRow * dimensions.columns + newCol;
     await db.updatePictogramPosition(
       gridProvider.selectedGridId!,
@@ -636,13 +730,20 @@ class PictogramGridState extends State<PictogramGrid>
       columnPosition: newCol,
     );
 
-    if (kDebugMode) {
-      print(
-        'PictogramGrid: "${pictogram.pictogram.keyword}" sofort verschoben zu ($newRow,$newCol)',
+    // Bei Swap: Auch das getauschte Piktogramm aktualisieren
+    if (isSwap) {
+      final swapLinearPosition =
+          existingPictogram.row * dimensions.columns + existingPictogram.column;
+      await db.updatePictogramPosition(
+        gridProvider.selectedGridId!,
+        existingPictogram.pictogram.id,
+        swapLinearPosition,
+        rowPosition: existingPictogram.row,
+        columnPosition: existingPictogram.column,
       );
     }
 
-    // Speichere alle aktualisierten Positionen in der Datenbank (für Austausch-Logik)
+    // Speichere alle aktualisierten Positionen in der Datenbank
     _savePictogramPositions();
   }
 

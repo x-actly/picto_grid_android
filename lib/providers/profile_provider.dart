@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:picto_grid/services/database_helper.dart';
 
 class ProfileProvider with ChangeNotifier {
-
   ProfileProvider() {
     loadProfiles();
   }
@@ -41,8 +40,15 @@ class ProfileProvider with ChangeNotifier {
   }
 
   Future<void> selectProfile(int profileId) async {
+    if (kDebugMode) {
+      print('ProfileProvider: Wechsle zu Profil $profileId');
+    }
     _selectedProfileId = profileId;
     notifyListeners();
+
+    // Der ChangeNotifierProxyProvider in main.dart wird automatisch
+    // gridProvider.setCurrentProfile() aufrufen, was wiederum
+    // loadGridsForCurrentProfile() mit automatischer Grid-Auswahl triggert
   }
 
   Future<void> deleteProfile(int profileId) async {
