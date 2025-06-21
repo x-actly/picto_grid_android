@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:picto_grid/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
@@ -284,10 +285,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    AppLocalizations.of(context)!.profile,
-                    style: const TextStyle(fontSize: 12),
-                  ),
                   DropdownButton<int>(
                     value: profileProvider.selectedProfileId,
                     items: profileProvider.profiles.map((profile) {
@@ -761,29 +758,48 @@ class _HomeScreenState extends State<HomeScreen> {
     BuildContext context,
     GridProvider gridProvider,
   ) async {
+    // Schritt 1: Grid-Name eingeben
     final name = await showDialog<String>(
       context: context,
-      builder: (context) => const NewGridDialog(),
+      builder: (context) => const NewGridNameDialog(),
     );
-    if (name != null && name.isNotEmpty) {
-      try {
-        await gridProvider.createGrid(name);
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.of(context)!.gridCreated(name)),
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }
-      } catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.of(context)!.gridCreateError(e)),
-              backgroundColor: Colors.red,
-            ),
-          );
+
+    if (name != null && name.isNotEmpty && context.mounted) {
+      // Schritt 2: Grid-Größe auswählen
+      final gridSize = await showDialog<int>(
+        context: context,
+        builder: (context) => GridSizeSelectionDialog(gridName: name),
+      );
+
+      if (kDebugMode) {
+        print('🔵 Main: Empfangene Grid-Größe: $gridSize');
+      }
+
+      if (gridSize != null && context.mounted) {
+        try {
+          if (kDebugMode) {
+            print('🔵 Main: Erstelle Grid "$name" mit Größe $gridSize');
+          }
+          await gridProvider.createGrid(name, gridSize);
+          if (context.mounted) {
+            final localizations = AppLocalizations.of(context)!;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(localizations.gridCreated(name)),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
+        } catch (e) {
+          if (context.mounted) {
+            final localizations = AppLocalizations.of(context)!;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(localizations.gridCreateError(e)),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         }
       }
     }
@@ -877,14 +893,14 @@ class _NewProfileDialogState extends State<NewProfileDialog> {
   }
 }
 
-class NewGridDialog extends StatefulWidget {
-  const NewGridDialog({super.key});
+class NewGridNameDialog extends StatefulWidget {
+  const NewGridNameDialog({super.key});
 
   @override
-  State<NewGridDialog> createState() => _NewGridDialogState();
+  State<NewGridNameDialog> createState() => _NewGridNameDialogState();
 }
 
-class _NewGridDialogState extends State<NewGridDialog> {
+class _NewGridNameDialogState extends State<NewGridNameDialog> {
   final _controller = TextEditingController();
 
   @override
@@ -912,6 +928,160 @@ class _NewGridDialogState extends State<NewGridDialog> {
         ),
         TextButton(
           onPressed: () => Navigator.pop(context, _controller.text),
+          child: const Text('Weiter'),
+        ),
+      ],
+    );
+  }
+}
+
+class GridSizeSelectionDialog extends StatefulWidget {
+  const GridSizeSelectionDialog({super.key, required this.gridName});
+
+  final String gridName;
+
+  @override
+  State<GridSizeSelectionDialog> createState() =>
+      _GridSizeSelectionDialogState();
+}
+
+class _GridSizeSelectionDialogState extends State<GridSizeSelectionDialog> {
+  int _selectedGridSize = 4; // Standard ist 4x2
+
+  Widget _buildGridSizeOption(int size, String title, String subtitle) {
+    final isSelected = _selectedGridSize == size;
+    return GestureDetector(
+      onTap: () {
+        if (kDebugMode) {
+          print(
+            '🔵 GridSizeDialog: Wähle Größe $size (vorher: $_selectedGridSize)',
+          );
+        }
+        setState(() {
+          _selectedGridSize = size;
+        });
+        if (kDebugMode) {
+          print('🔵 GridSizeDialog: Neue Größe gesetzt: $_selectedGridSize');
+        }
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        margin: const EdgeInsets.symmetric(vertical: 2),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Theme.of(context).primaryColor.withAlpha(20)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected
+                ? Theme.of(context).primaryColor
+                : Colors.grey.withAlpha(50),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Radio<int>(
+              value: size,
+              groupValue: _selectedGridSize,
+              onChanged: (value) {
+                if (kDebugMode) {
+                  print(
+                    '🔵 GridSizeDialog: Radio-Button wählt Größe $value (vorher: $_selectedGridSize)',
+                  );
+                }
+                setState(() {
+                  _selectedGridSize = value!;
+                });
+                if (kDebugMode) {
+                  print(
+                    '🔵 GridSizeDialog: Radio-Button neue Größe gesetzt: $_selectedGridSize',
+                  );
+                }
+              },
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.grey[600],
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(AppLocalizations.of(context)!.createNewGrid),
+          const SizedBox(height: 8),
+          Text(
+            'Grid: "${widget.gridName}"',
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+          ),
+        ],
+      ),
+      content: SizedBox(
+        width: 280,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Grid-Größe wählen:',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 16),
+            Column(
+              children: [
+                _buildGridSizeOption(2, '2×2', '4 Felder'),
+                _buildGridSizeOption(4, '4×2', '8 Felder'),
+                _buildGridSizeOption(8, '8×3', '24 Felder'),
+              ],
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(AppLocalizations.of(context)!.cancelButtonText),
+        ),
+        TextButton(
+          onPressed: () {
+            if (kDebugMode) {
+              print(
+                '🔵 GridSizeDialog: Erstelle Grid mit Größe $_selectedGridSize',
+              );
+            }
+            Navigator.pop(context, _selectedGridSize);
+          },
           child: Text(AppLocalizations.of(context)!.createButtonText),
         ),
       ],

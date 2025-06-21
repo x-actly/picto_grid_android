@@ -14,7 +14,7 @@ class GridProvider with ChangeNotifier {
   List<Map<String, dynamic>> _currentGridPictogramData =
       []; // Speichere Original-Daten mit Position
   int? _currentProfileId;
-  int _currentGridSize = 4; // Standard-Rastergröße
+  int _currentGridSize = 4; // Standard-Rastergröße bleibt 4x2
 
   List<Map<String, dynamic>> get grids => _grids;
   int? get selectedGridId => _selectedGridId;
@@ -63,16 +63,33 @@ class GridProvider with ChangeNotifier {
       }
 
       // 🎯 Automatische Grid-Auswahl: Wähle das erste Grid automatisch aus
-      // Immer ausführen wenn Grids vorhanden sind (nicht nur wenn _selectedGridId == null)
+      // NUR wenn noch kein Grid ausgewählt ist oder das ausgewählte Grid nicht mehr existiert
       if (_grids.isNotEmpty) {
         final firstGridId = _grids.first['id'] as int;
-        if (kDebugMode) {
-          print(
-            'GridProvider: Automatische Auswahl des ersten Grids: $firstGridId (aktuell: $_selectedGridId)',
-          );
+
+        // Prüfe ob das aktuell ausgewählte Grid noch existiert
+        final currentGridExists =
+            _selectedGridId != null &&
+            _grids.any((grid) => grid['id'] == _selectedGridId);
+
+        if (_selectedGridId == null || !currentGridExists) {
+          if (kDebugMode) {
+            print(
+              'GridProvider: Automatische Auswahl des ersten Grids: $firstGridId (aktuell: $_selectedGridId)',
+            );
+          }
+          await selectGrid(firstGridId);
+          return; // selectGrid() ruft bereits notifyListeners() auf
+        } else {
+          if (kDebugMode) {
+            print(
+              'GridProvider: Behalte aktuell ausgewähltes Grid: $_selectedGridId',
+            );
+          }
+          // Grid ist bereits ausgewählt und existiert noch - lade nur die Daten neu
+          await loadGridSize();
+          await loadGridPictograms();
         }
-        await selectGrid(firstGridId);
-        return; // selectGrid() ruft bereits notifyListeners() auf
       } else {
         if (kDebugMode) {
           print(
@@ -84,16 +101,43 @@ class GridProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> createGrid(String name) async {
+  Future<void> createGrid(String name, [int gridSize = 4]) async {
     if (_currentProfileId == null) {
       throw Exception('Kein Profil ausgewählt');
     }
 
-    final id = await _db.createGrid(name, _currentProfileId!);
+    if (kDebugMode) {
+      print(
+        '🔵 GridProvider: createGrid aufgerufen mit name="$name", gridSize=$gridSize',
+      );
+    }
+
+    final id = await _db.createGrid(name, _currentProfileId!, gridSize);
+
+    if (kDebugMode) {
+      print('🔵 GridProvider: Grid erstellt mit ID $id');
+    }
+
+    // Lade Grids neu
     await loadGridsForCurrentProfile();
+
+    // Wähle das neu erstellte Grid explizit aus
     _selectedGridId = id;
-    _currentGridPictograms = [];
-    _currentGridPictogramData = [];
+
+    if (kDebugMode) {
+      print('🔵 GridProvider: Wähle neu erstelltes Grid $id aus');
+    }
+
+    // Lade Grid-Größe und Piktogramme für das neue Grid
+    await loadGridSize();
+    await loadGridPictograms();
+
+    if (kDebugMode) {
+      print(
+        '🔵 GridProvider: Neues Grid vollständig geladen - Größe: $_currentGridSize',
+      );
+    }
+
     notifyListeners();
   }
 
@@ -377,7 +421,11 @@ class GridProvider with ChangeNotifier {
         int newColumn = oldColumn;
 
         // Prüfe, ob Position im neuen Grid gültig ist
-        final newGridRows = gridSize == 4 ? 2 : 3;
+        final newGridRows = gridSize == 4
+            ? 2
+            : gridSize == 8
+            ? 3
+            : 2; // 2x2, 4x2, 8x3
         if (newColumn >= gridSize || newRow >= newGridRows) {
           // Position ist ungültig, verwende Index-basierte Fallback-Position
           newRow = i ~/ gridSize;
