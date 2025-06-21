@@ -764,13 +764,10 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context) => const NewGridNameDialog(),
     );
 
-    if (name != null && name.isNotEmpty) {
-      // Store context before async operation
-      final dialogContext = context;
-
+    if (name != null && name.isNotEmpty && context.mounted) {
       // Schritt 2: Grid-Größe auswählen
       final gridSize = await showDialog<int>(
-        context: dialogContext,
+        context: context,
         builder: (context) => GridSizeSelectionDialog(gridName: name),
       );
 
@@ -778,15 +775,15 @@ class _HomeScreenState extends State<HomeScreen> {
         print('🔵 Main: Empfangene Grid-Größe: $gridSize');
       }
 
-      if (gridSize != null) {
+      if (gridSize != null && context.mounted) {
         try {
           if (kDebugMode) {
             print('🔵 Main: Erstelle Grid "$name" mit Größe $gridSize');
           }
           await gridProvider.createGrid(name, gridSize);
-          if (dialogContext.mounted) {
-            final localizations = AppLocalizations.of(dialogContext)!;
-            ScaffoldMessenger.of(dialogContext).showSnackBar(
+          if (context.mounted) {
+            final localizations = AppLocalizations.of(context)!;
+            ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(localizations.gridCreated(name)),
                 duration: const Duration(seconds: 2),
@@ -794,9 +791,9 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           }
         } catch (e) {
-          if (dialogContext.mounted) {
-            final localizations = AppLocalizations.of(dialogContext)!;
-            ScaffoldMessenger.of(dialogContext).showSnackBar(
+          if (context.mounted) {
+            final localizations = AppLocalizations.of(context)!;
+            ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(localizations.gridCreateError(e)),
                 backgroundColor: Colors.red,
