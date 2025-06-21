@@ -61,11 +61,12 @@ class PictogramGridState extends State<PictogramGrid>
   double _ttsVolume = 0.8;
   double _ttsSpeechRate = 0.5;
 
-  static const int minGridSize = 4; // Minimum ist jetzt 4
+  static const int minGridSize = 2; // Minimum ist jetzt 2
   static const int maxGridSize = 8; // Maximum ist jetzt 8
 
   // Definiere die verfügbaren Grid-Größen
   static const Map<int, int> availableGridSizes = {
+    2: 2, // 2x2
     4: 2, // 4x2
     8: 3, // 8x3
   };
@@ -89,7 +90,7 @@ class PictogramGridState extends State<PictogramGrid>
       widget.pictograms.length,
       (index) => PictogramPosition(
         pictogram: widget.pictograms[index],
-        row: index ~/ 4, // Verwende erstmal Standard-Wert
+        row: index ~/ 4, // Verwende 4x2 als Standard
         column: index % 4,
       ),
     );
@@ -845,49 +846,23 @@ class PictogramGridState extends State<PictogramGrid>
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(AppLocalizations.of(context)!.gridSizeText),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      TextButton(
-                        onPressed: () async {
-                          if (!mounted) return;
-                          final gridProvider = context.read<GridProvider>();
-                          final navigator = Navigator.of(context);
-                          await gridProvider.updateGridSize(4);
-                          if (mounted) {
-                            setState(() {
-                              _showGridLines = true;
-                            });
-                          }
-                          navigator.pop();
-                        },
-                        style: TextButton.styleFrom(
-                          backgroundColor: _gridSize == 4
-                              ? Colors.teal.withAlpha(20)
-                              : null,
-                        ),
-                        child: const Text('4x2'),
-                      ),
-                      TextButton(
-                        onPressed: () async {
-                          if (!mounted) return;
-                          final gridProvider = context.read<GridProvider>();
-                          final navigator = Navigator.of(context);
-                          await gridProvider.updateGridSize(8);
-                          if (mounted) {
-                            setState(() {});
-                          }
-                          navigator.pop();
-                        },
-                        style: TextButton.styleFrom(
-                          backgroundColor: _gridSize == 8
-                              ? Colors.teal.withAlpha(20)
-                              : null,
-                        ),
-                        child: const Text('8x3'),
-                      ),
-                    ],
+                  Text(
+                    'Aktuelle Grid-Größe: ${_gridSize == 2
+                        ? '2x2'
+                        : _gridSize == 4
+                        ? '4x2'
+                        : '8x3'}',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Die Grid-Größe kann nur beim Erstellen festgelegt werden.',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 16),
                   SwitchListTile(
@@ -976,19 +951,6 @@ class PictogramGridState extends State<PictogramGrid>
                 ],
               ),
               actions: [
-                TextButton(
-                  onPressed: () async {
-                    if (!mounted) return;
-                    final gridProvider = context.read<GridProvider>();
-                    await gridProvider.updateGridSize(4);
-                    if (mounted) {
-                      setState(() {
-                        _showGridLines = true;
-                      });
-                    }
-                  },
-                  child: Text(AppLocalizations.of(context)!.resetText),
-                ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child: Text(AppLocalizations.of(context)!.closeText),

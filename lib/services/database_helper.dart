@@ -350,7 +350,7 @@ class DatabaseHelper {
               where: 'id = ?',
               whereArgs: [gridId],
             );
-            int gridColumns = 4; // Default
+            int gridColumns = 4; // Default jetzt 4x2
             int gridRows = 2; // Default
             if (gridData.isNotEmpty) {
               gridColumns = gridData.first['grid_size'] as int? ?? 4;
@@ -358,6 +358,8 @@ class DatabaseHelper {
               if (gridColumns == 8) {
                 gridRows = 3;
               } else if (gridColumns == 4) {
+                gridRows = 2;
+              } else if (gridColumns == 2) {
                 gridRows = 2;
               }
             }
@@ -541,13 +543,16 @@ class DatabaseHelper {
         where: 'id = ?',
         whereArgs: [gridId],
       );
-      int gridColumns = 4;
-      int gridRows = 2;
+      int gridColumns = 4; // Default jetzt 4x2
+      int gridRows = 2; // Default
       if (gridData.isNotEmpty) {
         gridColumns = gridData.first['grid_size'] as int? ?? 4;
+        // Berechne Zeilen basierend auf verfügbaren Größen
         if (gridColumns == 8) {
           gridRows = 3;
         } else if (gridColumns == 4) {
+          gridRows = 2;
+        } else if (gridColumns == 2) {
           gridRows = 2;
         }
       }
@@ -663,8 +668,14 @@ class DatabaseHelper {
   }
 
   // Grid-Operationen (erweitert mit Profil-ID)
-  Future<int> createGrid(String name, int profileId) async {
+  Future<int> createGrid(String name, int profileId, [int gridSize = 4]) async {
     final db = await database;
+
+    if (kDebugMode) {
+      print(
+        '🔵 DatabaseHelper: createGrid aufgerufen mit name="$name", profileId=$profileId, gridSize=$gridSize',
+      );
+    }
 
     // Prüfe ob das Profil bereits 3 Grids hat
     final gridCount = await getGridCountForProfile(profileId);
@@ -672,11 +683,23 @@ class DatabaseHelper {
       throw Exception('Profil kann maximal 3 Grids haben');
     }
 
-    return await db.insert('grids', {
+    final insertData = {
       'name': name,
       'profile_id': profileId,
-      'grid_size': 4, // Standard-Grid-Größe
-    });
+      'grid_size': gridSize, // Verwende die übergebene Grid-Größe
+    };
+
+    if (kDebugMode) {
+      print('🔵 DatabaseHelper: Insert-Daten: $insertData');
+    }
+
+    final id = await db.insert('grids', insertData);
+
+    if (kDebugMode) {
+      print('🔵 DatabaseHelper: Grid mit ID $id erstellt');
+    }
+
+    return id;
   }
 
   Future<List<Map<String, dynamic>>> getAllGrids() async {
@@ -920,7 +943,7 @@ class DatabaseHelper {
         'DatabaseHelper: Grid $gridId nicht gefunden, verwende Standard-Size 4',
       );
     }
-    return 4; // Standard-Wert
+    return 4; // Standard-Wert jetzt 4x2
   }
 
   // Neue Methode für erweiterte Positionssuche
