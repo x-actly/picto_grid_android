@@ -530,10 +530,10 @@ class _LocalPictogramSearchWidgetState
                 )
               : GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    childAspectRatio: 1.0,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
+                    crossAxisCount: 7,
+                    childAspectRatio: 0.9,
+                    crossAxisSpacing: 6,
+                    mainAxisSpacing: 6,
                   ),
                   itemCount: _searchResults.length,
                   itemBuilder: (context, index) {
@@ -546,7 +546,7 @@ class _LocalPictogramSearchWidgetState
                           children: [
                             Expanded(
                               child: Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding: const EdgeInsets.all(4.0),
                                 child: pictogram.imageUrl.startsWith('assets/')
                                     ? Image.asset(
                                         pictogram.imageUrl,
@@ -585,12 +585,12 @@ class _LocalPictogramSearchWidgetState
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.all(4.0),
+                              padding: const EdgeInsets.all(2.0),
                               child: Text(
                                 pictogram.keyword,
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 12),
-                                maxLines: 2,
+                                style: const TextStyle(fontSize: 10),
+                                maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
