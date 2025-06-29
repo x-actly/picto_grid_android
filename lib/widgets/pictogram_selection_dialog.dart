@@ -431,6 +431,344 @@ class _LocalPictogramSearchWidgetState
   final LocalPictogramService _localService = LocalPictogramService.instance;
   List<Pictogram> _searchResults = [];
   bool _isLoading = false;
+  String? _selectedCategory;
+
+  // Definiere Kategorien mit spezifischen Piktogrammen (alle über IDs)
+  final Map<String, Map<String, dynamic>> _categories = {
+    'Essen': {
+      'icon_id':
+          4610, // ID des Piktogramms das als Kategorie-Icon verwendet wird
+      'item_ids': [
+        // Hier fügst du die IDs der Essen-Piktogramme ein
+        4610, // Essen (Kategorie-Icon)
+        2527,
+        2494,
+        25363,
+        2502,
+        2461,
+        4653,
+        28343,
+        35209,
+        2334,
+        2427,
+        2573,
+        // Weitere IDs werden hier hinzugefügt sobald du sie aus dem Browser hast
+      ],
+    },
+    'Trinken': {
+      'icon_id':
+          2248, // ID des Piktogramms das als Kategorie-Icon verwendet wird
+      'item_ids': [
+        // Hier fügst du die IDs der Essen-Piktogramme ein
+        2248, // Trinken (Kategorie-Icon)
+        2445,
+        8503,
+        11461,
+        6551,
+        4940,
+        2338,
+        2296,
+        // Weitere IDs werden hier hinzugefügt sobald du sie aus dem Browser hast
+      ],
+    },
+    'Kommunikation': {
+      'icon_id':
+          11476, // ID des Piktogramms das als Kategorie-Icon verwendet wird
+      'item_ids': [
+        6632, // Kommunikation (Kategorie-Icon)
+        6625,
+        5584,
+        5526,
+        34641,
+        34639,
+        37826,
+        37825,
+        11476,
+        13630,
+        37182,
+        38481,
+        30620,
+        35533,
+        35545,
+        35539,
+        35529,
+        31744,
+        35537,
+        38930,
+        35541,
+        30389,
+        26986,
+        // Weitere IDs werden hier hinzugefügt sobald du sie aus dem Browser hast
+      ],
+    },
+    'Menschen': {
+      'icon_id':
+          24525, // ID des Piktogramms das als Kategorie-Icon verwendet wird
+      'item_ids': [
+        24525, // Menschen (Kategorie-Icon)
+        2617,
+        6480,
+        7028,
+        2458,
+        2497,
+        7030,
+        2457,
+        2422,
+        2423,
+        2608,
+        7185,
+        23710,
+        23718,
+        // Weitere IDs werden hier hinzugefügt sobald du sie aus dem Browser hast
+      ],
+    },
+    'Verben': {
+      'icon_id':
+          7297, // ID des Piktogramms das als Kategorie-Icon verwendet wird
+      'item_ids': [
+        2432, // Verben (Kategorie-Icon)
+        6456,
+        6061,
+        6572,
+        6564,
+        25275,
+        32751,
+        6517,
+        7271,
+        28431,
+        2781,
+        6479,
+        6537,
+        28665,
+        27126,
+        39445,
+        32669,
+        31748,
+        38796,
+        7147,
+        13354,
+        34492,
+        16475,
+        16697,
+        28613,
+        // Weitere IDs werden hier hinzugefügt sobald du sie aus dem Browser hast
+      ],
+    },
+    'Körper': {
+      'icon_id':
+          6473, // ID des Piktogramms das als Kategorie-Icon verwendet wird
+      'item_ids': [
+        2367, // Körper (Kategorie-Icon)
+        2673,
+        2851,
+        2887,
+        2871,
+        6573,
+        3011,
+        8319,
+        2663,
+        2737,
+        2953,
+        2504,
+        2853,
+        3000,
+        2748,
+        2977,
+        2669,
+        2707,
+        2904,
+        2928,
+        3298,
+        2786,
+        8666,
+        26030,
+        3362,
+        3410,
+        2810,
+        3405,
+        25327,
+      ],
+    },
+    'Kleidung': {
+      'icon_id':
+          32570, // ID des Piktogramms das als Kategorie-Icon verwendet wird
+      'item_ids': [
+        32570, // Kleidung (Kategorie-Icon)
+        2309,
+        2280,
+        13640,
+        2391,
+        2613,
+        2565,
+        2436,
+        4872,
+        2303,
+        2289,
+        2576,
+        2298,
+        2522,
+        2332,
+        2775,
+        2287,
+        2622,
+        2621,
+        2270,
+        2601,
+        2411,
+        8122,
+        25804,
+        4927,
+        2415,
+        2290,
+        2336,
+        6900,
+        2515,
+        6937,
+        2668,
+        2723,
+        2549,
+        22017,
+      ],
+    },
+    'Dinge': {
+      'icon_id':
+          11318, // ID des Piktogramms das als Kategorie-Icon verwendet wird
+      'item_ids': [
+        4630, // Dinge (Kategorie-Icon)
+        4698,
+        3141,
+        8511,
+        25467,
+        2500,
+        3329,
+        2549,
+        27616,
+      ],
+    },
+    'Wetter': {
+      'icon_id':
+          24721, // ID des Piktogramms das als Kategorie-Icon verwendet wird
+      'item_ids': [
+        24721, // Wetter (Kategorie-Icon)
+        5553,
+        5604,
+        5531,
+        5493,
+        7252,
+        34383,
+        34896,
+        7148,
+        7172,
+        35105,
+        34892,
+        2986,
+        35049,
+        35591,
+        7259,
+        35107,
+      ],
+    },
+    'Orte': {
+      'icon_id':
+          6964, // ID des Piktogramms das als Kategorie-Icon verwendet wird
+      'item_ids': [
+        6964, // Orte (Kategorie-Icon)
+        3082,
+        2859,
+        2823,
+        3116,
+        2299,
+        9116,
+        3142,
+        6587,
+        30387,
+        11361,
+        11344,
+        27493,
+        29905,
+        6031,
+        15730,
+        2909,
+        2666,
+        2826,
+        3145,
+        2974,
+      ],
+    },
+    'Beschreibung': {
+      'icon_id':
+          11713, // ID des Piktogramms das als Kategorie-Icon verwendet wird
+      'item_ids': [
+        4658, // Beschreibung (Kategorie-Icon)
+        4716,
+        26172,
+        25253,
+        26459,
+        25437,
+        4637,
+        4578,
+        4685,
+        4737,
+        4636,
+        4739,
+        25121,
+        25044,
+        25048,
+        25133,
+        26114,
+        26090,
+        26753,
+        26993,
+        5306,
+        4676,
+        32388,
+        11355,
+      ],
+    },
+  };
+
+  // Cache für Kategorie-Icons
+  final Map<String, Pictogram?> _categoryIcons = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCategoryIcons();
+  }
+
+  Future<void> _loadCategoryIcons() async {
+    for (String category in _categories.keys) {
+      final categoryData = _categories[category]!;
+
+      // Prüfe ob icon_id definiert ist
+      if (categoryData.containsKey('icon_id')) {
+        final iconId = categoryData['icon_id'] as int;
+        final results = await _localService.getPictogramById(iconId);
+        if (results != null) {
+          _categoryIcons[category] = results;
+        } else {
+          // Fallback falls ID nicht gefunden wird
+          _categoryIcons[category] = Pictogram(
+            id: iconId,
+            keyword: category,
+            imageUrl: 'assets/pictograms/${category}_$iconId.png',
+            description: '$category Kategorie',
+            category: category,
+          );
+        }
+      } else if (categoryData.containsKey('icon_keyword')) {
+        // Fallback für alte icon_keyword Struktur
+        final iconKeyword = categoryData['icon_keyword'] as String;
+        final results = await _localService.searchPictograms(iconKeyword);
+        if (results.isNotEmpty) {
+          _categoryIcons[category] = results.first;
+        }
+      }
+    }
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   @override
   void dispose() {
@@ -442,12 +780,14 @@ class _LocalPictogramSearchWidgetState
     if (query.isEmpty) {
       setState(() {
         _searchResults = [];
+        _selectedCategory = null;
       });
       return;
     }
 
     setState(() {
       _isLoading = true;
+      _selectedCategory = null;
     });
 
     try {
@@ -464,15 +804,155 @@ class _LocalPictogramSearchWidgetState
     }
   }
 
+  Future<void> _loadCategoryPictograms(String category) async {
+    final categoryData = _categories[category];
+    if (categoryData == null) return;
+
+    final itemIds = categoryData['item_ids'] as List<int>? ?? [];
+    if (itemIds.isEmpty) return;
+
+    setState(() {
+      _isLoading = true;
+      _selectedCategory = category;
+    });
+
+    try {
+      List<Pictogram> categoryResults = [];
+
+      // Lade jedes Piktogramm über seine ID
+      for (int id in itemIds) {
+        final pictogram = await _localService.getPictogramById(id);
+        if (pictogram != null) {
+          categoryResults.add(pictogram);
+        }
+      }
+
+      setState(() {
+        _searchResults = categoryResults;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _searchResults = [];
+        _isLoading = false;
+      });
+    }
+  }
+
+  Widget _buildCategoriesView() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            'Kategorien',
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          ),
+        ),
+        Expanded(
+          child: GridView.builder(
+            padding: const EdgeInsets.all(16),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 7,
+              childAspectRatio: 0.9,
+              crossAxisSpacing: 6,
+              mainAxisSpacing: 6,
+            ),
+            itemCount: _categories.length,
+            itemBuilder: (context, index) {
+              final category = _categories.keys.elementAt(index);
+              final categoryIcon = _categoryIcons[category];
+
+              return Card(
+                elevation: 2,
+                child: InkWell(
+                  onTap: () => _loadCategoryPictograms(category),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: Column(
+                      children: [
+                        // Piktogramm als Kategorie-Icon
+                        Expanded(
+                          flex: 3,
+                          child: categoryIcon != null
+                              ? Image.asset(
+                                  categoryIcon.imageUrl,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Icon(
+                                      _getCategoryIcon(category),
+                                      size: 32,
+                                      color: Theme.of(context).primaryColor,
+                                    );
+                                  },
+                                )
+                              : Icon(
+                                  _getCategoryIcon(category),
+                                  size: 32,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                        ),
+                        const SizedBox(height: 2),
+                        // Kategorie-Name
+                        Text(
+                          category,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  IconData _getCategoryIcon(String category) {
+    switch (category) {
+      case 'Essen':
+        return Icons.restaurant;
+      case 'Gefühle':
+        return Icons.sentiment_satisfied;
+      default:
+        return Icons.category;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Row(
           children: [
+            if (_selectedCategory != null)
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    _selectedCategory = null;
+                    _searchResults = [];
+                    _searchController.clear();
+                  });
+                },
+                icon: const Icon(Icons.arrow_back),
+              ),
             Expanded(
               child: Text(
-                AppLocalizations.of(context)!.localPictogramSearchTitle,
+                _selectedCategory != null
+                    ? 'Kategorie: $_selectedCategory'
+                    : AppLocalizations.of(context)!.localPictogramSearchTitle,
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
             ),
@@ -496,18 +976,24 @@ class _LocalPictogramSearchWidgetState
                       _searchController.clear();
                       setState(() {
                         _searchResults = [];
+                        _selectedCategory = null;
                       });
                     },
                   )
                 : null,
           ),
           onChanged: _searchPictograms,
-          autofocus: true,
+          autofocus:
+              false, // Nicht mehr autofocus, damit Kategorien sichtbar bleiben
         ),
         const SizedBox(height: 16),
         Expanded(
           child: _isLoading
               ? const Center(child: CircularProgressIndicator())
+              : _searchResults.isEmpty &&
+                    _searchController.text.isEmpty &&
+                    _selectedCategory == null
+              ? _buildCategoriesView()
               : _searchResults.isEmpty
               ? Center(
                   child: Column(
@@ -516,13 +1002,7 @@ class _LocalPictogramSearchWidgetState
                       Icon(Icons.search, size: 64, color: Colors.grey[400]),
                       const SizedBox(height: 16),
                       Text(
-                        _searchController.text.isEmpty
-                            ? AppLocalizations.of(
-                                context,
-                              )!.searchFieldPlaceholder
-                            : AppLocalizations.of(
-                                context,
-                              )!.searchFieldNoResults,
+                        AppLocalizations.of(context)!.searchFieldNoResults,
                         style: TextStyle(color: Colors.grey[600]),
                       ),
                     ],
@@ -530,10 +1010,10 @@ class _LocalPictogramSearchWidgetState
                 )
               : GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    childAspectRatio: 1.0,
-                    crossAxisSpacing: 8,
-                    mainAxisSpacing: 8,
+                    crossAxisCount: 7,
+                    childAspectRatio: 0.9,
+                    crossAxisSpacing: 6,
+                    mainAxisSpacing: 6,
                   ),
                   itemCount: _searchResults.length,
                   itemBuilder: (context, index) {
@@ -546,7 +1026,7 @@ class _LocalPictogramSearchWidgetState
                           children: [
                             Expanded(
                               child: Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding: const EdgeInsets.all(4.0),
                                 child: pictogram.imageUrl.startsWith('assets/')
                                     ? Image.asset(
                                         pictogram.imageUrl,
@@ -585,12 +1065,12 @@ class _LocalPictogramSearchWidgetState
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.all(4.0),
+                              padding: const EdgeInsets.all(2.0),
                               child: Text(
                                 pictogram.keyword,
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 12),
-                                maxLines: 2,
+                                style: const TextStyle(fontSize: 10),
+                                maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),

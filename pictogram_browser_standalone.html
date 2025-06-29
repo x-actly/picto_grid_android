@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piktogramm Browser - Standalone</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .file-input-container {
+            margin-bottom: 20px;
+            text-align: center;
+            padding: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            border: 2px dashed #6c757d;
+        }
+        
+        .file-input {
+            padding: 10px;
+            font-size: 16px;
+            margin: 10px;
+        }
+        
+        .search-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .search-input {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 300px;
+            margin-right: 10px;
+        }
+        
+        .search-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .stats {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #666;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .pictogram-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        
+        .pictogram-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .pictogram-card.selected {
+            border: 3px solid #007bff;
+            background-color: #f0f8ff;
+        }
+        
+        .pictogram-image {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+        
+        .pictogram-id {
+            font-weight: bold;
+            color: #007bff;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .pictogram-keyword {
+            font-size: 12px;
+            color: #333;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .pictogram-category {
+            font-size: 10px;
+            color: #666;
+            background-color: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+        
+        .pictogram-filename {
+            font-size: 9px;
+            color: #999;
+            margin-top: 5px;
+            word-break: break-all;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #666;
+        }
+        
+        .error {
+            color: red;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .selected-info {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            max-width: 300px;
+            display: none;
+        }
+        
+        .copy-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-left: 5px;
+        }
+        
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .category-section {
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .category-header {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: white;
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s;
+        }
+        
+        .category-header:hover {
+            background: #f8f9fa;
+        }
+        
+        .category-title {
+            font-size: 20px;
+            color: #333;
+            margin: 0;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+        
+        .category-title::before {
+            content: '▶';
+            margin-right: 10px;
+            font-size: 12px;
+            transition: transform 0.2s;
+        }
+        
+        .category-section.expanded .category-title::before {
+            transform: rotate(90deg);
+        }
+        
+        .category-count {
+            background: #007bff;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        
+        .category-content {
+            display: none;
+            padding: 20px;
+            border-top: 1px solid #eee;
+            background: #f8f9fa;
+        }
+        
+        .category-section.expanded .category-content {
+            display: block;
+        }
+        
+        .category-controls {
+            text-align: center;
+            margin: 20px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .category-controls button {
+            padding: 8px 16px;
+            margin: 0 5px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.2s;
+        }
+        
+        .category-controls button:hover {
+            background-color: #0056b3;
+        }
+        
+        .category-section.expanded .category-header {
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .view-toggle {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .view-toggle button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #e9ecef;
+        }
+        
+        .view-toggle button.active {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 Piktogramm Browser - Standalone</h1>
+        <p>Durchsuche alle verfügbaren Piktogramme und ihre Datenbank-IDs</p>
+    </div>
+    
+    <div class="instructions" id="instructions">
+        <h3>📋 Anleitung:</h3>
+        <ol>
+            <li>Klicke auf "Datei auswählen" und wähle die <strong>pictograms.json</strong> Datei aus</li>
+            <li>Die Datei findest du unter: <code>C:\github_repo\picto_grid_android\assets\data\pictograms.json</code></li>
+            <li>Nach dem Laden kannst du alle Piktogramme durchsuchen</li>
+        </ol>
+    </div>
+    
+    <div class="file-input-container" id="fileInputContainer">
+        <h3>📁 JSON-Datei laden</h3>
+        <p>Wähle die pictograms.json Datei aus:</p>
+        <input type="file" id="fileInput" class="file-input" accept=".json" />
+        <button onclick="loadSampleData()" class="search-button" style="background-color: #6c757d;">Beispieldaten laden</button>
+    </div>
+    
+            <div class="search-container hidden" id="searchContainer">
+            <input type="text" class="search-input" id="searchInput" placeholder="Nach Keyword, ID oder Kategorie suchen...">
+            <button class="search-button" onclick="filterPictograms()">Suchen</button>
+            <button class="search-button" onclick="clearSearch()" style="background-color: #6c757d;">Zurücksetzen</button>
+            <br><br>
+            <label>
+                <input type="checkbox" id="exactSearch"> <strong>Exakte Suche</strong> (z.B. "Ei" findet nur "Ei", nicht "Eichhörnchen")
+            </label>
+        </div>
+    
+    <div class="view-toggle hidden" id="viewToggle">
+        <button onclick="toggleView('grid')" id="gridViewBtn" class="active">Gitteransicht</button>
+        <button onclick="toggleView('category')" id="categoryViewBtn">Nach Kategorien</button>
+    </div>
+    
+    <div class="stats hidden" id="stats">Lade Piktogramme...</div>
+    
+    <div class="grid-container" id="gridContainer">
+        <div class="loading">Wähle eine JSON-Datei aus, um zu beginnen...</div>
+    </div>
+    
+    <div class="selected-info" id="selectedInfo">
+        <h4>Ausgewähltes Piktogramm:</h4>
+        <div id="selectedDetails"></div>
+        <button class="copy-button" onclick="copyToClipboard()">ID kopieren</button>
+    </div>
+
+    <script>
+        let allPictograms = [];
+        let filteredPictograms = [];
+        let selectedPictogram = null;
+        let imageBasePath = '';
+        let currentView = 'grid';
+
+        // File Input Event Listener
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'application/json') {
+                loadJSONFile(file);
+            } else {
+                alert('Bitte wähle eine gültige JSON-Datei aus.');
+            }
+        });
+
+        // Lade JSON-Datei über FileReader
+        function loadJSONFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    allPictograms = JSON.parse(e.target.result);
+                    filteredPictograms = [...allPictograms];
+                    
+                    // Bestimme Bildpfad basierend auf Dateisystem
+                    const filePath = file.webkitRelativePath || file.name;
+                    if (filePath.includes('assets/data/')) {
+                        imageBasePath = filePath.replace('assets/data/pictograms.json', 'assets/pictograms/');
+                    } else {
+                        // Standardpfad für lokale Datei
+                        imageBasePath = 'assets/pictograms/';
+                    }
+                    
+                    showMainInterface();
+                    updateStats();
+                    renderPictograms();
+                    
+                } catch (error) {
+                    console.error('Fehler beim Parsen der JSON-Datei:', error);
+                    alert('Fehler beim Laden der JSON-Datei: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Beispieldaten für Demo
+        function loadSampleData() {
+            allPictograms = [
+                {
+                    "id": 4610,
+                    "keywords": ["Essen", "Nahrung", "Mahlzeit"],
+                    "category": "Essen",
+                    "filename": "Essen_4610.png"
+                },
+                {
+                    "id": 11476,
+                    "keywords": ["Gefühle", "Emotionen"],
+                    "category": "Allgemein",
+                    "filename": "Gefühle_11476.png"
+                },
+                {
+                    "id": 2248,
+                    "keywords": ["Wasser", "trinken", "Flüssigkeit"],
+                    "category": "Essen",
+                    "filename": "Wasser_2248.png"
+                },
+                {
+                    "id": 2245,
+                    "keywords": ["gelangweilt"],
+                    "category": "Allgemein",
+                    "filename": "gelangweilt_2245.png"
+                }
+            ];
+            filteredPictograms = [...allPictograms];
+            imageBasePath = 'assets/pictograms/';
+            
+            showMainInterface();
+            updateStats();
+            renderPictograms();
+        }
+
+        function showMainInterface() {
+            document.getElementById('instructions').classList.add('hidden');
+            document.getElementById('fileInputContainer').classList.add('hidden');
+            document.getElementById('searchContainer').classList.remove('hidden');
+            document.getElementById('stats').classList.remove('hidden');
+            document.getElementById('viewToggle').classList.remove('hidden');
+            
+            // Wenn die Kategorieansicht aktiv ist, alle Kategorien initial einklappen
+            if (currentView === 'category') {
+                setTimeout(collapseAllCategories, 0);
+            }
+        }
+
+        function updateStats() {
+            const stats = document.getElementById('stats');
+            stats.innerHTML = `
+                <strong>${filteredPictograms.length}</strong> von <strong>${allPictograms.length}</strong> Piktogrammen angezeigt
+            `;
+        }
+
+        function toggleView(view) {
+            currentView = view;
+            document.getElementById('gridViewBtn').classList.toggle('active', view === 'grid');
+            document.getElementById('categoryViewBtn').classList.toggle('active', view === 'category');
+            renderPictograms();
+        }
+
+        function groupByCategory(pictograms) {
+            const categories = {};
+            const categoryKeywords = {
+                'Essen & Trinken': ['essen', 'trinken', 'nahrung', 'lebensmittel', 'getränk', 'obst', 'gemüse', 'mahlzeit'],
+                'Gefühle & Emotionen': ['gefühl', 'emotion', 'stimmung', 'fühlen', 'traurig', 'glücklich', 'wütend', 'müde'],
+                'Menschen & Körper': ['mensch', 'körper', 'person', 'familie', 'mann', 'frau', 'kind', 'baby'],
+                'Aktivitäten & Sport': ['sport', 'spielen', 'laufen', 'schwimmen', 'tanzen', 'springen', 'training'],
+                'Zeit & Kalender': ['uhr', 'zeit', 'tag', 'monat', 'jahr', 'datum', 'kalender', 'morgen', 'mittag', 'abend'],
+                'Orte & Gebäude': ['ort', 'gebäude', 'haus', 'schule', 'krankenhaus', 'stadt', 'park', 'garten'],
+                'Natur & Wetter': ['natur', 'wetter', 'pflanze', 'tier', 'baum', 'blume', 'regen', 'sonne', 'wind'],
+                'Verkehr & Transport': ['auto', 'bus', 'bahn', 'zug', 'fahrrad', 'flugzeug', 'schiff', 'transport'],
+                'Kleidung & Accessoires': ['kleidung', 'hose', 'shirt', 'schuhe', 'jacke', 'mütze', 'brille'],
+                'Farben & Formen': ['farbe', 'form', 'rot', 'blau', 'grün', 'gelb', 'kreis', 'quadrat'],
+                'Zahlen & Mathematik': ['zahl', 'rechnen', 'plus', 'minus', 'mal', 'durch', 'mathematik'],
+                'Kommunikation & Sprache': ['sprechen', 'schreiben', 'lesen', 'hören', 'zeichen', 'buchstabe', 'wort'],
+                'Medizin & Gesundheit': ['medizin', 'arzt', 'gesund', 'krank', 'pflege', 'therapie', 'behandlung'],
+                'Haushalt & Wohnen': ['haushalt', 'möbel', 'küche', 'bad', 'wohnen', 'putzen', 'waschen'],
+                'Freizeit & Hobby': ['hobby', 'freizeit', 'musik', 'kunst', 'basteln', 'malen', 'sammeln'],
+                'Schule & Bildung': ['schule', 'lernen', 'unterricht', 'lehrer', 'schüler', 'bildung', 'hausaufgaben'],
+                'Feste & Feiern': ['fest', 'feier', 'geburtstag', 'weihnachten', 'ostern', 'party', 'geschenk'],
+                'Tiere': ['tier', 'hund', 'katze', 'vogel', 'fisch', 'pferd', 'kuh', 'schwein'],
+                'Werkzeuge & Geräte': ['werkzeug', 'gerät', 'hammer', 'schere', 'computer', 'telefon'],
+                'Verben & Aktionen': ['gehen', 'kommen', 'machen', 'arbeiten', 'helfen', 'öffnen', 'schließen']
+            };
+
+            // Hilfsfunktion zum Überprüfen, ob ein Piktogramm in eine Kategorie passt
+            function matchesCategory(pictogram, keywords) {
+                const pictoKeywords = Array.isArray(pictogram.keywords) 
+                    ? pictogram.keywords.join(' ').toLowerCase()
+                    : '';
+                const filename = pictogram.filename.toLowerCase();
+                
+                return keywords.some(keyword => 
+                    pictoKeywords.includes(keyword) || 
+                    filename.includes(keyword)
+                );
+            }
+
+            // Zuerst die Piktogramme mit vorhandenen Kategorien einordnen
+            pictograms.forEach(pictogram => {
+                if (pictogram.category && pictogram.category !== 'Allgemein') {
+                    const category = pictogram.category;
+                    if (!categories[category]) {
+                        categories[category] = [];
+                    }
+                    categories[category].push(pictogram);
+                    return;
+                }
+
+                // Versuche eine passende Kategorie zu finden
+                let categorized = false;
+                for (const [category, keywords] of Object.entries(categoryKeywords)) {
+                    if (matchesCategory(pictogram, keywords)) {
+                        if (!categories[category]) {
+                            categories[category] = [];
+                        }
+                        categories[category].push(pictogram);
+                        categorized = true;
+                        break;
+                    }
+                }
+
+                // Wenn keine passende Kategorie gefunden wurde
+                if (!categorized) {
+                    const category = 'Sonstige';
+                    if (!categories[category]) {
+                        categories[category] = [];
+                    }
+                    categories[category].push(pictogram);
+                }
+            });
+
+            return categories;
+        }
+
+        function renderPictograms() {
+            const container = document.getElementById('gridContainer');
+            
+            if (filteredPictograms.length === 0) {
+                container.innerHTML = '<div class="error">Keine Piktogramme gefunden.</div>';
+                return;
+            }
+            
+            if (currentView === 'grid') {
+                renderGridView(container);
+            } else {
+                renderCategoryView(container);
+            }
+        }
+
+        function renderGridView(container) {
+            const html = filteredPictograms.map(pictogram => createPictogramCard(pictogram)).join('');
+            container.innerHTML = html;
+        }
+
+        function renderCategoryView(container) {
+            const categories = groupByCategory(filteredPictograms);
+            
+            // Steuerelemente für alle Kategorien
+            const controlsHtml = `
+                <div class="category-controls">
+                    <button onclick="expandAllCategories()">Alle Kategorien ausklappen</button>
+                    <button onclick="collapseAllCategories()">Alle Kategorien einklappen</button>
+                </div>
+            `;
+            
+            const categoriesHtml = Object.entries(categories)
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(([category, pictograms]) => `
+                    <div class="category-section" data-category="${category}">
+                        <div class="category-header" onclick="toggleCategory('${category}')">
+                            <h2 class="category-title">${category}</h2>
+                            <span class="category-count">${pictograms.length}</span>
+                        </div>
+                        <div class="category-content">
+                            <div class="grid-container">
+                                ${pictograms.map(pictogram => createPictogramCard(pictogram)).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            
+            container.innerHTML = controlsHtml + categoriesHtml;
+        }
+
+        function createPictogramCard(pictogram) {
+            const keywords = Array.isArray(pictogram.keywords) ? pictogram.keywords.join(', ') : '';
+            const imagePath = imageBasePath + pictogram.filename;
+            
+            return `
+                <div class="pictogram-card" onclick="selectPictogram(${pictogram.id})" data-id="${pictogram.id}">
+                    <img class="pictogram-image" 
+                         src="${imagePath}" 
+                         alt="${keywords}"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                         loading="lazy">
+                    <div style="display:none; color: #999; font-size: 12px;">🖼️ Bild nicht verfügbar</div>
+                    
+                    <div class="pictogram-id">ID: ${pictogram.id}</div>
+                    <div class="pictogram-keyword">${keywords}</div>
+                    <div class="pictogram-category">${pictogram.category || 'Keine Kategorie'}</div>
+                    <div class="pictogram-filename">${pictogram.filename}</div>
+                </div>
+            `;
+        }
+
+        function selectPictogram(id) {
+            // Entferne vorherige Auswahl
+            document.querySelectorAll('.pictogram-card.selected').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Wähle neues Piktogramm
+            const card = document.querySelector(`[data-id="${id}"]`);
+            if (card) {
+                card.classList.add('selected');
+                selectedPictogram = allPictograms.find(p => p.id === id);
+                showSelectedInfo();
+            }
+        }
+
+        function showSelectedInfo() {
+            if (!selectedPictogram) return;
+            
+            const info = document.getElementById('selectedInfo');
+            const details = document.getElementById('selectedDetails');
+            
+            const keywords = Array.isArray(selectedPictogram.keywords) 
+                ? selectedPictogram.keywords.join(', ') 
+                : '';
+            
+            details.innerHTML = `
+                <strong>ID:</strong> ${selectedPictogram.id}<br>
+                <strong>Keywords:</strong> ${keywords}<br>
+                <strong>Kategorie:</strong> ${selectedPictogram.category || 'Keine'}<br>
+                <strong>Datei:</strong> ${selectedPictogram.filename}
+            `;
+            
+            info.style.display = 'block';
+        }
+
+        function copyToClipboard() {
+            if (selectedPictogram) {
+                navigator.clipboard.writeText(selectedPictogram.id.toString()).then(() => {
+                    alert(`ID ${selectedPictogram.id} wurde in die Zwischenablage kopiert!`);
+                });
+            }
+        }
+
+        function filterPictograms() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            const exactSearch = document.getElementById('exactSearch').checked;
+            
+            if (!searchTerm) {
+                filteredPictograms = [...allPictograms];
+            } else {
+                filteredPictograms = allPictograms.filter(pictogram => {
+                    const keywords = Array.isArray(pictogram.keywords) 
+                        ? pictogram.keywords.join(' ').toLowerCase()
+                        : '';
+                    const category = (pictogram.category || '').toLowerCase();
+                    const filename = (pictogram.filename || '').toLowerCase();
+                    const id = pictogram.id.toString();
+                    
+                    if (exactSearch) {
+                        // Exakte Suche: Suche nach ganzen Wörtern
+                        const keywordArray = Array.isArray(pictogram.keywords) 
+                            ? pictogram.keywords.map(k => k.toLowerCase())
+                            : [];
+                        
+                        return keywordArray.includes(searchTerm) ||
+                               category === searchTerm ||
+                               filename.split('_')[0].toLowerCase() === searchTerm ||
+                               id === searchTerm;
+                    } else {
+                        // Normale Suche: Enthält Suchbegriff
+                        return keywords.includes(searchTerm) ||
+                               category.includes(searchTerm) ||
+                               filename.includes(searchTerm) ||
+                               id.includes(searchTerm);
+                    }
+                });
+            }
+            
+            updateStats();
+            renderPictograms();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            filteredPictograms = [...allPictograms];
+            updateStats();
+            renderPictograms();
+        }
+
+        // Event Listener für Enter-Taste im Suchfeld
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                filterPictograms();
+            }
+        });
+
+        function toggleCategory(category) {
+            const section = document.querySelector(`.category-section[data-category="${category}"]`);
+            if (section) {
+                section.classList.toggle('expanded');
+            }
+        }
+        
+        function expandAllCategories() {
+            document.querySelectorAll('.category-section').forEach(section => {
+                section.classList.add('expanded');
+            });
+        }
+        
+        function collapseAllCategories() {
+            document.querySelectorAll('.category-section').forEach(section => {
+                section.classList.remove('expanded');
+            });
+        }
+    </script>
+</body>
+</html>
