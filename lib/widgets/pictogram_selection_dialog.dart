@@ -817,10 +817,10 @@ class _LocalPictogramSearchWidgetState
     });
 
     try {
-      List<Pictogram> categoryResults = [];
+      final List<Pictogram> categoryResults = [];
 
       // Lade jedes Piktogramm über seine ID
-      for (int id in itemIds) {
+      for (final int id in itemIds) {
         final pictogram = await _localService.getPictogramById(id);
         if (pictogram != null) {
           categoryResults.add(pictogram);
