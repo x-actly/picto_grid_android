@@ -47,7 +47,7 @@ dependencies:
   path: ^1.9.1
   flutter_launcher_icons: ^0.14.4
   image: ^4.5.4
-  dart_pre_commit: ^5.4.5
+  dart_pre_commit: ^5.4.7
 
 dev_dependencies:
   flutter_test:
