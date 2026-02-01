@@ -41,7 +41,7 @@ dependencies:
   path_provider: ^2.1.5
   provider: ^6.1.5
   reorderable_grid_view: ^2.2.8
-  flutter_tts: ^4.2.3
+  flutter_tts: ^4.2.5
   image_picker: ^1.1.2
   permission_handler: ^12.0.0+1
   path: ^1.9.1
